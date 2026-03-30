@@ -7,10 +7,6 @@ npm install next react react-dom
 npx prisma generate
 ```
 
-## Important Remarks
-
-- This code by itself does not work. It is missing the `.env` file and the `db/password.txt`. If you believe you are supposed to have access to these files, please contact one of the team members.
-
 ## Troubleshooting
 
 If something unexpectedly stops working, try the following:
