@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CHILD
+  THERAPIST
+  ADMIN
+}
+
+enum ExerciseType {
+  story
+  chat
+}
+
+enum ExerciseGroupStatus {
+  completed
+  available
+  blocked
+}
+
+// Users
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+  name     String
+  surname  String
+  role     Role   @default(CHILD)
+
+  therapist Therapist?
+  child     Child?
+}
+
+model Therapist {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id])
+
+  children  Child[]
+  feedbacks Feedback[]
+}
+
+model Child {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id])
+
+  age         Int
+  gender      String
+  ethnicity   String
+  description String?
+
+  coins Int @default(0)
+
+  avatarSkinColor String @default("#ffffff")
+  avatarHairStyle String @default("man_1")
+  avatarHairColor String @default("#ffffff")
+  avatarEyes      String @default("eyes_1")
+  avatarClothes   String @default("clothes_1")
+  avatarMouth     String @default("mouth_1")
+
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [userId])
+
+  paths         Path[]
+  attempts      ExerciseAttempt[]
+  unlockedItems CollectionItem[]
+  feedbacks     Feedback[]
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [userId])
+
+  childId String
+  child   Child  @relation(fields: [childId], references: [userId])
+}
+
+// Exercises
+model Path {
+  id String @id @default(uuid())
+
+  childId String
+  child   Child  @relation(fields: [childId], references: [userId])
+
+  exerciseGroupId String
+  exerciseGroup   ExerciseGroup @relation(fields: [exerciseGroupId], references: [id])
+
+  status   ExerciseGroupStatus
+  position Int
+
+  @@unique([childId, exerciseGroupId])
+}
+
+model ExerciseGroup {
+  id String @id @default(uuid())
+  title     String
+  topic     String
+  exercises Exercise[]
+  paths     Path[]
+}
+
+model Exercise {
+  id           String        @id @default(uuid())
+  contentJson  Json
+  position     Int
+  exerciseType ExerciseType
+
+  groupId String
+  group   ExerciseGroup @relation(fields: [groupId], references: [id])
+
+  attempts ExerciseAttempt[]
+}
+
+model ExerciseAttempt {
+  id String @id @default(uuid())
+
+  childId String
+  child   Child  @relation(fields: [childId], references: [userId])
+
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+
+  success          Boolean
+  durationSeconds  Int
+  triesTillCorrect Int?
+  textAttempt      Json?
+  
+  createdAt DateTime @default(now())
+}
+
+// Parrot book
+model CollectionItem {
+  id      String @id @default(uuid())
+  name    String
+  imageId String
+  price   Int
+
+  children Child[]
+}

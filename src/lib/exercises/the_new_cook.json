@@ -1,0 +1,41 @@
+{
+    "name": "The New Cook",
+    "topic": "Double Meaning",
+    "order": ["ex1", "ex2"],
+    "ex1": {
+        "type": "story",
+        "num_interactions": 4,
+        "interactions": [
+            {
+                "parrot_msg": "You and your friend Liam are in a restaurant.",
+                "background_img": "exercises/restaurant.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/liam.png"
+            },
+            {
+                "parrot_msg": "At the end of lunch, you ask your friend: 'What do you think of the new cook?'",
+                "background_img": "exercises/restaurant.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/liam.png"
+            },
+            {
+                "parrot_msg": "Liam answers: 'I don't know what to say, I haven't seen her yet!'",
+                "background_img": "exercises/restaurant.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/liam.png"
+            },
+            {
+                "parrot_msg": "What did Liam misunderstand?",
+                "background_img": "exercises/restaurant.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/liam.png",
+                "correct_option": 0,
+                "options": [
+                    "He thought you were asking about the physical appearance of the cook.",
+                    "He understood the question about the food's quality, but he hadn't tasted it.",
+                    "He thought you were was asking him to go into the kitchen and cook."
+                ]
+            }
+        ]
+    }
+}

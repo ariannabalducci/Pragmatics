@@ -1,0 +1,84 @@
+{
+    "name": "Throwing an Apple",
+    "topic": "Pretend Play",
+    "order": ["ex1", "ex2"],
+    "ex1": {
+        "type": "story",
+        "num_interactions": 5,
+        "interactions": [
+            {
+                "parrot_msg": "You and Clarissa are in the kitchen.",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarissa.png"
+            },
+            {
+                "parrot_msg": "Clarissa takes an apple.",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarisaa.png",
+                "object_img": "exercises/objects/apple.png"
+            },
+            {
+                "parrot_msg": "Then, she throws it to you, saying:",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_msg": "exercises/speech/baloon4.png",
+                "object_img": "exercises/objects/apple.png"
+            },
+            {
+                "parrot_msg": "Why does Clarissa say this?",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_msg": "exercises/speech/baloon4.png",
+                "object_img": "exercises/objects/apple.png"
+            },
+            {
+                "parrot_msg": "Why does Clarissa say this?",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarisaa.png",
+                "object_img": "exercises/objects/apple.png",
+                "correct_option": 2,
+                "options": [
+                    "Because she thinks the apple is actually a ball.",
+                    "Because she wants to tell a lie to you.",
+                    "Because she is playing and pretending the apple is a ball."
+                ]
+            }
+        ]
+    },
+    "ex2": {
+        "type": "chat",
+        "num_interactions": 4,
+        "interactions": [
+            {
+                "parrot_msg": "You and Clarissa were in the kitchen.",
+                "background_img": "exercises/backgrounds/kitchen-blur.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarissa.png"
+            },
+            {
+                "parrot_msg": "Then, she throws an apple at you, saying:",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_msg": "exercises/speech/baloon4.png",
+                "object_img": "exercises/objects/apple.png"
+            },
+            {
+                "parrot_msg": "Can you think of another way Clarissa might have said this?",
+                "background_img": "exercises/backgrounds/kitchen.svg",
+                "character1_img": "exercises/characters/alex.png",
+                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_msg": "exercises/speech/baloon4.png",
+                "object_img": "exercises/objects/apple.png"
+            },
+            {
+                "parrot_msg": "Can you think of another way Clarissa might have said this?"
+            }
+        ]
+    }
+}

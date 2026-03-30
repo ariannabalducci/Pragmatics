@@ -1,0 +1,37 @@
+// === Attempts ===
+
+model Attempt {
+  id            String   @id @default(uuid())
+  started_at    DateTime @default(now())
+  finished_at   DateTime // Added to calculate duration
+  duration      Int?     // Time in seconds, derived from timestamps
+
+  // Link to Student (* to 1)
+  studentId     String
+  student       Student  @relation(fields: [studentId], references: [id])
+
+  // Link to Exercise (* to 1)
+  exerciseId    String
+  exercise      Exercise @relation(fields: [exerciseId], references: [id])
+
+  // --- ANSWER STORAGE ---
+  // The best way to store answers for varying exercise types (choice, text, drag-and-drop, etc.)
+  // is often a flexible JSON column. This avoids creating many different subclass tables.
+  
+  // Stores the structured response/answer provided by the student.
+  answer_content Json 
+
+  // Additional fields for assessment/status
+  status        AttemptStatus // e.g., 'completed', 'in_progress', 'missed'
+  score         Float? // e.g., for multiple-choice, stores the percentage correct
+  
+  // Composite unique constraint ensures a student can't attempt the same exercise twice (if desired)
+  // @@unique([studentId, exerciseId]) 
+}
+
+enum AttemptStatus {
+  completed
+  in_progress
+  failed
+  // Add other statuses
+}

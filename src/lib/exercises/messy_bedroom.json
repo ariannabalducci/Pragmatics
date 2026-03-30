@@ -1,0 +1,44 @@
+{
+    "name": "Messy Bedroom",
+    "topic": "Sarcasm",
+    "order": ["ex1", "ex2"],
+    "ex1": {
+        "type": "story",
+        "num_interactions": 4,
+        "interactions": [
+            {
+                "parrot_msg": "Your friend's bedroom is a complete disaster. Toys are thrown all over the floor.",
+                "background_img": "exercises/messy_room.svg",
+                "character1_img": "exercises/characters/monkey.png",
+                "object_img": "exercises/objects/toys.png"
+            },
+            {
+                "parrot_msg": "Your friend's dad walks into the room and trips over a toy block.",
+                "background_img": "exercises/messy_room.svg",
+                "character1_img": "exercises/characters/monkey.png",
+                "character2_img": "exercises/characters/dad.png",
+                "object_img": "exercises/objects/toys.png"
+            },
+            {
+                "parrot_msg": "The dad looks around and says: 'I see you worked really hard cleaning your room today!'",
+                "background_img": "exercises/messy_room.svg",
+                "character1_img": "exercises/characters/monkey.png",
+                "character2_img": "exercises/characters/dad.png",
+                "object_img": "exercises/objects/toys.png"
+            },
+            {
+                "parrot_msg": "Why did the dad say this?",
+                "background_img": "exercises/messy_room.svg",
+                "character1_img": "exercises/characters/monkey.png",
+                "character2_img": "exercises/characters/dad.png",
+                "object_img": "exercises/objects/toys.png",
+                "correct_option": 2,
+                "options": [
+                    "He needs glasses because he can't see the mess on the floor.",
+                    "He is proud that his son found a new way to organize his toys.",
+                    "He is using irony to point out that the room is incredibly messy."
+                ]
+            }
+        ]
+    }
+}
