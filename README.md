@@ -1,6 +1,9 @@
 # Praggymatics
 
 ## Initial Setup
+- Requirements:
+    - Docker
+    
 - Run: 
 ```
 docker run --name praggymatics-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=praggymatics -p 5432:5432 -d postgres
