@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import LogoutButton from "@/components/ui/LogoutButton";
 import Image from "next/image";
 import { useState, useEffect, useRef } from 'react';
 import StoryWindow from "@/components/ui/StoryWindow";
@@ -21,7 +22,7 @@ const StoryPage = () => {
     const [mistakes, setMistakes] = useState(0);
 
     const [currentInteractionIndex, setCurrentInteractionIndex] = useState(0);
-    const [currentInteraction, setCurrentInteraction] = useState({});
+    const [currentInteraction, setCurrentInteraction] = useState<any>({});
     
     const [quizStatus, setQuizStatus] = useState<string | null>(null);
 
@@ -139,11 +140,14 @@ const StoryPage = () => {
         
     return (
         <main className="bg-white grid grid-rows-[min-content_1fr] grid-cols-[1fr_2fr] gap-1 w-screen h-screen pb-10 overflow-hidden">
-            <a href="/path" className="col-span-2 pl-5 pt-5">
-                <Button variant="back" size="icon-sm" title="Back">
-                    <ArrowLeft className="size-6" />
-                </Button>
-            </a>
+            <div className="col-span-2 flex items-center justify-between px-5 pt-5">
+                <a href="/path">
+                    <Button variant="back" size="icon-sm" title="Back">
+                        <ArrowLeft className="size-6" />
+                    </Button>
+                </a>
+                <LogoutButton />
+            </div>
 
             <div className="relative flex flex-col gap-1 row-start-2 col-start-1 items-center">
                 <div className="absolute -left-40 top-0 z-10 h-full w-150 z-0 pointer-events-none">

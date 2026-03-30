@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Path, {LevelNode} from "@/components/ui/Path";
 import CoinCounter from "@/components/ui/CoinCounter";
+import LogoutButton from "@/components/ui/LogoutButton";
 import CollectionSystem, {CollectionItem} from "@/components/ui/CollectionSystem";
 import ParrotPopUp from "@/components/ui/ParrotPopUp";
 
@@ -144,6 +145,10 @@ const PathPage = () => {
 
     return (
         <main className="relative w-full h-screen overflow-hidden">
+
+          <div className="absolute top-4 left-4 z-20">
+            <LogoutButton />
+          </div>
 
           <CoinCounter amount={coins} />
 

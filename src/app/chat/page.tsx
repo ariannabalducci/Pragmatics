@@ -1,11 +1,12 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import LogoutButton from "@/components/ui/LogoutButton";
 import Image from "next/image";
 import { useState, useEffect } from 'react';
 import ChatInput from "@/components/ui/ChatInput";
 import MessageWindow from "@/components/ui/MessageWindow";
-import { ChatHistory, Message, MessageRole } from "@/types";
+import { ChatHistory, Message, MessageRole } from "../types";
 import { ArrowLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import ChatWindow from "@/components/ui/ChatWindow";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -140,7 +141,7 @@ const ChatPage = () => {
                 parts: [{ text: aiText }],
             };
 
-            setHistory(prev => [...prev, aiMessage]);
+            setHistory((prev: ChatHistory) => [...prev, aiMessage]);
 
             if (data.is_ended) {
                 setTimeout(() => {
@@ -184,11 +185,14 @@ const ChatPage = () => {
     return (
         <main className="bg-white grid grid-rows-[min-content_1fr] grid-cols-[1fr_2fr] gap-1 w-screen h-screen pb-6 overflow-hidden">
             
-            <a href="/path" className="col-span-2 pl-5 pt-5">
-                <Button variant="back" size="icon-sm" title="Back">
-                    <ArrowLeft className="size-6" />
-                </Button>
-            </a>
+            <div className="col-span-2 flex items-center justify-between px-5 pt-5">
+                <a href="/path">
+                    <Button variant="back" size="icon-sm" title="Back">
+                        <ArrowLeft className="size-6" />
+                    </Button>
+                </a>
+                <LogoutButton />
+            </div>
 
             <div className="relative flex flex-col gap-1 row-start-2 col-start-1 items-center">
                 <div className="absolute -left-40 top-0 z-10 h-full w-150 pointer-events-none">
