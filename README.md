@@ -3,8 +3,16 @@
 ## Initial Setup
 - Run: 
 ```
+docker run --name praggymatics-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=praggymatics -p 5432:5432 -d postgres
 npm install next react react-dom
 npx prisma generate
+npx prisma db push
+npx tsx prisma/seed.ts
+```
+
+- Launch the app:
+```
+npm run dev
 ```
 
 ## Troubleshooting
