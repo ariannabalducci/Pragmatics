@@ -1,40 +1,52 @@
 {
-    "name": "The New Cook",
-    "topic": "Double Meaning",
+    "name": "La Nuova Cuoca",
+    "topic": "Doppio Senso",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 4,
         "interactions": [
             {
-                "parrot_msg": "You and your friend Liam are in a restaurant.",
+                "parrot_msg": "Tu e il tuo amico Liam siete al ristorante.",
                 "background_img": "exercises/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png"
             },
             {
-                "parrot_msg": "At the end of lunch, you ask your friend: 'What do you think of the new cook?'",
+                "parrot_msg": "Alla fine del pranzo, chiedi al tuo amico: 'Cosa ne pensi della nuova cuoca?'",
                 "background_img": "exercises/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png"
             },
             {
-                "parrot_msg": "Liam answers: 'I don't know what to say, I haven't seen her yet!'",
+                "parrot_msg": "Liam risponde: 'Non saprei cosa dire, non l'ho ancora vista!'",
                 "background_img": "exercises/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png"
             },
             {
-                "parrot_msg": "What did Liam misunderstand?",
+                "parrot_msg": "Cosa ha frainteso Liam?",
                 "background_img": "exercises/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png",
                 "correct_option": 0,
                 "options": [
-                    "He thought you were asking about the physical appearance of the cook.",
-                    "He understood the question about the food's quality, but he hadn't tasted it.",
-                    "He thought you were was asking him to go into the kitchen and cook."
+                    "Pensava che tu gli stessi chiedendo del suo aspetto fisico invece che della sua cucina.",
+                    "Aveva capito la domanda sulla qualità del cibo, ma non l'aveva ancora assaggiato.",
+                    "Pensava che tu gli stessi chiedendo di andare in cucina a cucinare."
                 ]
+            }
+        ]
+    },
+    "ex2": {
+        "type": "chat",
+        "num_interactions": 2,
+        "interactions": [
+            {
+                "parrot_msg": "Liam è un po' buffo! Ha pensato che volessi sapere se la cuoca fosse bella o simpatica da vedere."
+            },
+            {
+                "parrot_msg": "Invece tu volevi sapere se cucinasse bene! Ti è mai capitato di fare una domanda e ricevere una risposta che non c'entrava nulla?"
             }
         ]
     }

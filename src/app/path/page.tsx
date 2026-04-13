@@ -138,7 +138,7 @@ const PathPage = () => {
   if (loading) {
     return (
         <main className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-[#A6DADA]">
-            <div className="text-white text-2xl font-bold font-['Mochiy_Pop_One']">Loading adventure...</div>
+            <div className="text-white text-2xl font-bold font-['Mochiy_Pop_One']">Caricamento avventura...</div>
         </main>
     );
   }

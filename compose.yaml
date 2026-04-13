@@ -44,7 +44,7 @@ services:
       - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=praggymatics
-      - POSTGRES_PASSWORD=***REMOVED***
+      - POSTGRES_PASSWORD=postgres
     expose:
       - 5432
     healthcheck:

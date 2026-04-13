@@ -1,51 +1,51 @@
 {
-    "name": "Throwing an Apple",
-    "topic": "Pretend Play",
+    "name": "Lanciare una Mela",
+    "topic": "Gioco Simbolico",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 5,
         "interactions": [
             {
-                "parrot_msg": "You and Clarissa are in the kitchen.",
+                "parrot_msg": "Tu e Clarissa siete in cucina.",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/clarissa.png"
             },
             {
-                "parrot_msg": "Clarissa takes an apple.",
+                "parrot_msg": "Clarissa prende una mela.",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_img": "exercises/characters/clarissa.png",
                 "object_img": "exercises/objects/apple.png"
             },
             {
-                "parrot_msg": "Then, she throws it to you, saying:",
+                "parrot_msg": "Poi, te la lancia dicendo:",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_img": "exercises/characters/clarissa.png",
                 "character2_msg": "exercises/speech/baloon4.png",
                 "object_img": "exercises/objects/apple.png"
             },
             {
-                "parrot_msg": "Why does Clarissa say this?",
+                "parrot_msg": "Perché Clarissa dice questo?",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_img": "exercises/characters/clarissa.png",
                 "character2_msg": "exercises/speech/baloon4.png",
                 "object_img": "exercises/objects/apple.png"
             },
             {
-                "parrot_msg": "Why does Clarissa say this?",
+                "parrot_msg": "Perché Clarissa dice questo?",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_img": "exercises/characters/clarissa.png",
                 "object_img": "exercises/objects/apple.png",
                 "correct_option": 2,
                 "options": [
-                    "Because she thinks the apple is actually a ball.",
-                    "Because she wants to tell a lie to you.",
-                    "Because she is playing and pretending the apple is a ball."
+                    "Perché pensa che la mela sia davvero una palla.",
+                    "Perché vuole dirti una bugia.",
+                    "Perché sta giocando e fa finta che la mela sia una palla."
                 ]
             }
         ]
@@ -55,29 +55,29 @@
         "num_interactions": 4,
         "interactions": [
             {
-                "parrot_msg": "You and Clarissa were in the kitchen.",
+                "parrot_msg": "Tu e Clarissa eravate in cucina.",
                 "background_img": "exercises/backgrounds/kitchen-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/clarissa.png"
             },
             {
-                "parrot_msg": "Then, she throws an apple at you, saying:",
+                "parrot_msg": "Poi, lei ti lancia una mela dicendo:",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_img": "exercises/characters/clarissa.png",
                 "character2_msg": "exercises/speech/baloon4.png",
                 "object_img": "exercises/objects/apple.png"
             },
             {
-                "parrot_msg": "Can you think of another way Clarissa might have said this?",
+                "parrot_msg": "Ti viene in mente un altro modo in cui Clarissa avrebbe potuto dire questa cosa?",
                 "background_img": "exercises/backgrounds/kitchen.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/clarisaa.png",
+                "character2_img": "exercises/characters/clarissa.png",
                 "character2_msg": "exercises/speech/baloon4.png",
                 "object_img": "exercises/objects/apple.png"
             },
             {
-                "parrot_msg": "Can you think of another way Clarissa might have said this?"
+                "parrot_msg": "Ti viene in mente un altro modo in cui Clarissa avrebbe potuto dire questa cosa?"
             }
         ]
     }

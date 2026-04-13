@@ -1,43 +1,55 @@
 {
-    "name": "Ugly Sweater",
-    "topic": "White Lie",
+    "name": "Il Maglione Brutto",
+    "topic": "Bugia Bianca",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 4,
         "interactions": [
             {
-                "parrot_msg": "It is your birthday, and your grandma knitted you a very itchy, ugly sweater.",
+                "parrot_msg": "È il tuo compleanno e la tua nonna ha fatto per te un maglione molto brutto che prude tantissimo.",
                 "background_img": "exercises/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "object_img": "exercises/objects/ugly_sweater.png"
             },
             {
-                "parrot_msg": "Grandma asks: 'Do you like the sweater I made for you, dear?'",
-                "background_img": "exercises/classroom.svg",
-                "character1_img": "exercises/characters/piglet.png",
-                "character2_img": "exercises/characters/grandma.png",
-                "object_img": "exercises/objects/ugly_sweater.png"
-            },
-            {
-                "parrot_msg": "The little pig smiles and says: 'Oh yes, I love it! Thank you, Grandma!'",
+                "parrot_msg": "La nonna ti chiede: 'Ti piace il maglione che ho fatto per te, tesoro?'",
                 "background_img": "exercises/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "character2_img": "exercises/characters/grandma.png",
                 "object_img": "exercises/objects/ugly_sweater.png"
             },
             {
-                "parrot_msg": "Why did the little pig say he loved the sweater?",
+                "parrot_msg": "Il maialino sorride e dice: 'Oh sì, lo adoro! Grazie, nonna!'",
+                "background_img": "exercises/classroom.svg",
+                "character1_img": "exercises/characters/piglet.png",
+                "character2_img": "exercises/characters/grandma.png",
+                "object_img": "exercises/objects/ugly_sweater.png"
+            },
+            {
+                "parrot_msg": "Perché il maialino ha detto di adorare il maglione?",
                 "background_img": "exercises/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "character2_img": "exercises/characters/grandma.png",
                 "object_img": "exercises/objects/ugly_sweater.png",
                 "correct_option": 1,
                 "options": [
-                    "Because itchy sweaters are actually his favorite type of clothing.",
-                    "He told a 'white lie' to be polite and avoid hurting his grandma's feelings.",
-                    "Because he wants his grandma to make him five more identical sweaters."
+                    "Perché i maglioni che prudono sono in realtà i suoi vestiti preferiti.",
+                    "Ha detto una 'bugia bianca' per essere gentile ed evitare di offendere la nonna.",
+                    "Perché vuole che la nonna gli faccia altri cinque maglioni identici."
                 ]
+            }
+        ]
+    },
+    "ex2": {
+        "type": "chat",
+        "num_interactions": 2,
+        "interactions": [
+            {
+                "parrot_msg": "Il maialino è stato molto gentile. A volte diciamo una piccola bugia per non rendere tristi le persone a cui vogliamo bene!"
+            },
+            {
+                "parrot_msg": "Ti è mai capitato di ricevere un regalo che non ti piaceva, ma di dire 'grazie' lo stesso per essere gentile?"
             }
         ]
     }

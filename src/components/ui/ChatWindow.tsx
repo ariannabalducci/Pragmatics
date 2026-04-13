@@ -1,9 +1,34 @@
+"use client";
+
 import Image from 'next/image';
-import { Button } from "@/components/ui/button";
 import { useState, useEffect } from 'react';
 
-const ChatWindow = ({ interactionData}) => {
-    
+// 1. DEFINIAMO L'INTERFACCIA (Risolve l'errore TypeScript)
+interface InteractionData {
+    parrot_msg?: string;
+    character1_msg?: string;
+    character2_msg?: string;
+    background_img?: string;
+    character1_img?: string;
+    character2_img?: string;
+    object_img?: string;
+}
+
+interface ChatWindowProps {
+    interactionData: InteractionData;
+}
+
+const ChatWindow = ({ interactionData }: ChatWindowProps) => {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Se non è ancora montato, non renderizziamo nulla per evitare errori di Hydration
+    if (!isMounted) return null;
+
+    // Se interactionData è undefined, evitiamo il crash usando un oggetto vuoto
     const { 
         parrot_msg, 
         character1_msg,
@@ -12,46 +37,40 @@ const ChatWindow = ({ interactionData}) => {
         character1_img, 
         character2_img, 
         object_img
-    } = interactionData;
-    
+    } = interactionData || {};
+
     const hasImages = background_img || character1_img || character2_img || object_img || character1_msg || character2_msg;
-
-    const [selectedIndex, setSelectedIndex] = useState(null);
-
-    useEffect(() => {
-        setSelectedIndex(null);
-    }, [interactionData]);
-
 
     return (
         <div className="flex flex-col w-full gap-3">
             
-            {/* -------------------- MESSAGE BOX -------------------- */}
+            {/* -------------------- MESSAGE BOX (PRAGGY) -------------------- */}
             <div className="relative min-h-40 flex items-center justify-center">
                 {parrot_msg && (
-                    <Image 
-                    src="/exercises/speech-bubble.png" 
-                    alt="Speech bubble" 
-                    fill 
-                    className='animate-[fade-in_.5s_ease-in-out_forwards]'   
-                    />
-                )}
-
-                {parrot_msg && (
-                    <p className="relative z-10 text-white text-xl px-20 pb-4 animate-[fade-in_.5s_ease-in-out_forwards]">
-                        {parrot_msg}
-                    </p>
+                    <>
+                        <Image 
+                            src="/exercises/speech-bubble.png" 
+                            alt="Fumetto" 
+                            fill 
+                            priority
+                            className='animate-[fade-in_.5s_ease-in-out_forwards] object-contain'   
+                        />
+                        <p className="relative z-10 text-white text-xl px-20 pb-4 animate-[fade-in_.5s_ease-in-out_forwards] text-center font-medium">
+                            {parrot_msg}
+                        </p>
+                    </>
                 )}
             </div>
 
-            {/* -------------------- IMAGES -------------------- */}
+            {/* -------------------- IMMAGINI DELLA STORIA -------------------- */}
             {hasImages && (
-                <div className="relative  h-80 overflow-hidden rounded-4xl bg-gray-100">
+                <div className="relative h-80 overflow-hidden rounded-[40px] bg-gray-100 shadow-inner border-4 border-white">
                     {background_img && (
                         <Image
                             src={background_img}
-                            alt="Background scene"
+                            alt="Sfondo"
                             fill
+                            priority
                             className="object-cover z-0 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     )}
@@ -59,8 +78,8 @@ const ChatWindow = ({ interactionData}) => {
                     {character1_img && (
                         <img
                             src={character1_img}
-                            alt="Character 1"
-                            width={270}
+                            alt="Personaggio 1"
+                            style={{ width: '270px', height: 'auto' }}
                             className="absolute bottom-0 left-10 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     )}
@@ -68,8 +87,8 @@ const ChatWindow = ({ interactionData}) => {
                     {character2_img && (
                         <img
                             src={character2_img}
-                            alt="Character 2"
-                            width={270} 
+                            alt="Personaggio 2"
+                            style={{ width: '270px', height: 'auto' }}
                             className="absolute bottom-0 right-10 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     )}
@@ -77,9 +96,8 @@ const ChatWindow = ({ interactionData}) => {
                     {object_img && (
                         <img
                             src={object_img}
-                            alt="Story object"
-                            width={150} 
-                            height={300} 
+                            alt="Oggetto"
+                            style={{ width: '150px', height: 'auto' }}
                             className="absolute bottom-0 left-1/2 transform -translate-x-1/2 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     )}
@@ -87,20 +105,18 @@ const ChatWindow = ({ interactionData}) => {
                     {character1_msg && (
                         <img
                             src={character1_msg}
-                            alt="Speech Baloon"
-                            width={200} 
-                            height={300} 
-                            className="absolute top-3 right-4/12 transform -translate-x-1/2 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
+                            alt="Fumetto 1"
+                            style={{ width: '200px', height: 'auto' }}
+                            className="absolute top-3 right-[55%] object-contain z-20 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     )}
 
                     {character2_msg && (
                         <img
                             src={character2_msg}
-                            alt="Speech Baloon"
-                            width={200} 
-                            height={300} 
-                            className="absolute top-3 left-7/12 transform -translate-x-1/2 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
+                            alt="Fumetto 2"
+                            style={{ width: '200px', height: 'auto' }}
+                            className="absolute top-3 left-[55%] object-contain z-20 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     )}
                 </div>

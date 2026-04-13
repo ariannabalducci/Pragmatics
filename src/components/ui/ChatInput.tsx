@@ -44,7 +44,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
         <div className="relative flex-1 mx-2">
           <textarea
             className="text-black w-full px-3 py-2 bg-transparent border-none focus:outline-none"
-            placeholder="Type your answer here..."
+            placeholder="Scrivi la tua risposta qui..."
             value={message}
             onChange={handleChange}
             onKeyDown={handleKeyPress}

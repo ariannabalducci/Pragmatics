@@ -4,8 +4,8 @@ import { Play, Lock, X } from 'lucide-react';
 const ButtonsPage = () => {
     return (
         <div>
-        <Button>Start</Button>
-        <Button variant={"secondary"}>End</Button>
+        <Button>Inizia</Button>
+        <Button variant={"secondary"}>Termina</Button>
         <Button variant={"transparent"}>Smth</Button>
         <Button variant={"danger"}>Danger</Button>
         <Button variant={"option"}>Option</Button>

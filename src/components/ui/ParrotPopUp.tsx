@@ -5,19 +5,38 @@ import Image from "next/image";
 import { Check, Edit3, ChevronDown } from "lucide-react";
 import { LevelNode } from "./Path";
 
-const DAILY_TASKS = [
-  { id: 1, title: 'Finish part 1 of story "Make a cake"', subtitle: 'Learn Sarcasm', completed: true },
-  { id: 2, title: 'Finish part 2 of story "A mountain of homework"', subtitle: 'Learn more about figurative language', completed: false },
-  { id: 3, title: 'Add one more parrot into your collections', subtitle: '', completed: false },
-];
+// Interfaccia aggiornata con la prop mode
+interface ParrotPopUpProps {
+  nodes: LevelNode[];
+  mode?: string;
+}
 
-export default function ParrotPopUp({ nodes }: {nodes: LevelNode[]}) {
+export default function ParrotPopUp({ nodes, mode = "training" }: ParrotPopUpProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
+  const isTesting = mode === "testing";
+
+  // Configurazione Colori e Testi Dinamici
+  const theme = isTesting 
+    ? {
+        taskBg: "bg-[#E0E7F2]", 
+        taskBorder: "border-[#B2C0DF]",
+        checkBg: "bg-[#8e6fad]",   
+        textMain: "text-[#536184]",
+        label: "Valutazione in corso 📝",
+        emptyMsg: "Nessuna valutazione disponibile."
+      }
+    : {
+        taskBg: "bg-[#E0F2F1]", 
+        taskBorder: "border-[#B2DFDB]",
+        checkBg: "bg-[#26A69A]",   
+        textMain: "text-[#00695C]",
+        label: "Compiti del Giorno 📅",
+        emptyMsg: "Non ci sono compiti per ora!"
+      };
 
   return (
     <>
-      {/* PEEKING PARROT */}
+      {/* PAPPAGALLO CHE FA CAPOLINO */}
       <div 
         onClick={() => setIsOpen(true)}
         className={`absolute -bottom-40 -right-5 z-30 cursor-pointer transition-all duration-500
@@ -26,14 +45,14 @@ export default function ParrotPopUp({ nodes }: {nodes: LevelNode[]}) {
       >
           <Image 
             src="/path/parrot-down.svg" 
-            alt="Peeking Parrot" 
+            alt="Pappagallo" 
             width={500}
             height={600}
             className="pointer-events-none" 
           />
       </div>
 
-      {/* POPUP */}
+      {/* POPUP ATTIVITÀ */}
       <div 
         className={`absolute bottom-0 -right-5 z-50 flex flex-col items-center justify-end transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1) pointer-events-none
           ${isOpen ? 'translate-y-0' : 'translate-y-[110%]'}
@@ -41,7 +60,7 @@ export default function ParrotPopUp({ nodes }: {nodes: LevelNode[]}) {
       >
         <div className="bg-[#F8FAFC] w-125 max-w-[95vw] rounded-t-[40px] shadow-2xl pb-8 relative pointer-events-auto mx-auto">
             
-            {/* CLOSE ARROW */}
+            {/* FRECCIA PER CHIUDERE */}
             <div 
                 onClick={() => setIsOpen(false)} 
                 className="w-full h-12 flex items-center justify-center cursor-pointer group hover:bg-slate-100 rounded-t-[40px] transition-colors"
@@ -49,25 +68,24 @@ export default function ParrotPopUp({ nodes }: {nodes: LevelNode[]}) {
                 <ChevronDown size={32} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
             </div>
 
-            {/* CONTENT */}
+            {/* CONTENUTO */}
             <div className="px-8 mt-2">
                 
-                {/* Header Info */}
+                {/* Intestazione */}
                 <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2 text-slate-500 font-bold">
-                        <span>📅</span>
-                        <span>Daily Tasks</span>
+                    <div className={`flex items-center gap-2 font-bold ${isTesting ? 'text-[#8e6fad]' : 'text-slate-500'}`}>
+                        <span className="text-xl">{theme.label}</span>
                     </div>
                 </div>
 
-                {/* Tasks */}
+                {/* Lista Attività */}
                 <div className="space-y-3">
-                    {nodes.map((task) => (
+                    {nodes.length > 0 ? nodes.map((task) => (
                         <div 
                             key={task.id}
                             className={`p-4 rounded-2xl flex items-center justify-between border-2 transition-all
                                 ${task 
-                                    ? 'bg-[#E0F2F1] border-[#B2DFDB]' 
+                                    ? `${theme.taskBg} ${theme.taskBorder}` 
                                     : 'bg-white border-slate-100 shadow-sm' 
                                 }
                             `}
@@ -75,7 +93,7 @@ export default function ParrotPopUp({ nodes }: {nodes: LevelNode[]}) {
                             <div className="flex gap-3">
                                 <div className="mt-1 min-w-5">
                                     {task ? (
-                                        <div className="w-6 h-6 bg-[#26A69A] rounded-full flex items-center justify-center">
+                                        <div className={`w-6 h-6 ${theme.checkBg} rounded-full flex items-center justify-center`}>
                                             <Check size={14} className="text-white" />
                                         </div>
                                     ) : (
@@ -85,16 +103,20 @@ export default function ParrotPopUp({ nodes }: {nodes: LevelNode[]}) {
                                     )}
                                 </div>
                                 <div>
-                                    <h4 className={`font-bold text-sm leading-tight ${task ? 'text-[#00695C] opacity-70' : 'text-slate-700'}`}>
+                                    <h4 className={`font-bold text-sm leading-tight ${task ? `${theme.textMain} opacity-70` : 'text-slate-700'}`}>
                                         {task.group_title}
                                     </h4>
                                     {task.group_topic && (
-                                        <p className="text-xs text-slate-400 mt-1 font-medium">{task.group_topic}</p>
+                                        <p className="text-xs text-slate-400 mt-1 font-medium italic">
+                                            {task.group_topic}
+                                        </p>
                                     )}
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    )) : (
+                        <p className="text-center text-slate-400 py-4 italic">{theme.emptyMsg}</p>
+                    )}
                 </div>
             </div>
         </div>

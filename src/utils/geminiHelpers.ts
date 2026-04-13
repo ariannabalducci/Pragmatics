@@ -1,63 +1,44 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
-import { ChatHistory, GenerationConfig } from "@/types";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-if (!apiKey) {
-  throw new Error("GEMINI_API_KEY is not defined");
-}
-
-const genAI = new GoogleGenerativeAI(apiKey);
-
-interface AIResponse {
-  message: string;
-  is_ended: boolean;
-}
-
-export async function chattogemini(
-  userMessage: string,
-  history: ChatHistory[], // Ensure this is { role: 'user' | 'model', parts: [{ text: string }] }[]
-  systemInstruction: string,
-  modelName: string = "gemini-2.5-flash" // Use a model that supports JSON mode well
-): Promise<AIResponse> {
+export async function chattogemini(userMessage: string, history: any[], systemInstruction: string) {
   
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemInstruction,
+  // Usiamo il 2.5 perché è l'UNICO che il tuo account riconosce
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash" 
   });
 
-  const generationConfig: GenerationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    responseMimeType: "application/json",
-  };
+  try {
+    console.log("--- CHIAMATA MODELLO 2.5 ---");
+    
+    const prompt = `
+      ${systemInstruction}
+      STORIA: ${JSON.stringify(history)}
+      UTENTE: ${userMessage}
+      RISPONDI SOLO JSON: {"message": "...", "is_ended": false}
+    `;
 
-  const chatSession = model.startChat({
-    generationConfig,
-    history: history,
-  });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    
+    const cleanText = text.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanText);
 
-  let attempts = 0;
-  const maxAttempts = 1;
+  } catch (error: any) {
+    console.error("LOG ERRORE:", error.message);
 
-  while (attempts < maxAttempts) {
-    try {
-      attempts++;
-      const result = await chatSession.sendMessage(userMessage);
-      const text = result.response.text();
-      
-      try {
-        return JSON.parse(text) as AIResponse;
-      } catch (parseError) {
-        return { message: text, is_ended: false };
-      }
-
-    } catch (error: any) {
-      console.error(`Attempt ${attempts} failed:`, error.message);
-      
-      if (attempts === maxAttempts) throw error;
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    // Se il server è occupato (503), diamo un messaggio gentile all'utente
+    if (error.message.includes("503") || error.message.includes("Service Unavailable")) {
+        return {
+          message: "Scusa, in questo momento i server di Google sono carichi. Riprova tra 5 secondi! 🦜",
+          is_ended: false
+        };
     }
+
+    return {
+      message: "Ops, Praggy ha avuto un giramento di testa. Riprova!",
+      is_ended: false
+    };
   }
 }

@@ -1,29 +1,29 @@
 {
-    "name": "Decorating a Cake",
-    "topic": "Sarcasm",
+    "name": "Decorare una Torta",
+    "topic": "Sarcasmo",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 8,
         "interactions": [
             {
-                "parrot_msg": "It's a Friday morning, and your class is going to hold a small party in the afternoon.",
+                "parrot_msg": "È un venerdì mattina e la tua classe terrà una piccola festa nel pomeriggio.",
                 "background_img": "exercises/backgrounds/day.svg",
                 "character1_img": "exercises/characters/alex.png"
             },
             {
-                "parrot_msg": "You're decorating the cake for the afternoon's party.",
+                "parrot_msg": "Stai decorando la torta per la festa di oggi pomeriggio.",
                 "background_img": "exercises/backgrounds/day.svg",
                 "character1_img": "exercises/characters/alex.png"
             },
             {
-                "parrot_msg": "You're decorating the cake for the afternoon's party.",
+                "parrot_msg": "Stai decorando la torta per la festa di oggi pomeriggio.",
                 "background_img": "exercises/backgrounds/day.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "object_img": "exercises/objects/cake.png"
             },
             {
-                "parrot_msg": "At this moment, Sam appears, and says:",
+                "parrot_msg": "In quel momento appare Sam, che dice:",
                 "background_img": "exercises/backgrounds/day.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/sam.png",
@@ -31,7 +31,7 @@
                 "object_img": "exercises/objects/cake.png"
             },
             {
-                "parrot_msg": "Why do you think Sam said that?",
+                "parrot_msg": "Perché pensi che Sam abbia detto questo?",
                 "background_img": "exercises/backgrounds/day.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/sam.png",
@@ -39,7 +39,7 @@
                 "object_img": "exercises/objects/cake.png"
             },
             {
-                "parrot_msg": "Why do you think Sam said that?",
+                "parrot_msg": "Perché pensi che Sam abbia detto questo?",
                 "background_img": "exercises/backgrounds/day.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/sam.png",
@@ -47,9 +47,9 @@
                 "object_img": "exercises/objects/cake.png",
                 "correct_option": 1,
                 "options": [
-                    "Because he genuinely thinks the cake is tasty.",
-                    "To tease you because the cake is messy.",
-                    "To suggest you should eat the cake right now."
+                    "Perché pensa sinceramente che la torta sia deliziosa.",
+                    "Per prenderti in giro perché la torta è un pasticcio.",
+                    "Per suggerirti di mangiare la torta subito."
                 ]
             }
         ]
@@ -59,34 +59,34 @@
         "num_interactions": 6,
         "interactions": [
             {
-                "parrot_msg": "Welcome to chatting time!\nLast time, we’ve learned that Sarcasm means saying something opposite of what you mean."
+                "parrot_msg": "Benvenuto al momento della conversazione!\nL'ultima volta abbiamo imparato che il Sarcasmo significa dire qualcosa di opposto rispetto a ciò che si intende davvero."
             },
             {
-                "parrot_msg": "Let's review the story together!"
+                "parrot_msg": "Ripassiamo la storia insieme!"
             },
             {
-                "parrot_msg": "Let's review the story together!",
+                "parrot_msg": "Ripassiamo la storia insieme!",
                 "background_img": "exercises/backgrounds/day-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/sam.png",
                 "character2_msg": "exercises/speech/baloon1.png"
             },
             {
-                "parrot_msg": "Sam was actually teasing you when he said “that cake sure looks delicious”.",
+                "parrot_msg": "Sam ti stava prendendo in giro quando ha detto “quella torta sembra proprio deliziosa”.",
                 "background_img": "exercises/backgrounds/day-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/sam.png",
                 "character2_msg": "exercises/speech/baloon1.png"
             },
             {
-                "parrot_msg": "Now, can you recall a similar occasion in your life when someone said something that sounded positive, but was, in fact, negative?",
+                "parrot_msg": "Ora, riesci a ricordare un'occasione simile nella tua vita in cui qualcuno ha detto qualcosa che sembrava positivo, ma era, in realtà, negativo?",
                 "background_img": "exercises/backgrounds/day-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/sam.png",
                 "character2_msg": "exercises/speech/baloon1.png"
             },
             {
-                "parrot_msg": "Now, can you recall a similar occasion in your life when someone said something that sounded positive, but was, in fact, negative?"
+                "parrot_msg": "Ora, riesci a ricordare un'occasione simile nella tua vita in cui qualcuno ha detto qualcosa che sembrava positivo, ma era, in realtà, negativo?"
             }
         ]
     }

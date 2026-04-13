@@ -1,23 +1,25 @@
 import { PrismaClient } from '../src/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
-
 import bcrypt from 'bcryptjs'
-import storyJson from '../src/lib/exercises/decorating_a_cake.json'
-import storyJson2 from '../src/lib/exercises/mountain_of_homework.json'
-import storyJson3 from '../src/lib/exercises/throwing_an_apple.json'
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-})
+// 1. IMPORTA TUTTI I FILE (Assicurati che i nomi coincidano con i file nella cartella)
+import story1 from '../src/lib/exercises/decorating_a_cake.json'
+import story2 from '../src/lib/exercises/mountain_of_homework.json'
+import story3 from '../src/lib/exercises/throwing_an_apple.json'
+import story4 from '../src/lib/exercises/messy_bedroom.json'
+import story5 from '../src/lib/exercises/missing_hat.json'
+import story6 from '../src/lib/exercises/happy_tears.json'
+import story7 from '../src/lib/exercises/the_new_cook.json'
+import story8 from '../src/lib/exercises/ugly_sweater.json'
 
-const prisma = new PrismaClient({
-  adapter,
-});
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('Starting seed...')
+  console.log('Svuotamento database e inizio Seed...')
 
+  // Pulizia totale
   await prisma.exerciseAttempt.deleteMany({})
   await prisma.path.deleteMany({})
   await prisma.collectionItem.deleteMany({})
@@ -30,7 +32,7 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('123456', 10)
 
-  // Therapists  
+  // Creazione Terapista
   const therapist1User = await prisma.user.create({
     data: {
       username: 'sarah_connor',
@@ -43,7 +45,7 @@ async function main() {
     include: { therapist: true }
   })
 
-  // Children
+  // Creazione Bambino
   const child1 = await prisma.user.create({
     data: {
       username: 'timmy_turner',
@@ -56,8 +58,8 @@ async function main() {
           age: 10,
           gender: 'boy',
           ethnicity: 'caucasian',
-          coins: 0,
-          description: 'Loves video games',
+          coins: 100,
+          description: 'Ama i videogiochi',
           avatarSkinColor: '#ffffff',
           avatarHairStyle: 'boy_hair_1',
           avatarHairColor: '#ffffff',
@@ -71,236 +73,70 @@ async function main() {
     include: { child: true }
   })
 
-  const child2 = await prisma.user.create({
-    data: {
-      username: 'matilda_wormwood',
-      password: hashedPassword,
-      name: 'Matilda',
-      surname: 'Wormwood',
-      role: 'CHILD',
-      child: {
-        create: {
-          age: 8,
-          gender: 'girl',
-          ethnicity: 'hispanic',
-          coins: 50,
-          description: 'Enjoys reading books',
-          avatarSkinColor: '#ffffff',
-          avatarHairStyle: 'girl_hair_1',
-          avatarHairColor: '#ffffff',
-          avatarEyes: 'eyes_1',
-          avatarClothes: 'clothes_1',
-          avatarMouth: 'mouth_1',
-          therapist: { connect: { userId: therapist1User.therapist?.userId } }
+  console.log('Utenti creati. Inizio creazione esercizi...');
+
+  // Funzione helper aggiornata e più robusta
+  const createGroup = async (storyData: any) => {
+    if (!storyData || !storyData.order) {
+      console.error(`Errore: Dati mancanti per il gruppo ${storyData?.name}`);
+      return null;
+    }
+
+    return await prisma.exerciseGroup.create({
+      data: {
+        title: storyData.name || "Esercizio senza titolo",
+        topic: storyData.topic || "Generale",
+        exercises: {
+          create: storyData.order.map((key: string, index: number) => {
+            const exData = storyData[key];
+            
+            // Se exData è undefined, lanciamo un errore specifico per capire quale file è rotto
+            if (!exData) {
+              throw new Error(`Nel file "${storyData.name}", la chiave "${key}" definita in "order" non esiste nel JSON.`);
+            }
+
+            return {
+              position: index + 1,
+              exerciseType: exData.type, // Qui dava l'errore perché exData era undefined
+              contentJson: exData
+            }
+          })
         }
       }
-    },
-    include: { child: true }
-  })
-
-  console.log('Users created.')
-
-  // Exercise Groups
-  const group1 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name + " 1",
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group2 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name + " 2",
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group3 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name,
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group4 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson2.name,
-      topic: storyJson2.topic,
-      exercises: {
-        create: storyJson2.order.map((key, index) => {
-          const exData = (storyJson2 as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group5 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name + " 5",
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson3 as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group6 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name,
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group7 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name + " 7",
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group8 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name + " 8",
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-
-  const group9 = await prisma.exerciseGroup.create({
-    data: {
-      title: storyJson.name + " 9",
-      topic: storyJson.topic,
-      exercises: {
-        create: storyJson.order.map((key, index) => {
-          const exData = (storyJson as any)[key];
-          return {
-            position: index + 1,
-            exerciseType: exData.type,
-            contentJson: exData
-          }
-        })
-      }
-    }
-  })
-  
-
-
-  // Paths
-  const children = [child1, child2];
-  const completedGroups = [group1, group2];
-  const groups = [group3, group4, group5, group6, group7, group8, group9];
-
-  for (const child of children) {
-    if (child.child) {
-      let pathCount = 2;
-      for (const group of groups) {
-        pathCount++;
-        await prisma.path.create({
-          data: {
-            childId: child.child?.userId,
-            exerciseGroupId: group.id,
-            status: pathCount <= 4 ? 'available' : 'blocked',
-            position: pathCount
-          }
-        })
-      }
-    }
+    })
   }
 
-  for (const child of children) {
-    if (child.child) {
-      let pathCount = 0;
-      for (const group of completedGroups) {
-        pathCount++;
-        await prisma.path.create({
-          data: {
-            childId: child.child?.userId,
-            exerciseGroupId: group.id,
-            status: 'completed',
-            position: pathCount
-          }
-        })
-      }
+  // Creiamo gli 8 gruppi diversi con i dati tradotti
+  const g1 = await createGroup(story1);
+  const g2 = await createGroup(story2);
+  const g3 = await createGroup(story3);
+  const g4 = await createGroup(story4);
+  const g5 = await createGroup(story5);
+  const g6 = await createGroup(story6);
+  const g7 = await createGroup(story7);
+  const g8 = await createGroup(story8);
+
+  const allGroups = [g1, g2, g3, g4, g5, g6, g7, g8];
+
+  // Creazione Percorso (Path) per il bambino
+  if (child1.child) {
+    // Nel ciclo finale del seed in Path
+for (let i = 0; i < allGroups.length; i++) {
+  await prisma.path.create({
+    data: {
+      childId: child1.child.userId,
+      exerciseGroupId: allGroups[i]!.id, // <--- Aggiungi il ! qui
+      status: i < 3 ? 'available' : 'blocked',
+      position: i + 1
     }
+  })
+}
   }
 
-  // TODO: Complete some paths
-
-  // Collection items
+  // Collezione Pappagalli (Tradotta)
   const parrotNames = [
-    "Polly", "Kiwi", "Coco", "Buddy", "Charlie", 
-    "Sunny", "Mango", "Peanut", "Skittles", "Rio",
+    "Polly", "Kiwi", "Coco", "Amico", "Charlie", 
+    "Sole", "Mango", "Pinolo", "Skittles", "Rio",
     "Tiki", "Zazu"
   ];
   const parrotImages = ["parrot1", "parrot2", "parrot3", "parrot4"]
@@ -314,7 +150,7 @@ async function main() {
     })
   }
 
-
+  console.log('Seed completato con successo! 🦜');
 }
 
 main()

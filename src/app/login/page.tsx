@@ -27,7 +27,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || "Accesso fallito");
       }
 
       localStorage.setItem("token", data.token);
@@ -52,7 +52,7 @@ export default function LoginPage() {
             <div className="relative">
                 <Image
                     src="/login/login-bush.png"
-                    alt="Decorative bush"
+                    alt="Cespuglio decorativo"
                     width={0}
                     height={0}
                     sizes="100vw"
@@ -62,7 +62,7 @@ export default function LoginPage() {
                 <div className="absolute -left-10 top-10 z-10 h-full w-150 z-0 pointer-events-none">
                     <Image
                     src="/side-parrot.svg"
-                    alt="Talking parrot"
+                    alt="Pappagallo parlante"
                     fill
                     className="object-contain z-10"
                     />
@@ -73,25 +73,24 @@ export default function LoginPage() {
                 <div className="relative h-5/12 w-3/4 flex items-center justify-center">
                     <Image 
                         src="/login/login-bubble.png" 
-                        alt="Speech bubble" 
+                        alt="Fumetto" 
                         fill 
                     />
 
                     <div>
                         <p className="relative z-10 text-white text-xl px-20 pb-4">
-                        Hi! Welcome to Praggymatics!
+                        Ciao! Benvenuto su Praggymatics!
                         </p>
 
                         <p className="relative z-10 text-white text-xl px-20 pb-4">
-                            I’m Praggy,  your partner on the upcoming adventure. 
-                            Are you ready?
+                            Io sono Praggy, il tuo compagno in questa avventura. 
+                            Sei pronto?
                         </p>
 
                         <p className="relative z-10 text-white text-xl px-20 pb-4">
-                            Type your username and password in the boxes below, and let's get started!
+                            Scrivi il tuo nome utente e la password qui sotto per iniziare!
                         </p>
                     </div>
-                    
                     
                 </div>
 
@@ -104,7 +103,7 @@ export default function LoginPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    Username
+                    Nome Utente
                     </label>
                     <input 
                     type="text" 
@@ -130,7 +129,7 @@ export default function LoginPage() {
                 </div>
                 
                 <Button type="submit" disabled={loading}>
-                    {loading ? "Loading..." : "Login"}
+                    {loading ? "Caricamento..." : "Accedi"}
                 </Button>
                 </form>
                 
