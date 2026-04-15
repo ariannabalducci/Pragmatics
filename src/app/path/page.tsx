@@ -19,6 +19,7 @@ const PathPage = () => {
   const [collectionItems, setCollectionItems] = useState<CollectionItem[]>([]);
   const [levels, setLevels] = useState<LevelNode[]>([]);
   const [activeTasks, setActiveTasks] = useState<any[]>([]);
+  const [mode, setMode] = useState<"training" | "testing">("training");
 
   useEffect(() => {
     const fetchChildData = async () => {
@@ -56,6 +57,11 @@ const PathPage = () => {
 
         const studentData = await studentRes.json();
         const collectionData = await collectionRes.json();
+        
+        const storedMode = localStorage.getItem("pragmatics_mode");
+        if (storedMode === "testing" || storedMode === "training") {
+            setMode(storedMode);
+        }
 
         setCoins(studentData.coins || 0);
 
@@ -73,7 +79,11 @@ const PathPage = () => {
             (_, i) => ({ id: `blocked-${i}`, status: 'locked' })
         );
 
-        setLevels([...completedNodes, ...activeNodes, ...blockedNodes]);
+        if (storedMode === "testing") {
+            setLevels(studentData.all_levels || []);
+        } else {
+            setLevels([...completedNodes, ...activeNodes, ...blockedNodes]);
+        }
 
         const formattedItems: CollectionItem[] = collectionData.map((item: any) => ({
             id: item.parrot_id,
@@ -137,14 +147,14 @@ const PathPage = () => {
 
   if (loading) {
     return (
-        <main className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-[#A6DADA]">
-            <div className="text-white text-2xl font-bold font-['Mochiy_Pop_One']">Caricamento avventura...</div>
+        <main className={`relative w-full h-screen overflow-hidden flex items-center justify-center ${mode === "testing" ? "bg-slate-200" : "bg-[#A6DADA]"}`}>
+            <div className={`${mode === "testing" ? "text-slate-500" : "text-white"} text-2xl font-bold font-['Mochiy_Pop_One']`}>Caricamento avventura...</div>
         </main>
     );
   }
 
     return (
-        <main className="relative w-full h-screen overflow-hidden">
+        <main className={`relative w-full h-screen overflow-hidden ${mode === "testing" ? "bg-slate-100" : "bg-[#A6DADA]"}`}>
 
           <div className="absolute top-4 left-4 z-20">
             <LogoutButton />
@@ -152,23 +162,27 @@ const PathPage = () => {
 
           <CoinCounter amount={coins} />
 
-          <Image
-            src="/lbush.png"
-            alt="Left bush"
-            width={400}
-            height={400}
-            className="absolute top-0 left-0 z-0"
-          />
+          {mode !== "testing" && (
+            <Image
+              src="/lbush.png"
+              alt="Left bush"
+              width={400}
+              height={400}
+              className="absolute top-0 left-0 z-0"
+            />
+          )}
 
-          <Path levels={levels}/>
+          <Path levels={levels} mode={mode} />
 
-          <Image
-            src="/rbush.png"
-            alt="Right bush"
-            width={600}
-            height={600}
-            className="absolute bottom-0 right-0 z-10"
-          />
+          {mode !== "testing" && (
+            <Image
+              src="/rbush.png"
+              alt="Right bush"
+              width={600}
+              height={600}
+              className="absolute bottom-0 right-0 z-10"
+            />
+          )}
 
           <CollectionSystem 
             collectionItems={collectionItems} 

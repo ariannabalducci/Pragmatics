@@ -13,6 +13,7 @@ const StoryPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const exerciseId = searchParams.get('id');
+    const isTesting = searchParams.get('mode') === 'testing';
     
     const [interactions, setInteractions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,7 +44,14 @@ const StoryPage = () => {
                     return;
                 }
                 
-                setInteractions(data.content_json?.interactions || []);
+                const fetchedInteractions = data.content_json?.interactions || [];
+                
+                // In entrambe le modalità, la storia termina con il quiz. 
+                // Evitiamo che ci siano interazioni extra (es. prompt del chatbot) dopo il quiz.
+                const quizIndex = fetchedInteractions.findIndex((int: any) => int.options && int.options.length > 0);
+                const finalInteractions = quizIndex !== -1 ? fetchedInteractions.slice(0, quizIndex + 1) : fetchedInteractions;
+                
+                setInteractions(finalInteractions);
                 
                 setStartTime(Date.now());
                 
@@ -78,13 +86,27 @@ const StoryPage = () => {
         const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
 
         try {
+            if (isTesting) {
+                // In Testing, non salviamo sul DB ma solo localmente per disaccoppiare dal training
+                const testedStr = localStorage.getItem('testedExercises') || '[]';
+                const tested = JSON.parse(testedStr);
+                
+                if (exerciseId && !tested.includes(exerciseId)) {
+                    tested.push(exerciseId);
+                    localStorage.setItem('testedExercises', JSON.stringify(tested));
+                }
+                
+                router.push('/path');
+                return;
+            }
+
             const token = localStorage.getItem("token");
             
             const res = await fetch(`/api/exercise/${exerciseId}/attempt`, {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${token}` 
                 },
                 body: JSON.stringify({ 
                     success: true,
@@ -93,7 +115,7 @@ const StoryPage = () => {
                 })
             });
 
-            if (res.ok) {
+            if (res.ok || res.status === 409) {
                 router.push('/congratulations');
             } else {
                 console.error("Failed to save progress");
@@ -103,12 +125,17 @@ const StoryPage = () => {
         }
     };
 
-    const handleNext = () => {
-        const isQuizScreen = currentInteraction.options && currentInteraction.options.length > 0;
+    const isQuizScreen = currentInteraction.options && currentInteraction.options.length > 0;
 
-        if (isQuizScreen && quizStatus === 'correct') {
-            handleFinish(); 
-            return;
+    const handleNext = () => {
+        if (isQuizScreen) {
+            if (isTesting && quizStatus !== null) {
+                 handleFinish();
+                 return;
+            } else if (!isTesting && quizStatus === 'correct') {
+                 handleFinish(); 
+                 return;
+            }
         }
 
         if (currentInteractionIndex < interactions.length - 1) {
@@ -130,12 +157,13 @@ const StoryPage = () => {
     };
 
     // Determine when chevrons should stop working based on your rules
-    const isPrevDisabled = currentInteractionIndex === 0 || quizStatus === 'correct';
+    const isPrevDisabled = currentInteractionIndex === 0 || (!isTesting && quizStatus === 'correct');
     
-    // Disable Next if it's the last page OR if they selected the wrong option
-    const isNextDisabled = 
-        quizStatus === 'incorrect' || 
-        (currentInteractionIndex === interactions.length - 1 && quizStatus !== 'correct');
+    // Disable Next se seleziona l'opzione sbagliata (solo training)
+    // In testing permettiamo sempre il tasto avanti, MA se siamo sul quiz bisogna aver prima risposto
+    const isNextDisabled = isTesting 
+        ? (isQuizScreen && quizStatus === null)
+        : (quizStatus === 'incorrect' || (currentInteractionIndex === interactions.length - 1 && quizStatus !== 'correct'));
 
         
     return (
@@ -187,6 +215,7 @@ const StoryPage = () => {
                     interactionData={currentInteraction}
                     quizStatus={quizStatus}
                     onAnswer={handleAnswer}
+                    isTesting={isTesting}
                 />
             </div>
         </main>

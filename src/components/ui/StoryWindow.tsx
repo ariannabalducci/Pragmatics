@@ -22,9 +22,10 @@ interface StoryWindowProps {
     interactionData: InteractionData;
     onAnswer?: (isCorrect: boolean) => void;
     quizStatus: string | null;
+    isTesting?: boolean;
 }
 
-const StoryWindow = ({ interactionData, onAnswer, quizStatus }: StoryWindowProps) => {
+const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: StoryWindowProps) => {
     const [isMounted, setIsMounted] = useState(false);
     const [tempSelectedIndex, setTempSelectedIndex] = useState<number | null>(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -168,9 +169,11 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus }: StoryWindowProps
                                         "justify-center animate-[fade-in_.5s_ease-in-out_forwards] py-6 px-8 h-auto transition-all",
                                         // Selezione temporanea (Giallo)
                                         isSelected && !isSubmitted && "border-4 border-yellow-400 bg-yellow-50 text-black scale-105",
-                                        // Risultato finale (dopo conferma)
-                                        isSubmitted && isSelected && isCorrect && "bg-[#62B4A5] text-white",
-                                        isSubmitted && isSelected && !isCorrect && "bg-[#E87D57] text-white",
+                                        // Risultato in Testing (neutro)
+                                        isSubmitted && isSelected && isTesting && "bg-slate-600 text-white",
+                                        // Risultato finale in Training (dopo conferma)
+                                        isSubmitted && isSelected && !isTesting && isCorrect && "bg-[#62B4A5] text-white",
+                                        isSubmitted && isSelected && !isTesting && !isCorrect && "bg-[#E87D57] text-white",
                                         isSubmitted && !isSelected && "opacity-50"
                                     )}
                                 >
@@ -187,9 +190,14 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus }: StoryWindowProps
                         {tempSelectedIndex !== null && !isSubmitted && (
                             <Button 
                                 onClick={handleConfirm}
-                                className="bg-[#62B4A5] hover:bg-[#4a8f82] text-white font-bold px-10 rounded-full animate-bounce shadow-lg"
+                                className={cn(
+                                    "text-white font-bold px-10 rounded-full shadow-lg transition-all",
+                                    isTesting 
+                                    ? "bg-slate-500 hover:bg-slate-600" 
+                                    : "bg-[#62B4A5] hover:bg-[#4a8f82] animate-bounce"
+                                )}
                             >
-                                CONFERMA RISPOSTA 🦜
+                                {isTesting ? "CONFERMA SCELTA" : "CONFERMA RISPOSTA 🦜"}
                             </Button>
                         )}
                     </div>

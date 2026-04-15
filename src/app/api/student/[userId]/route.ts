@@ -47,7 +47,8 @@ export async function GET(
                 }
               }
             }
-          }
+          },
+          orderBy: { position: 'asc' }
         }
       }
     });
@@ -85,16 +86,29 @@ export async function GET(
           group_title: group.title,
           group_topic: group.topic,
           progress: progress > 0 ? 1 : 0,
-          activeExerciseId: currentEx?.id
+          activeExerciseId: currentEx?.id,
+          firstExerciseId: group.exercises[0]?.id
         });
       }
+    });
+
+    const allLevels = child.paths.map((path) => {
+        const group = path.exerciseGroup;
+        return {
+            id: path.id,
+            status: path.status,
+            group_title: group.title,
+            group_topic: group.topic,
+            firstExerciseId: group.exercises[0]?.id
+        };
     });
 
     return NextResponse.json({
       coins: child.coins,
       nr_completed: totalGroupsDone,
       nr_blocked: totalGroupsBlocked,
-      levels: activeLevels
+      levels: activeLevels,
+      all_levels: allLevels
     });
 
   } catch (error) {

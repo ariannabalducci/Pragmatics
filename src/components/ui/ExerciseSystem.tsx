@@ -11,15 +11,16 @@ interface ExerciseSystemProps {
     levelProgress?: number;
     onClose: () => void;
     mode?: string; // Prop per distinguere tra training e testing
+    firstExerciseId?: string;
 }
-
 export default function ExerciseSystem({ 
     groupTitle, 
     topic, 
     exerciseId, 
     levelProgress, 
     onClose, 
-    mode = "training" 
+    mode = "training",
+    firstExerciseId 
 }: ExerciseSystemProps) {
   
   const isTesting = mode === "testing";
@@ -94,7 +95,7 @@ export default function ExerciseSystem({
 
                     <div className="pt-2">
                         <a href={isTesting 
-                            ? `/story?id=${exerciseId}&mode=testing` 
+                            ? `/story?id=${firstExerciseId || exerciseId}&mode=testing` 
                             : (levelProgress === 0 ? `/story?id=${exerciseId}` : `/chat?id=${exerciseId}`)
                         }>
                             <Button className={`${colors.primary} text-white text-xl p-8 rounded-2xl w-full md:w-auto shadow-[0_6px_0_0_rgba(0,0,0,0.1)] hover:translate-y-1 active:shadow-none transition-all`}>
