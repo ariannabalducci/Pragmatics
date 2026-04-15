@@ -90,7 +90,7 @@ const ChatPage = () => {
                 })
             });
 
-            if (res.ok) {
+            if (res.ok || res.status === 409) {
                 router.push('/congratulations');
             } else {
                 console.error("Failed to save progress");
@@ -155,7 +155,11 @@ const ChatPage = () => {
     };
 
     const handleNext = () => {
-        if (!isChatMode && currentInteractionIndex < interactions.length - 1) {
+        if (isChatMode) {
+            if (history.length > 0) {
+                handleFinish();
+            }
+        } else if (currentInteractionIndex < interactions.length - 1) {
             setCurrentInteractionIndex(prevIndex => prevIndex + 1);
         }
     };
@@ -180,7 +184,7 @@ const ChatPage = () => {
     }
 
     const isPrevDisabled = isChatMode || currentInteractionIndex === 0;
-    const isNextDisabled = isChatMode;
+    const isNextDisabled = isChatMode ? history.length === 0 : false;
 
     return (
         <main className="bg-white grid grid-rows-[min-content_1fr] grid-cols-[1fr_2fr] gap-1 w-screen h-screen pb-6 overflow-hidden">
