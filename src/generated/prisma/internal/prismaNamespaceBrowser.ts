@@ -57,7 +57,8 @@ export const ModelName = {
   ExerciseGroup: 'ExerciseGroup',
   Exercise: 'Exercise',
   ExerciseAttempt: 'ExerciseAttempt',
-  CollectionItem: 'CollectionItem'
+  CollectionItem: 'CollectionItem',
+  Appointment: 'Appointment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -178,6 +179,21 @@ export const CollectionItemScalarFieldEnum = {
 } as const
 
 export type CollectionItemScalarFieldEnum = (typeof CollectionItemScalarFieldEnum)[keyof typeof CollectionItemScalarFieldEnum]
+
+
+export const AppointmentScalarFieldEnum = {
+  id: 'id',
+  startTime: 'startTime',
+  type: 'type',
+  duration: 'duration',
+  note: 'note',
+  therapistId: 'therapistId',
+  childId: 'childId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
 
 
 export const SortOrder = {

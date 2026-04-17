@@ -1,16 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const roleParam = searchParams?.get("role");
+  const roleLabel = roleParam === "THERAPIST" ? "Logopedista" : roleParam === "CHILD" ? "Ragazzo" : "Utente";
 
   const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,7 +38,7 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       if (data.user.role === "CHILD") {
-        router.push("/");
+        router.push("/select-mode");
       } else if (data.user.role === "THERAPIST") {
         router.push("/therapist/dashboard");
       }
@@ -77,21 +81,14 @@ export default function LoginPage() {
                         fill 
                     />
 
-                    <div>
-                        <p className="relative z-10 text-white text-xl px-20 pb-4">
-                        Ciao! Benvenuto su Praggymatics!
-                        </p>
-
-                        <p className="relative z-10 text-white text-xl px-20 pb-4">
-                            Io sono Praggy, il tuo compagno in questa avventura. 
-                            Sei pronto?
-                        </p>
-
-                        <p className="relative z-10 text-white text-xl px-20 pb-4">
-                            Scrivi il tuo nome utente e la password qui sotto per iniziare!
-                        </p>
+                    <div className="relative z-10 text-center px-12">
+                      <p className="text-white text-3xl font-bold mb-4">
+                        Accedi come {roleLabel}
+                      </p>
+                      <p className="text-white text-lg font-medium">
+                        Inserisci nome utente e password per proseguire nella tua esperienza.
+                      </p>
                     </div>
-                    
                 </div>
 
                 <form onSubmit={handleLogin} className="bg-[#EFF8F8] w-full max-w-md p-6 md:p-8 rounded-[3rem] shadow-2xl flex flex-col gap-8 items-center">

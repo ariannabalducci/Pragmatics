@@ -153,6 +153,7 @@ export type TherapistWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   children?: Prisma.ChildListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
 }
 
 export type TherapistOrderByWithRelationInput = {
@@ -160,6 +161,7 @@ export type TherapistOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   children?: Prisma.ChildOrderByRelationAggregateInput
   feedbacks?: Prisma.FeedbackOrderByRelationAggregateInput
+  appointments?: Prisma.AppointmentOrderByRelationAggregateInput
 }
 
 export type TherapistWhereUniqueInput = Prisma.AtLeast<{
@@ -170,6 +172,7 @@ export type TherapistWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   children?: Prisma.ChildListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
 }, "userId">
 
 export type TherapistOrderByWithAggregationInput = {
@@ -190,24 +193,28 @@ export type TherapistCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutTherapistInput
   children?: Prisma.ChildCreateNestedManyWithoutTherapistInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistUncheckedCreateInput = {
   userId: string
   children?: Prisma.ChildUncheckedCreateNestedManyWithoutTherapistInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutTherapistNestedInput
   children?: Prisma.ChildUpdateManyWithoutTherapistNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   children?: Prisma.ChildUncheckedUpdateManyWithoutTherapistNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistCreateManyInput = {
@@ -304,14 +311,30 @@ export type TherapistUpdateOneRequiredWithoutFeedbacksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TherapistUpdateToOneWithWhereWithoutFeedbacksInput, Prisma.TherapistUpdateWithoutFeedbacksInput>, Prisma.TherapistUncheckedUpdateWithoutFeedbacksInput>
 }
 
+export type TherapistCreateNestedOneWithoutAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.TherapistCreateWithoutAppointmentsInput, Prisma.TherapistUncheckedCreateWithoutAppointmentsInput>
+  connectOrCreate?: Prisma.TherapistCreateOrConnectWithoutAppointmentsInput
+  connect?: Prisma.TherapistWhereUniqueInput
+}
+
+export type TherapistUpdateOneRequiredWithoutAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.TherapistCreateWithoutAppointmentsInput, Prisma.TherapistUncheckedCreateWithoutAppointmentsInput>
+  connectOrCreate?: Prisma.TherapistCreateOrConnectWithoutAppointmentsInput
+  upsert?: Prisma.TherapistUpsertWithoutAppointmentsInput
+  connect?: Prisma.TherapistWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TherapistUpdateToOneWithWhereWithoutAppointmentsInput, Prisma.TherapistUpdateWithoutAppointmentsInput>, Prisma.TherapistUncheckedUpdateWithoutAppointmentsInput>
+}
+
 export type TherapistCreateWithoutUserInput = {
   children?: Prisma.ChildCreateNestedManyWithoutTherapistInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistUncheckedCreateWithoutUserInput = {
   children?: Prisma.ChildUncheckedCreateNestedManyWithoutTherapistInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistCreateOrConnectWithoutUserInput = {
@@ -333,21 +356,25 @@ export type TherapistUpdateToOneWithWhereWithoutUserInput = {
 export type TherapistUpdateWithoutUserInput = {
   children?: Prisma.ChildUpdateManyWithoutTherapistNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistUncheckedUpdateWithoutUserInput = {
   children?: Prisma.ChildUncheckedUpdateManyWithoutTherapistNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistCreateWithoutChildrenInput = {
   user: Prisma.UserCreateNestedOneWithoutTherapistInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistUncheckedCreateWithoutChildrenInput = {
   userId: string
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistCreateOrConnectWithoutChildrenInput = {
@@ -369,21 +396,25 @@ export type TherapistUpdateToOneWithWhereWithoutChildrenInput = {
 export type TherapistUpdateWithoutChildrenInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutTherapistNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistUncheckedUpdateWithoutChildrenInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistCreateWithoutFeedbacksInput = {
   user: Prisma.UserCreateNestedOneWithoutTherapistInput
   children?: Prisma.ChildCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistUncheckedCreateWithoutFeedbacksInput = {
   userId: string
   children?: Prisma.ChildUncheckedCreateNestedManyWithoutTherapistInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTherapistInput
 }
 
 export type TherapistCreateOrConnectWithoutFeedbacksInput = {
@@ -405,11 +436,53 @@ export type TherapistUpdateToOneWithWhereWithoutFeedbacksInput = {
 export type TherapistUpdateWithoutFeedbacksInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutTherapistNestedInput
   children?: Prisma.ChildUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTherapistNestedInput
 }
 
 export type TherapistUncheckedUpdateWithoutFeedbacksInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   children?: Prisma.ChildUncheckedUpdateManyWithoutTherapistNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTherapistNestedInput
+}
+
+export type TherapistCreateWithoutAppointmentsInput = {
+  user: Prisma.UserCreateNestedOneWithoutTherapistInput
+  children?: Prisma.ChildCreateNestedManyWithoutTherapistInput
+  feedbacks?: Prisma.FeedbackCreateNestedManyWithoutTherapistInput
+}
+
+export type TherapistUncheckedCreateWithoutAppointmentsInput = {
+  userId: string
+  children?: Prisma.ChildUncheckedCreateNestedManyWithoutTherapistInput
+  feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutTherapistInput
+}
+
+export type TherapistCreateOrConnectWithoutAppointmentsInput = {
+  where: Prisma.TherapistWhereUniqueInput
+  create: Prisma.XOR<Prisma.TherapistCreateWithoutAppointmentsInput, Prisma.TherapistUncheckedCreateWithoutAppointmentsInput>
+}
+
+export type TherapistUpsertWithoutAppointmentsInput = {
+  update: Prisma.XOR<Prisma.TherapistUpdateWithoutAppointmentsInput, Prisma.TherapistUncheckedUpdateWithoutAppointmentsInput>
+  create: Prisma.XOR<Prisma.TherapistCreateWithoutAppointmentsInput, Prisma.TherapistUncheckedCreateWithoutAppointmentsInput>
+  where?: Prisma.TherapistWhereInput
+}
+
+export type TherapistUpdateToOneWithWhereWithoutAppointmentsInput = {
+  where?: Prisma.TherapistWhereInput
+  data: Prisma.XOR<Prisma.TherapistUpdateWithoutAppointmentsInput, Prisma.TherapistUncheckedUpdateWithoutAppointmentsInput>
+}
+
+export type TherapistUpdateWithoutAppointmentsInput = {
+  user?: Prisma.UserUpdateOneRequiredWithoutTherapistNestedInput
+  children?: Prisma.ChildUpdateManyWithoutTherapistNestedInput
+  feedbacks?: Prisma.FeedbackUpdateManyWithoutTherapistNestedInput
+}
+
+export type TherapistUncheckedUpdateWithoutAppointmentsInput = {
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  children?: Prisma.ChildUncheckedUpdateManyWithoutTherapistNestedInput
+  feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutTherapistNestedInput
 }
 
 
@@ -420,11 +493,13 @@ export type TherapistUncheckedUpdateWithoutFeedbacksInput = {
 export type TherapistCountOutputType = {
   children: number
   feedbacks: number
+  appointments: number
 }
 
 export type TherapistCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | TherapistCountOutputTypeCountChildrenArgs
   feedbacks?: boolean | TherapistCountOutputTypeCountFeedbacksArgs
+  appointments?: boolean | TherapistCountOutputTypeCountAppointmentsArgs
 }
 
 /**
@@ -451,12 +526,20 @@ export type TherapistCountOutputTypeCountFeedbacksArgs<ExtArgs extends runtime.T
   where?: Prisma.FeedbackWhereInput
 }
 
+/**
+ * TherapistCountOutputType without action
+ */
+export type TherapistCountOutputTypeCountAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppointmentWhereInput
+}
+
 
 export type TherapistSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   children?: boolean | Prisma.Therapist$childrenArgs<ExtArgs>
   feedbacks?: boolean | Prisma.Therapist$feedbacksArgs<ExtArgs>
+  appointments?: boolean | Prisma.Therapist$appointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.TherapistCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["therapist"]>
 
@@ -479,6 +562,7 @@ export type TherapistInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   children?: boolean | Prisma.Therapist$childrenArgs<ExtArgs>
   feedbacks?: boolean | Prisma.Therapist$feedbacksArgs<ExtArgs>
+  appointments?: boolean | Prisma.Therapist$appointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.TherapistCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TherapistIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -494,6 +578,7 @@ export type $TherapistPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     user: Prisma.$UserPayload<ExtArgs>
     children: Prisma.$ChildPayload<ExtArgs>[]
     feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
+    appointments: Prisma.$AppointmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     userId: string
@@ -894,6 +979,7 @@ export interface Prisma__TherapistClient<T, Null = never, ExtArgs extends runtim
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.Therapist$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Therapist$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChildPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   feedbacks<T extends Prisma.Therapist$feedbacksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Therapist$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  appointments<T extends Prisma.Therapist$appointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Therapist$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1365,6 +1451,30 @@ export type Therapist$feedbacksArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.FeedbackScalarFieldEnum | Prisma.FeedbackScalarFieldEnum[]
+}
+
+/**
+ * Therapist.appointments
+ */
+export type Therapist$appointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Appointment
+   */
+  select?: Prisma.AppointmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Appointment
+   */
+  omit?: Prisma.AppointmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppointmentInclude<ExtArgs> | null
+  where?: Prisma.AppointmentWhereInput
+  orderBy?: Prisma.AppointmentOrderByWithRelationInput | Prisma.AppointmentOrderByWithRelationInput[]
+  cursor?: Prisma.AppointmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppointmentScalarFieldEnum | Prisma.AppointmentScalarFieldEnum[]
 }
 
 /**

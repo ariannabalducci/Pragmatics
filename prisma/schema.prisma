@@ -50,6 +50,7 @@ model Therapist {
 
   children  Child[]
   feedbacks Feedback[]
+  appointments Appointment[]
 }
 
 model Child {
@@ -77,6 +78,7 @@ model Child {
   attempts      ExerciseAttempt[]
   unlockedItems CollectionItem[]
   feedbacks     Feedback[]
+  appointments Appointment[]
 }
 
 model Feedback {
@@ -152,4 +154,24 @@ model CollectionItem {
   price   Int
 
   children Child[]
+}
+
+
+model Appointment {
+  id          String   @id @default(uuid())
+  startTime   DateTime
+  type        String   // "training" o "valutazione"
+  duration    String   // es: "45 min"
+  note        String?
+  
+  // Relazione con il Terapista (Logopedista)
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [userId])
+
+  // Relazione con il Bambino (Paziente)
+  childId     String
+  child       Child     @relation(fields: [childId], references: [userId])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
