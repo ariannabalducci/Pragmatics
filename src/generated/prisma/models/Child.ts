@@ -290,6 +290,7 @@ export type ChildWhereInput = {
   attempts?: Prisma.ExerciseAttemptListRelationFilter
   unlockedItems?: Prisma.CollectionItemListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
 }
 
 export type ChildOrderByWithRelationInput = {
@@ -312,6 +313,7 @@ export type ChildOrderByWithRelationInput = {
   attempts?: Prisma.ExerciseAttemptOrderByRelationAggregateInput
   unlockedItems?: Prisma.CollectionItemOrderByRelationAggregateInput
   feedbacks?: Prisma.FeedbackOrderByRelationAggregateInput
+  appointments?: Prisma.AppointmentOrderByRelationAggregateInput
 }
 
 export type ChildWhereUniqueInput = Prisma.AtLeast<{
@@ -337,6 +339,7 @@ export type ChildWhereUniqueInput = Prisma.AtLeast<{
   attempts?: Prisma.ExerciseAttemptListRelationFilter
   unlockedItems?: Prisma.CollectionItemListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
 }, "userId">
 
 export type ChildOrderByWithAggregationInput = {
@@ -397,6 +400,7 @@ export type ChildCreateInput = {
   attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateInput = {
@@ -417,6 +421,7 @@ export type ChildUncheckedCreateInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildUpdateInput = {
@@ -437,6 +442,7 @@ export type ChildUpdateInput = {
   attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateInput = {
@@ -457,6 +463,7 @@ export type ChildUncheckedUpdateInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildCreateManyInput = {
@@ -749,6 +756,20 @@ export type ChildUncheckedUpdateManyWithoutUnlockedItemsNestedInput = {
   deleteMany?: Prisma.ChildScalarWhereInput | Prisma.ChildScalarWhereInput[]
 }
 
+export type ChildCreateNestedOneWithoutAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.ChildCreateWithoutAppointmentsInput, Prisma.ChildUncheckedCreateWithoutAppointmentsInput>
+  connectOrCreate?: Prisma.ChildCreateOrConnectWithoutAppointmentsInput
+  connect?: Prisma.ChildWhereUniqueInput
+}
+
+export type ChildUpdateOneRequiredWithoutAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ChildCreateWithoutAppointmentsInput, Prisma.ChildUncheckedCreateWithoutAppointmentsInput>
+  connectOrCreate?: Prisma.ChildCreateOrConnectWithoutAppointmentsInput
+  upsert?: Prisma.ChildUpsertWithoutAppointmentsInput
+  connect?: Prisma.ChildWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ChildUpdateToOneWithWhereWithoutAppointmentsInput, Prisma.ChildUpdateWithoutAppointmentsInput>, Prisma.ChildUncheckedUpdateWithoutAppointmentsInput>
+}
+
 export type ChildCreateWithoutUserInput = {
   age: number
   gender: string
@@ -766,6 +787,7 @@ export type ChildCreateWithoutUserInput = {
   attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateWithoutUserInput = {
@@ -785,6 +807,7 @@ export type ChildUncheckedCreateWithoutUserInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildCreateOrConnectWithoutUserInput = {
@@ -820,6 +843,7 @@ export type ChildUpdateWithoutUserInput = {
   attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateWithoutUserInput = {
@@ -839,6 +863,7 @@ export type ChildUncheckedUpdateWithoutUserInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildCreateWithoutTherapistInput = {
@@ -858,6 +883,7 @@ export type ChildCreateWithoutTherapistInput = {
   attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateWithoutTherapistInput = {
@@ -877,6 +903,7 @@ export type ChildUncheckedCreateWithoutTherapistInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildCreateOrConnectWithoutTherapistInput = {
@@ -941,6 +968,7 @@ export type ChildCreateWithoutFeedbacksInput = {
   paths?: Prisma.PathCreateNestedManyWithoutChildInput
   attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateWithoutFeedbacksInput = {
@@ -960,6 +988,7 @@ export type ChildUncheckedCreateWithoutFeedbacksInput = {
   paths?: Prisma.PathUncheckedCreateNestedManyWithoutChildInput
   attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildCreateOrConnectWithoutFeedbacksInput = {
@@ -995,6 +1024,7 @@ export type ChildUpdateWithoutFeedbacksInput = {
   paths?: Prisma.PathUpdateManyWithoutChildNestedInput
   attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateWithoutFeedbacksInput = {
@@ -1014,6 +1044,7 @@ export type ChildUncheckedUpdateWithoutFeedbacksInput = {
   paths?: Prisma.PathUncheckedUpdateManyWithoutChildNestedInput
   attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildCreateWithoutPathsInput = {
@@ -1033,6 +1064,7 @@ export type ChildCreateWithoutPathsInput = {
   attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateWithoutPathsInput = {
@@ -1052,6 +1084,7 @@ export type ChildUncheckedCreateWithoutPathsInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildCreateOrConnectWithoutPathsInput = {
@@ -1087,6 +1120,7 @@ export type ChildUpdateWithoutPathsInput = {
   attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateWithoutPathsInput = {
@@ -1106,6 +1140,7 @@ export type ChildUncheckedUpdateWithoutPathsInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildCreateWithoutAttemptsInput = {
@@ -1125,6 +1160,7 @@ export type ChildCreateWithoutAttemptsInput = {
   paths?: Prisma.PathCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateWithoutAttemptsInput = {
@@ -1144,6 +1180,7 @@ export type ChildUncheckedCreateWithoutAttemptsInput = {
   paths?: Prisma.PathUncheckedCreateNestedManyWithoutChildInput
   unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildCreateOrConnectWithoutAttemptsInput = {
@@ -1179,6 +1216,7 @@ export type ChildUpdateWithoutAttemptsInput = {
   paths?: Prisma.PathUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateWithoutAttemptsInput = {
@@ -1198,6 +1236,7 @@ export type ChildUncheckedUpdateWithoutAttemptsInput = {
   paths?: Prisma.PathUncheckedUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildCreateWithoutUnlockedItemsInput = {
@@ -1217,6 +1256,7 @@ export type ChildCreateWithoutUnlockedItemsInput = {
   paths?: Prisma.PathCreateNestedManyWithoutChildInput
   attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutChildInput
 }
 
 export type ChildUncheckedCreateWithoutUnlockedItemsInput = {
@@ -1236,6 +1276,7 @@ export type ChildUncheckedCreateWithoutUnlockedItemsInput = {
   paths?: Prisma.PathUncheckedCreateNestedManyWithoutChildInput
   attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutChildInput
 }
 
 export type ChildCreateOrConnectWithoutUnlockedItemsInput = {
@@ -1257,6 +1298,102 @@ export type ChildUpdateWithWhereUniqueWithoutUnlockedItemsInput = {
 export type ChildUpdateManyWithWhereWithoutUnlockedItemsInput = {
   where: Prisma.ChildScalarWhereInput
   data: Prisma.XOR<Prisma.ChildUpdateManyMutationInput, Prisma.ChildUncheckedUpdateManyWithoutUnlockedItemsInput>
+}
+
+export type ChildCreateWithoutAppointmentsInput = {
+  age: number
+  gender: string
+  ethnicity: string
+  description?: string | null
+  coins?: number
+  avatarSkinColor?: string
+  avatarHairStyle?: string
+  avatarHairColor?: string
+  avatarEyes?: string
+  avatarClothes?: string
+  avatarMouth?: string
+  user: Prisma.UserCreateNestedOneWithoutChildInput
+  therapist: Prisma.TherapistCreateNestedOneWithoutChildrenInput
+  paths?: Prisma.PathCreateNestedManyWithoutChildInput
+  attempts?: Prisma.ExerciseAttemptCreateNestedManyWithoutChildInput
+  unlockedItems?: Prisma.CollectionItemCreateNestedManyWithoutChildrenInput
+  feedbacks?: Prisma.FeedbackCreateNestedManyWithoutChildInput
+}
+
+export type ChildUncheckedCreateWithoutAppointmentsInput = {
+  userId: string
+  age: number
+  gender: string
+  ethnicity: string
+  description?: string | null
+  coins?: number
+  avatarSkinColor?: string
+  avatarHairStyle?: string
+  avatarHairColor?: string
+  avatarEyes?: string
+  avatarClothes?: string
+  avatarMouth?: string
+  therapistId: string
+  paths?: Prisma.PathUncheckedCreateNestedManyWithoutChildInput
+  attempts?: Prisma.ExerciseAttemptUncheckedCreateNestedManyWithoutChildInput
+  unlockedItems?: Prisma.CollectionItemUncheckedCreateNestedManyWithoutChildrenInput
+  feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutChildInput
+}
+
+export type ChildCreateOrConnectWithoutAppointmentsInput = {
+  where: Prisma.ChildWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChildCreateWithoutAppointmentsInput, Prisma.ChildUncheckedCreateWithoutAppointmentsInput>
+}
+
+export type ChildUpsertWithoutAppointmentsInput = {
+  update: Prisma.XOR<Prisma.ChildUpdateWithoutAppointmentsInput, Prisma.ChildUncheckedUpdateWithoutAppointmentsInput>
+  create: Prisma.XOR<Prisma.ChildCreateWithoutAppointmentsInput, Prisma.ChildUncheckedCreateWithoutAppointmentsInput>
+  where?: Prisma.ChildWhereInput
+}
+
+export type ChildUpdateToOneWithWhereWithoutAppointmentsInput = {
+  where?: Prisma.ChildWhereInput
+  data: Prisma.XOR<Prisma.ChildUpdateWithoutAppointmentsInput, Prisma.ChildUncheckedUpdateWithoutAppointmentsInput>
+}
+
+export type ChildUpdateWithoutAppointmentsInput = {
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coins?: Prisma.IntFieldUpdateOperationsInput | number
+  avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarHairColor?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarEyes?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarClothes?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarMouth?: Prisma.StringFieldUpdateOperationsInput | string
+  user?: Prisma.UserUpdateOneRequiredWithoutChildNestedInput
+  therapist?: Prisma.TherapistUpdateOneRequiredWithoutChildrenNestedInput
+  paths?: Prisma.PathUpdateManyWithoutChildNestedInput
+  attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
+  unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
+  feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+}
+
+export type ChildUncheckedUpdateWithoutAppointmentsInput = {
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coins?: Prisma.IntFieldUpdateOperationsInput | number
+  avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarHairColor?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarEyes?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarClothes?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarMouth?: Prisma.StringFieldUpdateOperationsInput | string
+  therapistId?: Prisma.StringFieldUpdateOperationsInput | string
+  paths?: Prisma.PathUncheckedUpdateManyWithoutChildNestedInput
+  attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
+  unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
+  feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildCreateManyTherapistInput = {
@@ -1291,6 +1428,7 @@ export type ChildUpdateWithoutTherapistInput = {
   attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateWithoutTherapistInput = {
@@ -1310,6 +1448,7 @@ export type ChildUncheckedUpdateWithoutTherapistInput = {
   attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
   unlockedItems?: Prisma.CollectionItemUncheckedUpdateManyWithoutChildrenNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateManyWithoutTherapistInput = {
@@ -1344,6 +1483,7 @@ export type ChildUpdateWithoutUnlockedItemsInput = {
   paths?: Prisma.PathUpdateManyWithoutChildNestedInput
   attempts?: Prisma.ExerciseAttemptUpdateManyWithoutChildNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateWithoutUnlockedItemsInput = {
@@ -1363,6 +1503,7 @@ export type ChildUncheckedUpdateWithoutUnlockedItemsInput = {
   paths?: Prisma.PathUncheckedUpdateManyWithoutChildNestedInput
   attempts?: Prisma.ExerciseAttemptUncheckedUpdateManyWithoutChildNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutChildNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type ChildUncheckedUpdateManyWithoutUnlockedItemsInput = {
@@ -1391,6 +1532,7 @@ export type ChildCountOutputType = {
   attempts: number
   unlockedItems: number
   feedbacks: number
+  appointments: number
 }
 
 export type ChildCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1398,6 +1540,7 @@ export type ChildCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   attempts?: boolean | ChildCountOutputTypeCountAttemptsArgs
   unlockedItems?: boolean | ChildCountOutputTypeCountUnlockedItemsArgs
   feedbacks?: boolean | ChildCountOutputTypeCountFeedbacksArgs
+  appointments?: boolean | ChildCountOutputTypeCountAppointmentsArgs
 }
 
 /**
@@ -1438,6 +1581,13 @@ export type ChildCountOutputTypeCountFeedbacksArgs<ExtArgs extends runtime.Types
   where?: Prisma.FeedbackWhereInput
 }
 
+/**
+ * ChildCountOutputType without action
+ */
+export type ChildCountOutputTypeCountAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppointmentWhereInput
+}
+
 
 export type ChildSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
@@ -1459,6 +1609,7 @@ export type ChildSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   attempts?: boolean | Prisma.Child$attemptsArgs<ExtArgs>
   unlockedItems?: boolean | Prisma.Child$unlockedItemsArgs<ExtArgs>
   feedbacks?: boolean | Prisma.Child$feedbacksArgs<ExtArgs>
+  appointments?: boolean | Prisma.Child$appointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ChildCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["child"]>
 
@@ -1522,6 +1673,7 @@ export type ChildInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   attempts?: boolean | Prisma.Child$attemptsArgs<ExtArgs>
   unlockedItems?: boolean | Prisma.Child$unlockedItemsArgs<ExtArgs>
   feedbacks?: boolean | Prisma.Child$feedbacksArgs<ExtArgs>
+  appointments?: boolean | Prisma.Child$appointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ChildCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ChildIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1542,6 +1694,7 @@ export type $ChildPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     attempts: Prisma.$ExerciseAttemptPayload<ExtArgs>[]
     unlockedItems: Prisma.$CollectionItemPayload<ExtArgs>[]
     feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
+    appointments: Prisma.$AppointmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     userId: string
@@ -1957,6 +2110,7 @@ export interface Prisma__ChildClient<T, Null = never, ExtArgs extends runtime.Ty
   attempts<T extends Prisma.Child$attemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Child$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExerciseAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   unlockedItems<T extends Prisma.Child$unlockedItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Child$unlockedItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectionItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   feedbacks<T extends Prisma.Child$feedbacksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Child$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  appointments<T extends Prisma.Child$appointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Child$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2488,6 +2642,30 @@ export type Child$feedbacksArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.FeedbackScalarFieldEnum | Prisma.FeedbackScalarFieldEnum[]
+}
+
+/**
+ * Child.appointments
+ */
+export type Child$appointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Appointment
+   */
+  select?: Prisma.AppointmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Appointment
+   */
+  omit?: Prisma.AppointmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppointmentInclude<ExtArgs> | null
+  where?: Prisma.AppointmentWhereInput
+  orderBy?: Prisma.AppointmentOrderByWithRelationInput | Prisma.AppointmentOrderByWithRelationInput[]
+  cursor?: Prisma.AppointmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppointmentScalarFieldEnum | Prisma.AppointmentScalarFieldEnum[]
 }
 
 /**

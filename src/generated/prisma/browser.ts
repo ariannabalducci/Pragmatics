@@ -62,3 +62,8 @@ export type ExerciseAttempt = Prisma.ExerciseAttemptModel
  * 
  */
 export type CollectionItem = Prisma.CollectionItemModel
+/**
+ * Model Appointment
+ * 
+ */
+export type Appointment = Prisma.AppointmentModel
