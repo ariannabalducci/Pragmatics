@@ -25,40 +25,72 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 3, 1));
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2026, 3, 17));
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [children, setChildren] = useState<any[]>([]); // Stato per i bambini dal DB
   const [loading, setLoading] = useState(true);
   
-  // Stati per la modale
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newApp, setNewApp] = useState({
-    patientName: "",
+    childId: "", // Usiamo l'ID invece del nome testuale
     time: "10:00",
     type: "training",
     note: "",
     duration: "45 min"
   });
 
-  // 1. CARICAMENTO DATI
-  const fetchAppointments = async () => {
+  // 1. CARICAMENTO DATI (Con gestione Token)
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/appointments');
-      const data = await res.json();
-      setAppointments(data);
+      
+      // Recuperiamo il token dal localStorage (o dove lo salvi al login)
+      const token = localStorage.getItem('token'); 
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const [appRes, childRes] = await Promise.all([
+        fetch('/api/appointments', { headers }),
+        fetch('/api/therapist/student', { headers })
+      ]);
+      
+      // Se l'API risponde 401, il token è scaduto o mancante
+      if (childRes.status === 401) {
+        console.error("Non autorizzato. Controlla il login.");
+        return;
+      }
+
+      const appData = await appRes.json();
+      const childData = await childRes.json();
+      
+      console.log("Pazienti caricati:", childData); // Debug per vedere se arrivano i dati
+
+      setAppointments(Array.isArray(appData) ? appData : []);
+      // Gestiamo il caso in cui i dati siano in un sotto-oggetto o array
+      setChildren(Array.isArray(childData) ? childData : (childData.students || []));
+      
     } catch (err) {
-      console.error("Errore nel caricamento appuntamenti:", err);
+      console.error("Errore caricamento:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAppointments();
+    fetchData();
   }, []);
 
-  // 2. SALVATAGGIO
+  // 2. SALVATAGGIO DINAMICO (Con gestione Token)
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!newApp.childId) {
+      alert("Per favore, seleziona un paziente dalla lista.");
+      return;
+    }
+
+    const token = localStorage.getItem('token');
     const [hours, minutes] = newApp.time.split(":");
     const startDateTime = new Date(selectedDate);
     startDateTime.setHours(parseInt(hours), parseInt(minutes));
@@ -66,46 +98,55 @@ export default function CalendarPage() {
     try {
       const res = await fetch('/api/appointments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           startTime: startDateTime.toISOString(),
-          patientName: newApp.patientName, // Salviamo il nome inserito
+          childId: newApp.childId,
           type: newApp.type,
           duration: newApp.duration,
-          note: newApp.note,
-          therapistId: "sarah_connor", 
-          childId: "timmy_turner"      
+          note: newApp.note
         }),
       });
 
       if (res.ok) {
         setIsModalOpen(false);
-        setNewApp({ patientName: "", time: "10:00", type: "training", note: "", duration: "45 min" });
-        fetchAppointments();
+        setNewApp({ childId: "", time: "10:00", type: "training", note: "", duration: "45 min" });
+        fetchData(); // Ricarica la lista per vedere il nuovo appuntamento
+      } else {
+        const errData = await res.json();
+        alert(`Errore: ${errData.error || "Impossibile salvare l'appuntamento"}`);
       }
     } catch (err) {
-      alert("Errore durante il salvataggio");
+      alert("Errore di connessione. Verifica la tua rete.");
     }
   };
 
+  // 3. ELIMINAZIONE (Con gestione Token)
   const handleDeleteAppointment = async (id: string) => {
     if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
 
+    const token = localStorage.getItem('token');
+
     try {
-      const res = await fetch(`/api/appointments?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/appointments/${id}`, {
         method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      if (!res.ok) {
-        throw new Error("Errore nella cancellazione");
+      if (res.ok) {
+        fetchData();
+      } else {
+        alert("Errore nella cancellazione dell'appuntamento.");
       }
-
-      fetchAppointments();
     } catch (err) {
-      alert("Errore durante la cancellazione dell'appuntamento");
+      alert("Errore di rete durante l'eliminazione.");
     }
   };
 
+  // 4. LOGICA CALENDARIO (Resta invariata)
   const days = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });
     const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 });
@@ -113,9 +154,11 @@ export default function CalendarPage() {
   }, [currentMonth]);
 
   const selectedDayAppointments = useMemo(() => {
-    return appointments.filter(app => isSameDay(new Date(app.startTime), selectedDate));
+    return appointments.filter(app => {
+      const appDate = new Date(app.startTime);
+      return isSameDay(appDate, selectedDate);
+    });
   }, [appointments, selectedDate]);
-
   return (
     <div className="flex min-h-screen font-sans antialiased" style={{ backgroundColor: BRAND.bg }}>
       
@@ -218,7 +261,7 @@ export default function CalendarPage() {
                       key={app.id}
                       id={app.id}
                       time={format(new Date(app.startTime), "HH:mm")}
-                      name={app.patientName}
+                      name={app.patientName || app.child?.user?.name || "Paziente"}
                       type={app.type}
                       duration={app.duration}
                       note={app.note}
@@ -241,7 +284,7 @@ export default function CalendarPage() {
         </div>
       </main>
 
-      {/* MODALE NUOVO APPUNTAMENTO */}
+      {/* MODALE NUOVO APPUNTAMENTO DINAMICA */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[40px] w-full max-w-md p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -251,7 +294,6 @@ export default function CalendarPage() {
             </div>
             
             <form onSubmit={handleSave} className="space-y-5">
-              {/* CAMPO DATA MODIFICABILE */}
               <div>
                 <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Data Appuntamento</label>
                 <input 
@@ -263,21 +305,52 @@ export default function CalendarPage() {
                 />
               </div>
 
-              {/* NOME PAZIENTE */}
-              <div>
-                <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Nome e Cognome Paziente</label>
-                <input 
-                  type="text"
-                  placeholder="Inserisci nome paziente..."
-                  required
-                  className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4]"
-                  value={newApp.patientName}
-                  onChange={(e) => setNewApp({...newApp, patientName: e.target.value})}
-                />
-              </div>
+              {/* SELECT DINAMICA BAMBINI */}
+<div>
+  <label className="text-xs font-black uppercase text-slate-400 mb-2 block">
+    Seleziona Paziente
+  </label>
+  <div className="relative">
+    <select 
+      required
+      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4] appearance-none cursor-pointer"
+      value={newApp.childId}
+      onChange={(e) => {
+        console.log("Paziente selezionato ID:", e.target.value);
+        setNewApp({...newApp, childId: e.target.value});
+      }}
+    >
+      <option value="" disabled>Scegli il paziente...</option>
+      
+      {children && children.length > 0 ? (
+        children.map((child: any) => {
+          // Determina l'ID (prova userId, poi id)
+          const childId = child.userId || child.id;
+          // Determina il Nome (prova user.name, poi name diretto)
+          const name = child.user?.name || child.name || "Paziente";
+          const surname = child.user?.surname || child.surname || "";
+
+          return (
+            <option key={childId} value={childId}>
+              {name} {surname}
+            </option>
+          );
+        })
+      ) : (
+        <option value="" disabled>Nessun paziente trovato</option>
+      )}
+    </select>
+    
+    {/* Piccola freccia estetica visto che abbiamo usato appearance-none */}
+    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </div>
+</div>
 
               <div className="grid grid-cols-2 gap-4">
-                {/* ORARIO */}
                 <div>
                   <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Orario</label>
                   <input 
@@ -288,7 +361,6 @@ export default function CalendarPage() {
                     className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4]" 
                   />
                 </div>
-                {/* TIPO */}
                 <div>
                   <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Tipo</label>
                   <select 
@@ -343,14 +415,14 @@ function AppointmentCard({ id, time, name, type, duration, note, onDelete }: any
         <div className="flex items-center gap-2">
           <span className={cn("px-3 py-1 rounded-full text-[10px] uppercase tracking-widest", isVal ? "bg-purple-50 text-purple-500" : "bg-teal-50 text-teal-600")}>{type}</span>
           {onDelete && (
-            <button type="button" onClick={onDelete} className="text-slate-400 hover:text-red-500 transition-colors" aria-label="Elimina appuntamento">
+            <button type="button" onClick={onDelete} className="text-slate-300 hover:text-red-500 transition-colors" aria-label="Elimina appuntamento">
               <X size={16} />
             </button>
           )}
         </div>
       </div>
-      <h5 className="text-lg text-slate-800 mb-1 flex items-center gap-2"><User size={16} className="text-slate-300"/>{name}</h5>
-      <p className="text-xs text-slate-400 mb-3">Durata: {duration}</p>
+      <h5 className="text-lg text-slate-800 mb-1 flex items-center gap-2 font-bold"><User size={16} className="text-slate-300"/>{name}</h5>
+      <p className="text-xs text-slate-400 mb-3 font-medium">Durata: {duration}</p>
       {note && <div className="pt-3 border-t border-slate-50 flex items-center gap-2 text-slate-400 text-[11px] italic transition-colors group-hover:text-slate-600"><FileText size={12}/>{note}</div>}
     </div>
   );

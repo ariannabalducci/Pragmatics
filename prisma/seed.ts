@@ -183,22 +183,7 @@ async function main() {
     })
   }
 
-  // 7. CREAZIONE APPUNTAMENTO DI PROVA
-  if (child1.child && therapist1User.therapist) {
-    await prisma.appointment.create({
-      data: {
-        startTime: new Date("2026-04-17T10:00:00Z"), // Giorno del calendario
-        type: "valutazione",
-        duration: "45 min",
-        note: "Seduta iniziale con Timmy",
-        therapistId: therapist1User.therapist.userId,
-        childId: child1.child.userId
-      }
-    });
-    console.log('Appuntamento di prova creato.');
-  }
-
-  console.log('Seed completato con successo! 🦜');
+  
 }
 
 main()
