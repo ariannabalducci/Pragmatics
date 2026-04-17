@@ -14,7 +14,7 @@ const StoryPage = () => {
     const searchParams = useSearchParams();
     const exerciseId = searchParams.get('id');
     const isTesting = searchParams.get('mode') === 'testing';
-    
+
     const [interactions, setInteractions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const StoryPage = () => {
 
     const [currentInteractionIndex, setCurrentInteractionIndex] = useState(0);
     const [currentInteraction, setCurrentInteraction] = useState<any>({});
-    
+
     const [quizStatus, setQuizStatus] = useState<string | null>(null);
 
     useEffect(() => {
@@ -36,25 +36,25 @@ const StoryPage = () => {
                 const res = await fetch(`/api/exercise/${exerciseId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
-                const data = await res.json(); 
+
+                const data = await res.json();
 
                 if (!res.ok || data.error) {
                     setError(data.error || "Failed to load");
                     return;
                 }
-                
+
                 const fetchedInteractions = data.content_json?.interactions || [];
-                
+
                 // In entrambe le modalità, la storia termina con il quiz. 
                 // Evitiamo che ci siano interazioni extra (es. prompt del chatbot) dopo il quiz.
                 const quizIndex = fetchedInteractions.findIndex((int: any) => int.options && int.options.length > 0);
                 const finalInteractions = quizIndex !== -1 ? fetchedInteractions.slice(0, quizIndex + 1) : fetchedInteractions;
-                
+
                 setInteractions(finalInteractions);
-                
+
                 setStartTime(Date.now());
-                
+
             } catch (err) {
                 console.error(err);
                 setError("Network error occurred");
@@ -90,25 +90,25 @@ const StoryPage = () => {
                 // In Testing, non salviamo sul DB ma solo localmente per disaccoppiare dal training
                 const testedStr = localStorage.getItem('testedExercises') || '[]';
                 const tested = JSON.parse(testedStr);
-                
+
                 if (exerciseId && !tested.includes(exerciseId)) {
                     tested.push(exerciseId);
                     localStorage.setItem('testedExercises', JSON.stringify(tested));
                 }
-                
+
                 router.push('/path');
                 return;
             }
 
             const token = localStorage.getItem("token");
-            
+
             const res = await fetch(`/api/exercise/${exerciseId}/attempt`, {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}` 
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     success: true,
                     duration_seconds: durationSeconds,
                     tries_till_correct: mistakes
@@ -130,11 +130,11 @@ const StoryPage = () => {
     const handleNext = () => {
         if (isQuizScreen) {
             if (isTesting && quizStatus !== null) {
-                 handleFinish();
-                 return;
+                handleFinish();
+                return;
             } else if (!isTesting && quizStatus === 'correct') {
-                 handleFinish(); 
-                 return;
+                handleFinish();
+                return;
             }
         }
 
@@ -146,26 +146,20 @@ const StoryPage = () => {
     };
 
     const handlePrev = () => {
-        if (quizStatus === 'incorrect') {
-            setQuizStatus(null);
-            return;
-        }
-
         if (currentInteractionIndex > 0) {
             setCurrentInteractionIndex(prevIndex => prevIndex - 1);
         }
     };
 
-    // Determine when chevrons should stop working based on your rules
     const isPrevDisabled = currentInteractionIndex === 0 || (!isTesting && quizStatus === 'correct');
-    
-    // Disable Next se seleziona l'opzione sbagliata (solo training)
-    // In testing permettiamo sempre il tasto avanti, MA se siamo sul quiz bisogna aver prima risposto
-    const isNextDisabled = isTesting 
-        ? (isQuizScreen && quizStatus === null)
-        : (quizStatus === 'incorrect' || (currentInteractionIndex === interactions.length - 1 && quizStatus !== 'correct'));
 
-        
+    // In training, il tasto avanti si sblocca solo dopo la risposta corretta sul quiz
+    // In testing, basta aver confermato una risposta qualsiasi
+    const isNextDisabled = isTesting
+        ? (isQuizScreen && quizStatus === null)
+        : (isQuizScreen && quizStatus !== 'correct') || (currentInteractionIndex === interactions.length - 1 && !isQuizScreen);
+
+
     return (
         <main className="bg-white grid grid-rows-[min-content_1fr] grid-cols-[1fr_2fr] gap-1 w-screen h-screen pb-10 overflow-hidden">
             <div className="col-span-2 flex items-center justify-between px-5 pt-5">
@@ -180,28 +174,28 @@ const StoryPage = () => {
             <div className="relative flex flex-col gap-1 row-start-2 col-start-1 items-center">
                 <div className="absolute -left-40 top-0 z-10 h-full w-150 z-0 pointer-events-none">
                     <Image
-                    src="/side-parrot.svg"
-                    alt="Talking parrot"
-                    fill
-                    className="object-contain z-0"
+                        src="/side-parrot.svg"
+                        alt="Talking parrot"
+                        fill
+                        className="object-contain z-0"
                     />
                 </div>
 
                 <div className="absolute bottom-10 flex flex-row gap-8 justify-center z-10">
-                    <Button 
-                        variant="arrow" 
+                    <Button
+                        variant="arrow"
                         size="icon-lg"
-                        onClick={handlePrev} 
+                        onClick={handlePrev}
                         disabled={isPrevDisabled}
                         title="Previous"
                     >
                         <ChevronsLeft className="size-10" strokeWidth={3} />
                     </Button>
 
-                    <Button 
-                        variant="arrow" 
+                    <Button
+                        variant="arrow"
                         size="icon-lg"
-                        onClick={handleNext} 
+                        onClick={handleNext}
                         disabled={isNextDisabled}
                         title="Next"
                     >
@@ -211,7 +205,7 @@ const StoryPage = () => {
             </div>
 
             <div className="flex flex-col gap-1 row-start-2 col-start-2 pr-15">
-                <StoryWindow 
+                <StoryWindow
                     interactionData={currentInteraction}
                     quizStatus={quizStatus}
                     onAnswer={handleAnswer}
