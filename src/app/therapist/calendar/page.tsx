@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import React, { useState, useMemo, useEffect } from "react";
-import { 
-  Calendar as CalendarIcon, Clock, User, Plus, LogOut, 
-  LayoutDashboard, Users, FileText, ChevronLeft, ChevronRight, Target, X 
+import {
+  Calendar as CalendarIcon, Clock, User, Plus, LogOut,
+  LayoutDashboard, Users, FileText, ChevronLeft, ChevronRight, Target, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { 
-  format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, 
-  eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths 
+import {
+  format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
+  eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths
 } from "date-fns";
 import { it } from "date-fns/locale";
 
@@ -84,7 +84,7 @@ export default function CalendarPage() {
   // 2. SALVATAGGIO DINAMICO (Con gestione Token)
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newApp.childId) {
       alert("Per favore, seleziona un paziente dalla lista.");
       return;
@@ -161,7 +161,7 @@ export default function CalendarPage() {
   }, [appointments, selectedDate]);
   return (
     <div className="flex min-h-screen font-sans antialiased" style={{ backgroundColor: BRAND.bg }}>
-      
+
       {/* SIDEBAR */}
       <aside className="w-64 flex flex-col justify-between p-6 shrink-0 h-screen sticky top-0" style={{ backgroundColor: BRAND.primary, color: "white" }}>
         <div>
@@ -199,7 +199,7 @@ export default function CalendarPage() {
               </h3>
               <div className="flex items-center gap-3">
                 <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"><ChevronLeft size={18} /></button>
-                <button onClick={() => {const t = new Date(); setCurrentMonth(t); setSelectedDate(t);}} className="px-5 py-1.5 bg-[#E8F3F1] font-bold rounded-lg text-sm transition-colors hover:bg-[#d5e9e6]" style={{ color: BRAND.primary }}>Oggi</button>
+                <button onClick={() => { const t = new Date(); setCurrentMonth(t); setSelectedDate(t); }} className="px-5 py-1.5 bg-[#E8F3F1] font-bold rounded-lg text-sm transition-colors hover:bg-[#d5e9e6]" style={{ color: BRAND.primary }}>Oggi</button>
                 <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"><ChevronRight size={18} /></button>
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function CalendarPage() {
                 {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map(d => (
                   <div key={d} className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: BRAND.textMuted }}>{d}</div>
                 ))}
-                
+
                 {days.map((date, i) => {
                   const isSel = isSameDay(date, selectedDate);
                   const isCurr = isSameMonth(date, currentMonth);
@@ -217,7 +217,7 @@ export default function CalendarPage() {
 
                   return (
                     <div key={i} className="aspect-[4/5] flex items-center justify-center relative">
-                      <button 
+                      <button
                         onClick={() => setSelectedDate(date)}
                         className={cn(
                           "w-16 h-20 rounded-[20px] flex flex-col items-center justify-center transition-all relative",
@@ -253,29 +253,29 @@ export default function CalendarPage() {
             </div>
 
             <div className="space-y-4">
-                {loading ? (
-                  <p className="text-center text-slate-400 text-sm italic">Caricamento...</p>
-                ) : selectedDayAppointments.length > 0 ? (
-                  selectedDayAppointments.map((app) => (
-                    <AppointmentCard 
-                      key={app.id}
-                      id={app.id}
-                      time={format(new Date(app.startTime), "HH:mm")}
-                      name={app.patientName || app.child?.user?.name || "Paziente"}
-                      type={app.type}
-                      duration={app.duration}
-                      note={app.note}
-                      onDelete={() => handleDeleteAppointment(app.id)}
-                    />
-                  ))
-                ) : (
-                  <p className="text-center text-slate-400 text-sm py-10 italic">Nessun impegno per oggi</p>
-                )}
+              {loading ? (
+                <p className="text-center text-slate-400 text-sm italic">Caricamento...</p>
+              ) : selectedDayAppointments.length > 0 ? (
+                selectedDayAppointments.map((app) => (
+                  <AppointmentCard
+                    key={app.id}
+                    id={app.id}
+                    time={format(new Date(app.startTime), "HH:mm")}
+                    name={app.patientName || app.child?.user?.name || "Paziente"}
+                    type={app.type}
+                    duration={app.duration}
+                    note={app.note}
+                    onDelete={() => handleDeleteAppointment(app.id)}
+                  />
+                ))
+              ) : (
+                <p className="text-center text-slate-400 text-sm py-10 italic">Nessun impegno per oggi</p>
+              )}
             </div>
 
-            <button 
+            <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full py-5 rounded-2xl text-white font-bold text-lg shadow-xl shadow-teal-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2" 
+              className="w-full py-5 rounded-2xl text-white font-bold text-lg shadow-xl shadow-teal-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
               style={{ backgroundColor: BRAND.primaryLight }}
             >
               <Plus size={20} /> Nuovo Appuntamento
@@ -292,12 +292,12 @@ export default function CalendarPage() {
               <h3 className="text-2xl font-black text-slate-800">Crea Appuntamento</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"><X size={20} /></button>
             </div>
-            
+
             <form onSubmit={handleSave} className="space-y-5">
               <div>
                 <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Data Appuntamento</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   required
                   className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4]"
                   value={format(selectedDate, "yyyy-MM-dd")}
@@ -353,19 +353,19 @@ export default function CalendarPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Orario</label>
-                  <input 
-                    type="time" 
-                    required 
-                    value={newApp.time} 
-                    onChange={(e) => setNewApp({...newApp, time: e.target.value})} 
-                    className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4]" 
+                  <input
+                    type="time"
+                    required
+                    value={newApp.time}
+                    onChange={(e) => setNewApp({ ...newApp, time: e.target.value })}
+                    className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4]"
                   />
                 </div>
                 <div>
                   <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Tipo</label>
-                  <select 
-                    value={newApp.type} 
-                    onChange={(e) => setNewApp({...newApp, type: e.target.value})} 
+                  <select
+                    value={newApp.type}
+                    onChange={(e) => setNewApp({ ...newApp, type: e.target.value })}
                     className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-black focus:ring-2 focus:ring-[#6BB4A4]"
                   >
                     <option value="training">Training</option>
@@ -376,11 +376,11 @@ export default function CalendarPage() {
 
               <div>
                 <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Note (Opzionale)</label>
-                <textarea 
-                  value={newApp.note} 
-                  onChange={(e) => setNewApp({...newApp, note: e.target.value})} 
-                  className="w-full p-4 bg-slate-50 rounded-2xl border-none font-medium text-black h-24 focus:ring-2 focus:ring-[#6BB4A4]" 
-                  placeholder="Es: Focus su fonetica..." 
+                <textarea
+                  value={newApp.note}
+                  onChange={(e) => setNewApp({ ...newApp, note: e.target.value })}
+                  className="w-full p-4 bg-slate-50 rounded-2xl border-none font-medium text-black h-24 focus:ring-2 focus:ring-[#6BB4A4]"
+                  placeholder="Es: Focus su fonetica..."
                 />
               </div>
 
@@ -421,9 +421,9 @@ function AppointmentCard({ id, time, name, type, duration, note, onDelete }: any
           )}
         </div>
       </div>
-      <h5 className="text-lg text-slate-800 mb-1 flex items-center gap-2 font-bold"><User size={16} className="text-slate-300"/>{name}</h5>
+      <h5 className="text-lg text-slate-800 mb-1 flex items-center gap-2 font-bold"><User size={16} className="text-slate-300" />{name}</h5>
       <p className="text-xs text-slate-400 mb-3 font-medium">Durata: {duration}</p>
-      {note && <div className="pt-3 border-t border-slate-50 flex items-center gap-2 text-slate-400 text-[11px] italic transition-colors group-hover:text-slate-600"><FileText size={12}/>{note}</div>}
+      {note && <div className="pt-3 border-t border-slate-50 flex items-center gap-2 text-slate-400 text-[11px] italic transition-colors group-hover:text-slate-600"><FileText size={12} />{note}</div>}
     </div>
   );
 }

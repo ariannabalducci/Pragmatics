@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { chattogemini } from '@/utils/geminiHelpers';
+import { chatWithAzure } from '@/utils/azureHelpers';
 import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -36,17 +36,29 @@ export async function POST(request: Request) {
       }, { status: 200 });
     }
 
-    const systemPrompt = `Tu sei Praggy, un pappagallo. Rispondi in italiano. Breve. No grassetto. JSON format: {"message": "string", "is_ended": boolean}`;
+    const storyContext = JSON.stringify(exercise.contentJson);
+    const systemPrompt = `Tu sei Praggy, un pappagallo amichevole e simpatico tutor. Stai parlando con un bambino per fargli sviluppare la comprensione della pragmatica.
+Questo è l'esercizio in corso:
+- Argomento: ${exercise.group?.topic}
+- Storia completa: ${storyContext}
 
-    // LOG 3: Chiamata Gemini
-    console.log("Chiamata a Gemini in corso...");
+REGOLE FONDAMENTALI DEL TUO COMPORTAMENTO:
+1. Valuta attentamente l'ultimo messaggio del bambino.
+2. Rispondigli in modo discorsivo. Se sbaglia guidalo a capire il senso della metafora. Se risponde bene, congratulati con lui ma fagli un'altra domanda collegata o continua a far conversazione in modo spontaneo sull'argomento.
+3. NON DEVI MAI CHIUDERE LA CONVERSAZIONE. Devi dare la possibilità all'utente di chattare all'infinito. Pertanto, imposta sempre e rigorosamente "is_ended": false in ogni tua risposta!
+4. Parla solo in italiano.
+5. Sii brevissimo (massimo 1 o 2 frasi). Non usare mai il grassetto ( ** ).
+6. Restituisci RIGOROSAMENTE un oggetto JSON valido in questo formato: {"message": "la tua risposta testuale", "is_ended": false}`;
+
+    // LOG 3: Chiamata Azure
+    console.log("Chiamata ad Azure in corso...");
     let aiResponse;
     try {
-        aiResponse = await chattogemini(message, history || [], systemPrompt);
-        console.log("Risposta Gemini ricevuta:", aiResponse);
-    } catch (geminiError) {
-        console.error("ERRORE GEMINI:", geminiError);
-        throw new Error("Gemini ha fallito");
+        aiResponse = await chatWithAzure(message, history || [], systemPrompt);
+        console.log("Risposta Azure ricevuta:", aiResponse);
+    } catch (apiError) {
+        console.error("ERRORE BACKEND AZURE:", apiError);
+        throw new Error("Azure ha fallito");
     }
 
     return NextResponse.json({ 

@@ -29,15 +29,16 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
     const [isMounted, setIsMounted] = useState(false);
     const [tempSelectedIndex, setTempSelectedIndex] = useState<number | null>(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [showWrongFeedback, setShowWrongFeedback] = useState(false);
 
-    const { 
-        parrot_msg, 
+    const {
+        parrot_msg,
         character1_msg,
         character2_msg,
-        background_img, 
-        character1_img, 
-        character2_img, 
-        object_img, 
+        background_img,
+        character1_img,
+        character2_img,
+        object_img,
         options,
         correct_option
     } = interactionData;
@@ -52,14 +53,27 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
         if (quizStatus === null) {
             setTempSelectedIndex(null);
             setIsSubmitted(false);
+            setShowWrongFeedback(false);
         }
     }, [interactionData, quizStatus]);
 
     const handleConfirm = () => {
         if (tempSelectedIndex !== null && onAnswer) {
-            setIsSubmitted(true);
             const isCorrect = tempSelectedIndex === correct_option;
-            onAnswer(isCorrect);
+            if (isCorrect) {
+                setIsSubmitted(true);
+                onAnswer(true);
+            } else {
+                // Mostra feedback "sbagliato" brevemente, poi resetta la selezione
+                setIsSubmitted(true);
+                setShowWrongFeedback(true);
+                onAnswer(false);
+                setTimeout(() => {
+                    setIsSubmitted(false);
+                    setTempSelectedIndex(null);
+                    setShowWrongFeedback(false);
+                }, 1200);
+            }
         }
     };
 
@@ -69,23 +83,20 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
 
     return (
         <div className="flex flex-col w-full gap-3">
-            
+
             {/* -------------------- FUMETTO DI PRAGGY -------------------- */}
-            <div className="relative min-h-40 flex items-center justify-center">
+            <div className="flex justify-center w-full mb-2">
                 {parrot_msg && (
-                    <>
-                        <Image 
-                            src="/exercises/speech-bubble.png" 
-                            alt="Fumetto" 
-                            fill 
-                            priority
-                            style={{ objectFit: 'contain' }}
-                            className='animate-[fade-in_.5s_ease-in-out_forwards]'   
+                    <div className="relative flex items-center justify-center w-full max-w-[650px]">
+                        <img
+                            src="/exercises/speech-bubble.png"
+                            alt="Fumetto"
+                            className="w-full h-auto animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
-                        <p className="relative z-10 text-white text-xl px-20 pb-4 animate-[fade-in_.5s_ease-in-out_forwards] font-medium text-center leading-tight">
+                        <p className="absolute z-10 text-white text-[1.1rem] md:text-lg lg:text-xl font-medium text-center leading-tight w-[85%] pb-[4%] px-2 animate-[fade-in_.5s_ease-in-out_forwards]">
                             {parrot_msg}
                         </p>
-                    </>
+                    </div>
                 )}
             </div>
 
@@ -159,9 +170,9 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                             const isCorrect = index === correct_option;
 
                             return (
-                                <Button 
-                                    key={index} 
-                                    variant="option" 
+                                <Button
+                                    key={index}
+                                    variant="option"
                                     size="content"
                                     onClick={() => !isSubmitted && setTempSelectedIndex(index)}
                                     disabled={isSubmitted}
@@ -169,11 +180,12 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                                         "justify-center animate-[fade-in_.5s_ease-in-out_forwards] py-6 px-8 h-auto transition-all",
                                         // Selezione temporanea (Giallo)
                                         isSelected && !isSubmitted && "border-4 border-yellow-400 bg-yellow-50 text-black scale-105",
+                                        // Risposta sbagliata — flash rosso breve
+                                        isSubmitted && isSelected && showWrongFeedback && "bg-[#E87D57] text-white scale-95",
                                         // Risultato in Testing (neutro)
-                                        isSubmitted && isSelected && isTesting && "bg-slate-600 text-white",
-                                        // Risultato finale in Training (dopo conferma)
+                                        isSubmitted && isSelected && isTesting && !showWrongFeedback && "bg-slate-600 text-white",
+                                        // Risposta corretta in Training
                                         isSubmitted && isSelected && !isTesting && isCorrect && "bg-[#62B4A5] text-white",
-                                        isSubmitted && isSelected && !isTesting && !isCorrect && "bg-[#E87D57] text-white",
                                         isSubmitted && !isSelected && "opacity-50"
                                     )}
                                 >
@@ -185,16 +197,21 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                         })}
                     </div>
 
-                    {/* TASTO CONFERMA */}
-                    <div className="h-12">
+                    {/* FEEDBACK / TASTO CONFERMA */}
+                    <div className="h-12 flex items-center justify-center">
+                        {showWrongFeedback && (
+                            <p className="text-[#E87D57] font-bold text-lg animate-[fade-in_.2s_ease-in-out_forwards]">
+                                Sbagliato! Riprova 🦜
+                            </p>
+                        )}
                         {tempSelectedIndex !== null && !isSubmitted && (
-                            <Button 
+                            <Button
                                 onClick={handleConfirm}
                                 className={cn(
                                     "text-white font-bold px-10 rounded-full shadow-lg transition-all",
-                                    isTesting 
-                                    ? "bg-slate-500 hover:bg-slate-600" 
-                                    : "bg-[#62B4A5] hover:bg-[#4a8f82] animate-bounce"
+                                    isTesting
+                                        ? "bg-slate-500 hover:bg-slate-600"
+                                        : "bg-[#62B4A5] hover:bg-[#4a8f82] animate-bounce"
                                 )}
                             >
                                 {isTesting ? "CONFERMA SCELTA" : "CONFERMA RISPOSTA 🦜"}

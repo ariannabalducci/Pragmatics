@@ -45,20 +45,18 @@ const ChatWindow = ({ interactionData }: ChatWindowProps) => {
         <div className="flex flex-col w-full gap-3">
             
             {/* -------------------- MESSAGE BOX (PRAGGY) -------------------- */}
-            <div className="relative min-h-40 flex items-center justify-center">
+            <div className="flex justify-center w-full mb-2">
                 {parrot_msg && (
-                    <>
-                        <Image 
+                    <div className="relative flex items-center justify-center w-full max-w-[650px]">
+                        <img 
                             src="/exercises/speech-bubble.png" 
                             alt="Fumetto" 
-                            fill 
-                            priority
-                            className='animate-[fade-in_.5s_ease-in-out_forwards] object-contain'   
+                            className="w-full h-auto animate-[fade-in_.5s_ease-in-out_forwards]"   
                         />
-                        <p className="relative z-10 text-white text-xl px-20 pb-4 animate-[fade-in_.5s_ease-in-out_forwards] text-center font-medium">
+                        <p className="absolute z-10 text-white text-[1.1rem] md:text-lg lg:text-xl font-medium text-center leading-tight w-[85%] pb-[4%] px-2 animate-[fade-in_.5s_ease-in-out_forwards]">
                             {parrot_msg}
                         </p>
-                    </>
+                    </div>
                 )}
             </div>
 
