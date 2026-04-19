@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useState, useEffect } from 'react';
 import ChatInput from "@/components/ui/ChatInput";
 import MessageWindow from "@/components/ui/MessageWindow";
-import { ChatHistory, Message, MessageRole } from "../types";
+import { ChatHistory, Message, MessageRole } from "../../types";
 import { ArrowLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import ChatWindow from "@/components/ui/ChatWindow";
 import { useRouter, useSearchParams } from "next/navigation";

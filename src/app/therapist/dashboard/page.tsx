@@ -1,5 +1,6 @@
 "use client";
 
+import { ChildData, Appointment } from "../../../types";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -11,23 +12,6 @@ import {
   HelpCircle,
   ChevronRight,
 } from "lucide-react";
-
-type ChildData = {
-  id: string;
-  name: string;
-  age: number;
-  gender: string;
-  sessionsCompleted?: number;
-};
-
-type Appointment = {
-  id: string;
-  childName: string;
-  startTime: string;
-  time?: string;
-  duration: number;
-  type: string;
-};
 
 export default function Dashboard() {
   const [children, setChildren] = useState<ChildData[]>([]);
@@ -44,7 +28,9 @@ export default function Dashboard() {
           fetch("/api/therapist/student", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("/api/appointments"),
+          fetch("/api/appointments", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         const studentsData = await studentsRes.json();
@@ -61,24 +47,24 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const appointmentsToday = useMemo<Appointment[]>(() => {
+  // Filtro e formattazione appuntamenti di oggi
+  const appointmentsToday = useMemo(() => {
     const today = new Date();
+    const todayStr = today.toDateString(); // Per un confronto date più semplice
+
     return appointments
       .filter((apt) => {
-        const date = new Date(apt.startTime);
-        return (
-          date.getDate() === today.getDate() &&
-          date.getMonth() === today.getMonth() &&
-          date.getFullYear() === today.getFullYear()
-        );
+        const aptDate = new Date(apt.startTime);
+        return aptDate.toDateString() === todayStr;
       })
       .map((apt) => ({
         ...apt,
-        id: apt.id,
-        childName: apt.childName,
-        time: apt.time ?? new Date(apt.startTime).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }),
-        duration: apt.duration,
-        type: apt.type,
+        // Usiamo childName che arriva dalla tua API aggiornata
+        displayChildName: apt.childName || "Paziente non specificato",
+        displayTime: new Date(apt.startTime).toLocaleTimeString("it-IT", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       }));
   }, [appointments]);
 
@@ -86,6 +72,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-[#f4f9f8] font-sans text-slate-800">
+      {/* Sidebar */}
       <aside className="w-64 bg-[#4d8b7d] flex flex-col justify-between py-8">
         <div>
           <div className="px-6 flex items-center gap-3 mb-12">
@@ -115,24 +102,32 @@ export default function Dashboard() {
         </div>
 
         <div className="px-4">
-          <button className="flex items-center gap-3 text-white/90 hover:text-white px-4 py-3 w-full transition font-medium">
+          <button 
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.href = "/";
+            }}
+            className="flex items-center gap-3 text-white/90 hover:text-white px-4 py-3 w-full transition font-medium hover:bg-white/10 rounded-xl"
+          >
             <LogOut className="w-5 h-5" />
-            Esci
+            Log Out
           </button>
         </div>
       </aside>
 
+      {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-10">
         <header className="mb-10">
           <h2 className="text-3xl font-bold text-[#0e2a47]">Dashboard</h2>
           <p className="text-slate-500 font-medium mt-1">Benvenuto nella tua area di lavoro</p>
         </header>
 
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
             <div>
               <p className="text-slate-400 text-sm font-semibold mb-2">Pazienti Seguiti</p>
-              <span className="text-5xl font-bold text-[#4d8b7d]">{children.length || 5}</span>
+              <span className="text-5xl font-bold text-[#4d8b7d]">{children.length}</span>
             </div>
             <div className="bg-[#eff9f8] p-3 rounded-xl text-[#4d8b7d]">
               <Users className="w-7 h-7" />
@@ -142,7 +137,7 @@ export default function Dashboard() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
             <div>
               <p className="text-slate-400 text-sm font-semibold mb-2">Appuntamenti Oggi</p>
-              <span className="text-5xl font-bold text-[#7d5ba6]">{appointmentsToday.length || 3}</span>
+              <span className="text-5xl font-bold text-[#7d5ba6]">{appointmentsToday.length}</span>
             </div>
             <div className="bg-[#f6f2fa] p-3 rounded-xl text-[#7d5ba6]">
               <CalendarIcon className="w-7 h-7" />
@@ -152,7 +147,7 @@ export default function Dashboard() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
             <div>
               <p className="text-slate-400 text-sm font-semibold mb-2">Sedute Totali</p>
-              <span className="text-5xl font-bold text-[#3b82f6]">{totalSessions || 117}</span>
+              <span className="text-5xl font-bold text-[#3b82f6]">{totalSessions}</span>
             </div>
             <div className="bg-[#eff6ff] p-3 rounded-xl text-[#3b82f6]">
               <TrendingUp className="w-7 h-7" />
@@ -160,10 +155,11 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Today's Appointments Section */}
         <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-2xl font-bold text-[#0e2a47]">Appuntamenti di Oggi</h3>
-            <Link href="#" className="text-[#4d8b7d] font-bold text-sm flex items-center gap-1 hover:underline">
+            <Link href="/therapist/calendar" className="text-[#4d8b7d] font-bold text-sm flex items-center gap-1 hover:underline">
               Vedi tutti <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -179,16 +175,17 @@ export default function Dashboard() {
                       <CalendarIcon className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="font-bold text-lg text-slate-800">{apt.childName}</p>
+                      {/* Qui ora il nome apparirà correttamente */}
+                      <p className="font-bold text-lg text-slate-800">{apt.displayChildName}</p>
                       <p className="text-sm text-slate-500 font-medium">
-                        {apt.time} • {apt.duration} min • <span className="italic">{apt.type}</span>
+                        {apt.displayTime} • {apt.duration} min • <span className="italic">{apt.type}</span>
                       </p>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-slate-400 py-4 text-center">Nessun appuntamento previsto.</p>
+              <p className="text-slate-400 py-4 text-center">Nessun appuntamento previsto per oggi.</p>
             )}
           </div>
         </section>

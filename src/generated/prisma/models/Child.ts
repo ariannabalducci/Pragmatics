@@ -42,6 +42,7 @@ export type ChildMinAggregateOutputType = {
   gender: string | null
   ethnicity: string | null
   description: string | null
+  diagnosis: string | null
   coins: number | null
   avatarSkinColor: string | null
   avatarHairStyle: string | null
@@ -58,6 +59,7 @@ export type ChildMaxAggregateOutputType = {
   gender: string | null
   ethnicity: string | null
   description: string | null
+  diagnosis: string | null
   coins: number | null
   avatarSkinColor: string | null
   avatarHairStyle: string | null
@@ -74,6 +76,7 @@ export type ChildCountAggregateOutputType = {
   gender: number
   ethnicity: number
   description: number
+  diagnosis: number
   coins: number
   avatarSkinColor: number
   avatarHairStyle: number
@@ -102,6 +105,7 @@ export type ChildMinAggregateInputType = {
   gender?: true
   ethnicity?: true
   description?: true
+  diagnosis?: true
   coins?: true
   avatarSkinColor?: true
   avatarHairStyle?: true
@@ -118,6 +122,7 @@ export type ChildMaxAggregateInputType = {
   gender?: true
   ethnicity?: true
   description?: true
+  diagnosis?: true
   coins?: true
   avatarSkinColor?: true
   avatarHairStyle?: true
@@ -134,6 +139,7 @@ export type ChildCountAggregateInputType = {
   gender?: true
   ethnicity?: true
   description?: true
+  diagnosis?: true
   coins?: true
   avatarSkinColor?: true
   avatarHairStyle?: true
@@ -237,6 +243,7 @@ export type ChildGroupByOutputType = {
   gender: string
   ethnicity: string
   description: string | null
+  diagnosis: string | null
   coins: number
   avatarSkinColor: string
   avatarHairStyle: string
@@ -276,6 +283,7 @@ export type ChildWhereInput = {
   gender?: Prisma.StringFilter<"Child"> | string
   ethnicity?: Prisma.StringFilter<"Child"> | string
   description?: Prisma.StringNullableFilter<"Child"> | string | null
+  diagnosis?: Prisma.StringNullableFilter<"Child"> | string | null
   coins?: Prisma.IntFilter<"Child"> | number
   avatarSkinColor?: Prisma.StringFilter<"Child"> | string
   avatarHairStyle?: Prisma.StringFilter<"Child"> | string
@@ -299,6 +307,7 @@ export type ChildOrderByWithRelationInput = {
   gender?: Prisma.SortOrder
   ethnicity?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  diagnosis?: Prisma.SortOrderInput | Prisma.SortOrder
   coins?: Prisma.SortOrder
   avatarSkinColor?: Prisma.SortOrder
   avatarHairStyle?: Prisma.SortOrder
@@ -325,6 +334,7 @@ export type ChildWhereUniqueInput = Prisma.AtLeast<{
   gender?: Prisma.StringFilter<"Child"> | string
   ethnicity?: Prisma.StringFilter<"Child"> | string
   description?: Prisma.StringNullableFilter<"Child"> | string | null
+  diagnosis?: Prisma.StringNullableFilter<"Child"> | string | null
   coins?: Prisma.IntFilter<"Child"> | number
   avatarSkinColor?: Prisma.StringFilter<"Child"> | string
   avatarHairStyle?: Prisma.StringFilter<"Child"> | string
@@ -348,6 +358,7 @@ export type ChildOrderByWithAggregationInput = {
   gender?: Prisma.SortOrder
   ethnicity?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  diagnosis?: Prisma.SortOrderInput | Prisma.SortOrder
   coins?: Prisma.SortOrder
   avatarSkinColor?: Prisma.SortOrder
   avatarHairStyle?: Prisma.SortOrder
@@ -372,6 +383,7 @@ export type ChildScalarWhereWithAggregatesInput = {
   gender?: Prisma.StringWithAggregatesFilter<"Child"> | string
   ethnicity?: Prisma.StringWithAggregatesFilter<"Child"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Child"> | string | null
+  diagnosis?: Prisma.StringNullableWithAggregatesFilter<"Child"> | string | null
   coins?: Prisma.IntWithAggregatesFilter<"Child"> | number
   avatarSkinColor?: Prisma.StringWithAggregatesFilter<"Child"> | string
   avatarHairStyle?: Prisma.StringWithAggregatesFilter<"Child"> | string
@@ -387,6 +399,7 @@ export type ChildCreateInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -409,6 +422,7 @@ export type ChildUncheckedCreateInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -429,6 +443,7 @@ export type ChildUpdateInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -451,6 +466,7 @@ export type ChildUncheckedUpdateInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -472,6 +488,7 @@ export type ChildCreateManyInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -487,6 +504,7 @@ export type ChildUpdateManyMutationInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -502,6 +520,7 @@ export type ChildUncheckedUpdateManyInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -533,6 +552,7 @@ export type ChildCountOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   ethnicity?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  diagnosis?: Prisma.SortOrder
   coins?: Prisma.SortOrder
   avatarSkinColor?: Prisma.SortOrder
   avatarHairStyle?: Prisma.SortOrder
@@ -554,6 +574,7 @@ export type ChildMaxOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   ethnicity?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  diagnosis?: Prisma.SortOrder
   coins?: Prisma.SortOrder
   avatarSkinColor?: Prisma.SortOrder
   avatarHairStyle?: Prisma.SortOrder
@@ -570,6 +591,7 @@ export type ChildMinOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   ethnicity?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  diagnosis?: Prisma.SortOrder
   coins?: Prisma.SortOrder
   avatarSkinColor?: Prisma.SortOrder
   avatarHairStyle?: Prisma.SortOrder
@@ -775,6 +797,7 @@ export type ChildCreateWithoutUserInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -795,6 +818,7 @@ export type ChildUncheckedCreateWithoutUserInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -831,6 +855,7 @@ export type ChildUpdateWithoutUserInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -851,6 +876,7 @@ export type ChildUncheckedUpdateWithoutUserInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -871,6 +897,7 @@ export type ChildCreateWithoutTherapistInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -892,6 +919,7 @@ export type ChildUncheckedCreateWithoutTherapistInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -941,6 +969,7 @@ export type ChildScalarWhereInput = {
   gender?: Prisma.StringFilter<"Child"> | string
   ethnicity?: Prisma.StringFilter<"Child"> | string
   description?: Prisma.StringNullableFilter<"Child"> | string | null
+  diagnosis?: Prisma.StringNullableFilter<"Child"> | string | null
   coins?: Prisma.IntFilter<"Child"> | number
   avatarSkinColor?: Prisma.StringFilter<"Child"> | string
   avatarHairStyle?: Prisma.StringFilter<"Child"> | string
@@ -956,6 +985,7 @@ export type ChildCreateWithoutFeedbacksInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -977,6 +1007,7 @@ export type ChildUncheckedCreateWithoutFeedbacksInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1012,6 +1043,7 @@ export type ChildUpdateWithoutFeedbacksInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1033,6 +1065,7 @@ export type ChildUncheckedUpdateWithoutFeedbacksInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1052,6 +1085,7 @@ export type ChildCreateWithoutPathsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1073,6 +1107,7 @@ export type ChildUncheckedCreateWithoutPathsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1108,6 +1143,7 @@ export type ChildUpdateWithoutPathsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1129,6 +1165,7 @@ export type ChildUncheckedUpdateWithoutPathsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1148,6 +1185,7 @@ export type ChildCreateWithoutAttemptsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1169,6 +1207,7 @@ export type ChildUncheckedCreateWithoutAttemptsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1204,6 +1243,7 @@ export type ChildUpdateWithoutAttemptsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1225,6 +1265,7 @@ export type ChildUncheckedUpdateWithoutAttemptsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1244,6 +1285,7 @@ export type ChildCreateWithoutUnlockedItemsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1265,6 +1307,7 @@ export type ChildUncheckedCreateWithoutUnlockedItemsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1305,6 +1348,7 @@ export type ChildCreateWithoutAppointmentsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1326,6 +1370,7 @@ export type ChildUncheckedCreateWithoutAppointmentsInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1361,6 +1406,7 @@ export type ChildUpdateWithoutAppointmentsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1382,6 +1428,7 @@ export type ChildUncheckedUpdateWithoutAppointmentsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1402,6 +1449,7 @@ export type ChildCreateManyTherapistInput = {
   gender: string
   ethnicity: string
   description?: string | null
+  diagnosis?: string | null
   coins?: number
   avatarSkinColor?: string
   avatarHairStyle?: string
@@ -1416,6 +1464,7 @@ export type ChildUpdateWithoutTherapistInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1437,6 +1486,7 @@ export type ChildUncheckedUpdateWithoutTherapistInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1457,6 +1507,7 @@ export type ChildUncheckedUpdateManyWithoutTherapistInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1471,6 +1522,7 @@ export type ChildUpdateWithoutUnlockedItemsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1492,6 +1544,7 @@ export type ChildUncheckedUpdateWithoutUnlockedItemsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1512,6 +1565,7 @@ export type ChildUncheckedUpdateManyWithoutUnlockedItemsInput = {
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   ethnicity?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  diagnosis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coins?: Prisma.IntFieldUpdateOperationsInput | number
   avatarSkinColor?: Prisma.StringFieldUpdateOperationsInput | string
   avatarHairStyle?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1595,6 +1649,7 @@ export type ChildSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   gender?: boolean
   ethnicity?: boolean
   description?: boolean
+  diagnosis?: boolean
   coins?: boolean
   avatarSkinColor?: boolean
   avatarHairStyle?: boolean
@@ -1619,6 +1674,7 @@ export type ChildSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   gender?: boolean
   ethnicity?: boolean
   description?: boolean
+  diagnosis?: boolean
   coins?: boolean
   avatarSkinColor?: boolean
   avatarHairStyle?: boolean
@@ -1637,6 +1693,7 @@ export type ChildSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   gender?: boolean
   ethnicity?: boolean
   description?: boolean
+  diagnosis?: boolean
   coins?: boolean
   avatarSkinColor?: boolean
   avatarHairStyle?: boolean
@@ -1655,6 +1712,7 @@ export type ChildSelectScalar = {
   gender?: boolean
   ethnicity?: boolean
   description?: boolean
+  diagnosis?: boolean
   coins?: boolean
   avatarSkinColor?: boolean
   avatarHairStyle?: boolean
@@ -1665,7 +1723,7 @@ export type ChildSelectScalar = {
   therapistId?: boolean
 }
 
-export type ChildOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"userId" | "age" | "gender" | "ethnicity" | "description" | "coins" | "avatarSkinColor" | "avatarHairStyle" | "avatarHairColor" | "avatarEyes" | "avatarClothes" | "avatarMouth" | "therapistId", ExtArgs["result"]["child"]>
+export type ChildOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"userId" | "age" | "gender" | "ethnicity" | "description" | "diagnosis" | "coins" | "avatarSkinColor" | "avatarHairStyle" | "avatarHairColor" | "avatarEyes" | "avatarClothes" | "avatarMouth" | "therapistId", ExtArgs["result"]["child"]>
 export type ChildInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   therapist?: boolean | Prisma.TherapistDefaultArgs<ExtArgs>
@@ -1702,6 +1760,7 @@ export type $ChildPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     gender: string
     ethnicity: string
     description: string | null
+    diagnosis: string | null
     coins: number
     avatarSkinColor: string
     avatarHairStyle: string
@@ -2145,6 +2204,7 @@ export interface ChildFieldRefs {
   readonly gender: Prisma.FieldRef<"Child", 'String'>
   readonly ethnicity: Prisma.FieldRef<"Child", 'String'>
   readonly description: Prisma.FieldRef<"Child", 'String'>
+  readonly diagnosis: Prisma.FieldRef<"Child", 'String'>
   readonly coins: Prisma.FieldRef<"Child", 'Int'>
   readonly avatarSkinColor: Prisma.FieldRef<"Child", 'String'>
   readonly avatarHairStyle: Prisma.FieldRef<"Child", 'String'>

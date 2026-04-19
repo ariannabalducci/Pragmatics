@@ -23,23 +23,30 @@ export async function GET(request: Request) {
   if (!authUser || authUser.role !== 'THERAPIST') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const therapist = await prisma.therapist.findUnique({
-      where: { userId: authUser.userId }
-    });
-
-    if (!therapist) return NextResponse.json({ error: 'Therapist profile not found' }, { status: 404 });
-
     const students = await prisma.child.findMany({
-      where: { therapistId: therapist.userId },
-      include: { user: true }
+      where: { therapistId: authUser.userId },
+      include: { 
+        user: true,
+        appointments: {
+          orderBy: { startTime: 'desc' },
+          take: 1 // Prendiamo solo il più recente
+        },
+        _count: {
+          select: { attempts: true } // Conteggio per "Sedute totali"
+        }
+      }
     });
 
     const formatted = students.map(child => ({
       id: child.userId,
-      name: child.user.name + ' ' + child.user.surname,
+      name: child.user.name,
+      surname: child.user.surname,
       age: child.age,
       gender: child.gender,
-      description: child.description,
+      description: child.description, // Usato come "Diagnosi" nel design
+      totalSessions: child._count.attempts,
+      lastSessionDate: child.appointments[0]?.startTime || null,
+      initials: `${child.user.name[0]}${child.user.surname[0]}`.toUpperCase(),
       avatar: {
         skin_color: child.avatarSkinColor,
         hair_style: child.avatarHairStyle,
@@ -52,7 +59,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(formatted);
   } catch (error) {
-    console.error('List students error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

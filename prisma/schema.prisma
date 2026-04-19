@@ -61,6 +61,7 @@ model Child {
   gender      String
   ethnicity   String
   description String?
+  diagnosis   String?  // Aggiungi questo se vuoi separarlo dalla descrizione
 
   coins Int @default(0)
 
