@@ -16,6 +16,7 @@ import {
 export default function Dashboard() {
   const [children, setChildren] = useState<ChildData[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [exercises, setExercises] = useState<any[]>([]); // Stato per la libreria esercizi
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,20 +25,25 @@ export default function Dashboard() {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const [studentsRes, appointmentsRes] = await Promise.all([
+        const [studentsRes, appointmentsRes, exercisesRes] = await Promise.all([
           fetch("/api/therapist/student", {
             headers: { Authorization: `Bearer ${token}` },
           }),
           fetch("/api/appointments", {
             headers: { Authorization: `Bearer ${token}` },
           }),
+          fetch("/api/exercises", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         const studentsData = await studentsRes.json();
         const appointmentsData = await appointmentsRes.json();
+        const exercisesData = await exercisesRes.json();
 
         setChildren(Array.isArray(studentsData) ? studentsData : []);
         setAppointments(Array.isArray(appointmentsData) ? appointmentsData : []);
+        setExercises(Array.isArray(exercisesData) ? exercisesData : []);
       } catch (err) {
         console.error("Errore caricamento", err);
       } finally {
@@ -156,39 +162,62 @@ export default function Dashboard() {
         </div>
 
         {/* Today's Appointments Section */}
-        <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-2xl font-bold text-[#0e2a47]">Appuntamenti di Oggi</h3>
-            <Link href="/therapist/calendar" className="text-[#4d8b7d] font-bold text-sm flex items-center gap-1 hover:underline">
-              Vedi tutti <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-bold text-[#0e2a47]">Appuntamenti di Oggi</h3>
+              <Link href="/therapist/calendar" className="text-[#4d8b7d] font-bold text-sm flex items-center gap-1 hover:underline">
+                Vedi tutti <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
 
-          <div className="space-y-4">
-            {loading ? (
-              <p className="text-slate-400">Caricamento...</p>
-            ) : appointmentsToday.length > 0 ? (
-              appointmentsToday.map((apt) => (
-                <div key={apt.id} className="flex items-center justify-between p-5 bg-[#f0f7f6] rounded-2xl border border-transparent hover:border-[#4d8b7d]/20 transition">
-                  <div className="flex items-center gap-5">
-                    <div className="bg-[#4d8b7d] p-3 rounded-xl text-white">
-                      <CalendarIcon className="w-6 h-6" />
-                    </div>
-                    <div>
-                      {/* Qui ora il nome apparirà correttamente */}
-                      <p className="font-bold text-lg text-slate-800">{apt.displayChildName}</p>
-                      <p className="text-sm text-slate-500 font-medium">
-                        {apt.displayTime} • {apt.duration} min • <span className="italic">{apt.type}</span>
-                      </p>
+            <div className="space-y-4">
+              {loading ? (
+                <p className="text-slate-400">Caricamento...</p>
+              ) : appointmentsToday.length > 0 ? (
+                appointmentsToday.map((apt) => (
+                  <div key={apt.id} className="flex items-center justify-between p-5 bg-[#f0f7f6] rounded-2xl border border-transparent hover:border-[#4d8b7d]/20 transition">
+                    <div className="flex items-center gap-5">
+                      <div className="bg-[#4d8b7d] p-3 rounded-xl text-white">
+                        <CalendarIcon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg text-slate-800">{apt.displayChildName}</p>
+                        <p className="text-sm text-slate-500 font-medium">
+                          {apt.displayTime} • {apt.duration} min • <span className="italic">{apt.type}</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <p className="text-slate-400 py-4 text-center">Nessun appuntamento previsto per oggi.</p>
+              )}
+            </div>
+          </section>
+
+          {/* Nuova Sezione Libreria Esercizi */}
+          <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-bold text-[#0e2a47]">Libreria Esercizi</h3>
+              <span className="bg-[#eff9f8] text-[#4d8b7d] px-3 py-1 rounded-full text-xs font-bold uppercase">{exercises.length} Disponibili</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+              {exercises.map((ex) => (
+                <div key={ex.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-[#4d8b7d]/30 transition group cursor-default">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-white p-2 rounded-lg text-[#4d8b7d] shadow-sm group-hover:bg-[#4d8b7d] group-hover:text-white transition-colors">
+                      <TrendingUp size={18} />
+                    </div>
+                    <p className="font-bold text-[#0e2a47] text-sm leading-tight">{ex.displayName}</p>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{ex.topic}</p>
                 </div>
-              ))
-            ) : (
-              <p className="text-slate-400 py-4 text-center">Nessun appuntamento previsto per oggi.</p>
-            )}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        </div>
 
         <div className="fixed bottom-6 right-8">
           <button className="bg-white border border-slate-200 text-slate-400 w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-slate-50 transition">

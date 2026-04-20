@@ -30,13 +30,13 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { duration_seconds, tries_till_correct, text_attempt } = body;
+    const { duration_seconds, tries_till_correct, text_attempt, mode } = body;
 
-    const existingAttempt = await prisma.exerciseAttempt.findFirst({
-      where: { childId: authUser.userId, exerciseId: exerciseId, success: true }
-    });
-
-    if (existingAttempt) return NextResponse.json({ error: 'Already completed' }, { status: 409 });
+    // Permettiamo salvataggi multipli dello stesso esercizio per supportare il "redo" clinico
+    // const existingAttempt = await prisma.exerciseAttempt.findFirst({
+    //   where: { childId: authUser.userId, exerciseId: exerciseId, success: true }
+    // });
+    // if (existingAttempt) return NextResponse.json({ error: 'Already completed' }, { status: 409 });
 
     const result = await prisma.$transaction(async (tx) => {
       await tx.exerciseAttempt.create({
@@ -73,7 +73,9 @@ export async function POST(
         }
       });
 
+      let groupCompleted = false;
       if (completedExercisesCount === totalExercisesCount) {
+        groupCompleted = true;
         const currentPath = await tx.path.findUnique({
           where: {
             childId_exerciseGroupId: {
@@ -89,24 +91,62 @@ export async function POST(
               data: { status: 'completed' }
           });
 
-          const nextInPlaylist = await tx.path.findFirst({
-              where: {
-                  childId: authUser.userId,
-                  status: 'blocked'
-              },
-              orderBy: { position: 'asc' }
+          // CONTROLLO LIMITE GIORNALIERO PRIMA DI SBLOCCARE IL PROSSIMO
+          const now = new Date();
+          const startOfDay = new Date(now);
+          startOfDay.setHours(0, 0, 0, 0);
+          const endOfDay = new Date(now);
+          endOfDay.setHours(23, 59, 59, 999);
+
+          const appointment = await tx.appointment.findFirst({
+            where: {
+              childId: authUser.userId,
+              startTime: { gte: startOfDay, lte: endOfDay }
+            }
           });
 
-          if (nextInPlaylist) {
-              await tx.path.update({
-                  where: { id: nextInPlaylist.id },
-                  data: { status: 'available' }
+          let shouldUnlockNext = true;
+
+          if (appointment) {
+            // Determiniamo il limite in base al mode passato o al tipo di appuntamento
+            const currentMode = mode || (appointment.type === 'valutazione' ? 'testing' : 'training');
+            const limit = currentMode === 'testing' ? appointment.testingExercises : appointment.trainingExercises;
+
+            if (limit > 0) {
+              const availableGroupsCount = await tx.path.count({
+                where: {
+                  childId: authUser.userId,
+                  status: 'available'
+                }
               });
+              
+              // Se abbiamo già raggiunto o superato il limite di gruppi "disponibili", non sblocchiamo il prossimo
+              if (availableGroupsCount >= limit) {
+                shouldUnlockNext = false;
+              }
+            }
+          }
+
+          if (shouldUnlockNext) {
+            const nextInPlaylist = await tx.path.findFirst({
+                where: {
+                    childId: authUser.userId,
+                    status: 'blocked'
+                },
+                orderBy: { position: 'asc' }
+            });
+
+            if (nextInPlaylist) {
+                await tx.path.update({
+                    where: { id: nextInPlaylist.id },
+                    data: { status: 'available' }
+                });
+            }
           }
         }
       }
 
-      return { success: true, coins_earned: COINS, group_completed: completedExercisesCount === totalExercisesCount };
+      return { success: true, coins_earned: COINS, group_completed: groupCompleted };
     });
 
     return NextResponse.json(result);

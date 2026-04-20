@@ -188,6 +188,8 @@ export const AppointmentScalarFieldEnum = {
   type: 'type',
   duration: 'duration',
   note: 'note',
+  trainingExercises: 'trainingExercises',
+  testingExercises: 'testingExercises',
   therapistId: 'therapistId',
   childId: 'childId',
   createdAt: 'createdAt',

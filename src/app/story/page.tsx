@@ -109,9 +109,10 @@ const StoryPage = () => {
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    success: true,
+                    success: quizStatus === 'correct',
                     duration_seconds: durationSeconds,
-                    tries_till_correct: mistakes
+                    tries_till_correct: mistakes,
+                    mode: 'training' // Story mode is training unless specifically Testing
                 })
             });
 
@@ -129,10 +130,7 @@ const StoryPage = () => {
 
     const handleNext = () => {
         if (isQuizScreen) {
-            if (isTesting && quizStatus !== null) {
-                handleFinish();
-                return;
-            } else if (!isTesting && quizStatus === 'correct') {
+            if (quizStatus !== null) {
                 handleFinish();
                 return;
             }
@@ -151,13 +149,11 @@ const StoryPage = () => {
         }
     };
 
-    const isPrevDisabled = currentInteractionIndex === 0 || (!isTesting && quizStatus === 'correct');
+    const isPrevDisabled = currentInteractionIndex === 0 || (quizStatus !== null);
 
-    // In training, il tasto avanti si sblocca solo dopo la risposta corretta sul quiz
-    // In testing, basta aver confermato una risposta qualsiasi
-    const isNextDisabled = isTesting
-        ? (isQuizScreen && quizStatus === null)
-        : (isQuizScreen && quizStatus !== 'correct') || (currentInteractionIndex === interactions.length - 1 && !isQuizScreen);
+    // Si sblocca il tasto "avanti" se l'interazione non è un quiz, 
+    // o se è un quiz ed è stata data una risposta (qualunque essa sia)
+    const isNextDisabled = isQuizScreen ? quizStatus === null : false;
 
 
     return (

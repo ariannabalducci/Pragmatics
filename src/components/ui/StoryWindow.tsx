@@ -60,19 +60,12 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
     const handleConfirm = () => {
         if (tempSelectedIndex !== null && onAnswer) {
             const isCorrect = tempSelectedIndex === correct_option;
+            setIsSubmitted(true);
             if (isCorrect) {
-                setIsSubmitted(true);
                 onAnswer(true);
             } else {
-                // Mostra feedback "sbagliato" brevemente, poi resetta la selezione
-                setIsSubmitted(true);
                 setShowWrongFeedback(true);
                 onAnswer(false);
-                setTimeout(() => {
-                    setIsSubmitted(false);
-                    setTempSelectedIndex(null);
-                    setShowWrongFeedback(false);
-                }, 1200);
             }
         }
     };
@@ -199,9 +192,12 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
 
                     {/* FEEDBACK / TASTO CONFERMA */}
                     <div className="h-12 flex items-center justify-center">
-                        {showWrongFeedback && (
-                            <p className="text-[#E87D57] font-bold text-lg animate-[fade-in_.2s_ease-in-out_forwards]">
-                                Sbagliato! Riprova 🦜
+                        {isSubmitted && !isTesting && (
+                            <p className={cn(
+                                "font-bold text-xl animate-[fade-in_.3s_ease-in-out_forwards]",
+                                tempSelectedIndex === correct_option ? "text-[#62B4A5]" : "text-[#E87D57]"
+                            )}>
+                                {tempSelectedIndex === correct_option ? "Ottimo lavoro! 🦜🌟" : "Sbagliato! 😔"}
                             </p>
                         )}
                         {tempSelectedIndex !== null && !isSubmitted && (

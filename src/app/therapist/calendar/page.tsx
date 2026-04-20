@@ -27,17 +27,20 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [children, setChildren] = useState<any[]>([]);
+  const [allExercises, setAllExercises] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // STATO MODIFICATO: duration ora è un numero (45) invece di una stringa ("45 min")
   const [newApp, setNewApp] = useState({
     childId: "",
     time: "10:00",
     type: "training",
     note: "",
-    duration: 45 
+    duration: 45,
+    trainingExercises: 0,
+    testingExercises: 0,
+    prescribedGroups: [] as string[],
   });
 
   const fetchData = async () => {
@@ -49,16 +52,19 @@ export default function CalendarPage() {
         'Content-Type': 'application/json'
       };
 
-      const [appRes, childRes] = await Promise.all([
+      const [appRes, childRes, exRes] = await Promise.all([
         fetch('/api/appointments', { headers }),
-        fetch('/api/therapist/student', { headers })
+        fetch('/api/therapist/student', { headers }),
+        fetch('/api/exercises', { headers })
       ]);
 
       const appData = await appRes.json();
       const childData = await childRes.json();
+      const exData = await exRes.json();
 
       setAppointments(Array.isArray(appData) ? appData : []);
       setChildren(Array.isArray(childData) ? childData : (childData.students || []));
+      setAllExercises(Array.isArray(exData) ? exData : []);
     } catch (err) {
       console.error("Errore caricamento:", err);
     } finally {
@@ -90,14 +96,17 @@ export default function CalendarPage() {
           startTime: startDateTime.toISOString(),
           childId: newApp.childId,
           type: newApp.type,
-          duration: Number(newApp.duration), // Inviamo il numero puro all'API
-          note: newApp.note
+          duration: Number(newApp.duration),
+          note: newApp.note,
+          trainingExercises: Number(newApp.trainingExercises),
+          testingExercises: Number(newApp.testingExercises),
+          prescribedGroups: newApp.prescribedGroups,
         }),
       });
 
       if (res.ok) {
         setIsModalOpen(false);
-        setNewApp({ childId: "", time: "10:00", type: "training", note: "", duration: 45 });
+        setNewApp({ childId: "", time: "10:00", type: "training", note: "", duration: 45, trainingExercises: 1, testingExercises: 0, prescribedGroups: [] });
         fetchData();
       }
     } catch (err) {
@@ -243,11 +252,13 @@ export default function CalendarPage() {
                     key={app.id}
                     id={app.id}
                     time={format(new Date(app.startTime), "HH:mm")}
-                    // CORRETTO: Usiamo childName dall'API
                     name={app.childName || "Paziente"}
                     type={app.type}
                     duration={app.duration}
                     note={app.note}
+                    trainingExercises={app.trainingExercises ?? 0}
+                    testingExercises={app.testingExercises ?? 0}
+                    prescribedExercises={app.prescribedExercises || []}
                     onDelete={() => handleDeleteAppointment(app.id)}
                   />
                 ))
@@ -305,8 +316,8 @@ export default function CalendarPage() {
                   <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Durata (min)</label>
                   <input 
                     type="number" 
-                    value={newApp.duration} 
-                    onChange={(e) => setNewApp({ ...newApp, duration: parseInt(e.target.value) })} 
+                    value={isNaN(newApp.duration) ? "" : newApp.duration} 
+                    onChange={(e) => setNewApp({ ...newApp, duration: parseInt(e.target.value) || 1 })} 
                     className="w-full p-3.5 bg-slate-50 rounded-xl border-none text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#4d8b7d]" 
                     min="1"
                   />
@@ -319,6 +330,51 @@ export default function CalendarPage() {
                   <option value="training">Training</option>
                   <option value="valutazione">Valutazione</option>
                 </select>
+              </div>
+
+              <div className="bg-[#eff9f8] rounded-2xl p-5 space-y-4">
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] font-bold uppercase text-[#4d8b7d] tracking-wider">Esercizi Prescritti</p>
+                  <span className="text-[9px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full">{newApp.prescribedGroups.length} Selezionati</span>
+                </div>
+                <div className="space-y-1.5 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                  {allExercises.map((ex) => {
+                    const isSelected = newApp.prescribedGroups.includes(ex.id);
+                    return (
+                      <label 
+                        key={ex.id} 
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all shadow-sm",
+                          isSelected 
+                            ? "border-[#4d8b7d] bg-[#eff9f8] scale-[1.01] shadow-md" 
+                            : "border-transparent bg-white hover:border-slate-200"
+                        )}
+                      >
+                        <input 
+                          type="checkbox" 
+                          className="w-4 h-4 accent-[#4d8b7d] rounded cursor-pointer"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const ids = e.target.checked 
+                              ? [...newApp.prescribedGroups, ex.id]
+                              : newApp.prescribedGroups.filter(id => id !== ex.id);
+                            setNewApp({ ...newApp, prescribedGroups: ids });
+                          }}
+                        />
+                        <div className="flex flex-col">
+                          <span className={cn("text-xs font-bold transition-colors", isSelected ? "text-[#4d8b7d]" : "text-[#0e2a47]")}>
+                            {ex.displayName}
+                          </span>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase">{ex.topic}</span>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 space-y-3 hidden">
+                {/* Legacy numerical limits hidden as requested */}
               </div>
 
               <div>
@@ -342,7 +398,7 @@ export default function CalendarPage() {
   );
 }
 
-function AppointmentCard({ id, time, name, type, duration, note, onDelete }: any) {
+function AppointmentCard({ id, time, name, type, duration, note, trainingExercises, testingExercises, prescribedExercises, onDelete }: any) {
   return (
     <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm relative group overflow-hidden transition-all hover:shadow-md">
       <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", type === "valutazione" ? "bg-purple-500" : "bg-[#4d8b7d]")} />
@@ -359,9 +415,8 @@ function AppointmentCard({ id, time, name, type, duration, note, onDelete }: any
         {name}
       </h5>
 
-      <p className="text-[11px] text-slate-600 font-semibold flex items-center gap-2">
-        {/* Visualizza la durata dinamica */}
-        <span className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-700 font-bold">Durata: {duration} </span>
+      <p className="text-[11px] text-slate-600 font-semibold flex items-center gap-2 flex-wrap">
+        <span className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-700 font-bold">Durata: {duration}</span>
         <span className={cn(
           "px-2 py-0.5 rounded-md uppercase text-[9px]",
           type === "valutazione" ? "bg-purple-100 text-purple-700" : "bg-teal-100 text-teal-700"
@@ -369,6 +424,34 @@ function AppointmentCard({ id, time, name, type, duration, note, onDelete }: any
           {type}
         </span>
       </p>
+
+      {(trainingExercises > 0 || testingExercises > 0) && prescribedExercises.length === 0 && (
+        <div className="mt-3 flex gap-2 flex-wrap">
+          {trainingExercises > 0 && (
+            <span className="bg-teal-50 text-teal-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
+              🟢 {trainingExercises} training
+            </span>
+          )}
+          {testingExercises > 0 && (
+            <span className="bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
+              🟣 {testingExercises} valutazione
+            </span>
+          )}
+        </div>
+      )}
+
+      {prescribedExercises.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-slate-50">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Esercizi Prescritti</p>
+          <div className="flex flex-wrap gap-2">
+            {prescribedExercises.map((ex: any) => (
+              <span key={ex.id} className="bg-teal-50 text-[#4d8b7d] text-[10px] font-bold px-2 py-1 rounded-lg border border-teal-100">
+                {ex.title}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {note && (
         <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-700 italic leading-relaxed flex items-start gap-2">

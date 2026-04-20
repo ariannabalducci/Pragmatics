@@ -23,7 +23,15 @@ export interface LevelNode {
   firstExerciseId?: string;
 }
 
-export default function Path({ levels, mode = "training" }: { levels: LevelNode[], mode?: "training" | "testing" }) {
+export default function Path({ 
+  levels, 
+  mode = "training", 
+  isSessionActive = false 
+}: { 
+  levels: LevelNode[], 
+  mode?: "training" | "testing",
+  isSessionActive?: boolean
+}) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -76,7 +84,7 @@ export default function Path({ levels, mode = "training" }: { levels: LevelNode[
 
 
   const handleMouseDown = (e: MouseEvent) => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current || isSessionActive) return;
 
     setIsDragging(true);
     setStartX(e.pageX);
@@ -84,7 +92,7 @@ export default function Path({ levels, mode = "training" }: { levels: LevelNode[
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
+    if (!isDragging || !scrollContainerRef.current || isSessionActive) return;
     e.preventDefault();
 
     const x = e.pageX;
@@ -98,7 +106,7 @@ export default function Path({ levels, mode = "training" }: { levels: LevelNode[
   };
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
+    if (scrollContainerRef.current && !isSessionActive) {
       const currentLevelIndex = displayLevels.findIndex(l => l.status === 'available');
 
       const targetIndex = currentLevelIndex >= 0 ? currentLevelIndex : 0;
@@ -107,7 +115,55 @@ export default function Path({ levels, mode = "training" }: { levels: LevelNode[
 
       scrollContainerRef.current.scrollLeft = scrollPos;
     }
-  }, [displayLevels]);
+  }, [displayLevels, isSessionActive]);
+
+  if (isSessionActive) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-10 overflow-auto z-10">
+        {selectedLevel && (
+          <ExerciseSystem
+            groupTitle={selectedLevel.group_title || ""}
+            topic={selectedLevel.group_topic || ""}
+            exerciseId={selectedLevel.activeExerciseId || ""}
+            firstExerciseId={selectedLevel.firstExerciseId}
+            levelProgress={selectedLevel.progress}
+            onClose={() => setSelectedLevel(null)}
+            mode={mode}
+          />
+        )}
+        
+        <div className="flex flex-wrap items-center justify-center gap-x-24 gap-y-32 max-w-6xl">
+          {displayLevels.map((level) => (
+            <div key={level.id} className="relative flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
+               {/* Titolo Esercizio */}
+               <div className="bg-white/80 backdrop-blur-md px-6 py-2 rounded-2xl shadow-xl border-2 border-[#4d8b7d]/20 text-[#0e2a47] font-black text-lg text-center min-w-[200px]">
+                  {level.group_title || "Esercizio"}
+               </div>
+
+               <div className="relative group transition-transform hover:scale-110">
+                  <ProgressRing progress={level.status === 'locked' ? 0 : level.status === 'completed' ? 2 : (level.progress || 0)} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Button
+                      onClick={() => setSelectedLevel(level)}
+                      variant={level.status === 'locked' ? "locked" : level.status === 'completed' ? "completed" : "play"}
+                      size="play"
+                    >
+                      {level.status === 'locked' ? (
+                        <Lock />
+                      ) : level.status === 'completed' ? (
+                        <Star fill="currentColor" />
+                      ) : (
+                        <Play fill="currentColor" />
+                      )}
+                    </Button>
+                  </div>
+               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

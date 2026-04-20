@@ -20,6 +20,12 @@ const PathPage = () => {
   const [levels, setLevels] = useState<LevelNode[]>([]);
   const [activeTasks, setActiveTasks] = useState<any[]>([]);
   const [mode, setMode] = useState<"training" | "testing">("training");
+  const [dailyLimit, setDailyLimit] = useState<{ 
+    training: number; 
+    testing: number; 
+    prescribed: string[]; 
+    isActive: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const fetchChildData = async () => {
@@ -38,11 +44,14 @@ const PathPage = () => {
           return;
         }
 
-        const [studentRes, collectionRes] = await Promise.all([
+        const [studentRes, collectionRes, todayRes] = await Promise.all([
             fetch(`/api/student/${user.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             }),
             fetch(`/api/student/${user.id}/collection`, {
+                headers: { Authorization: `Bearer ${token}` }
+            }),
+            fetch(`/api/appointments/today`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
         ]);
@@ -58,6 +67,19 @@ const PathPage = () => {
         const studentData = await studentRes.json();
         const collectionData = await collectionRes.json();
         
+        // Leggi l'appuntamento di oggi (se esiste)
+        if (todayRes.ok) {
+            const todayData = await todayRes.json();
+            if (todayData.hasAppointment) {
+                setDailyLimit({
+                    training: todayData.trainingExercises ?? 0,
+                    testing: todayData.testingExercises ?? 0,
+                    prescribed: todayData.prescribedExercises || [],
+                    isActive: todayData.isActive || false
+                });
+            }
+        }
+        
         const storedMode = localStorage.getItem("pragmatics_mode");
         if (storedMode === "testing" || storedMode === "training") {
             setMode(storedMode);
@@ -65,25 +87,12 @@ const PathPage = () => {
 
         setCoins(studentData.coins || 0);
 
-        const completedNodes: LevelNode[] = Array.from(
-            { length: studentData.nr_completed }, 
-            (_, i) => ({ id: `completed-${i}`, status: 'completed' })
-        );
+        const allLevels: LevelNode[] = (studentData.all_levels || []).map((l: any) => ({
+            ...l
+        }));
 
-        const activeNodes: LevelNode[] = studentData.levels || [];
-        
-        setActiveTasks(activeNodes);
-
-        const blockedNodes: LevelNode[] = Array.from(
-            { length: studentData.nr_blocked }, 
-            (_, i) => ({ id: `blocked-${i}`, status: 'locked' })
-        );
-
-        if (storedMode === "testing") {
-            setLevels(studentData.all_levels || []);
-        } else {
-            setLevels([...completedNodes, ...activeNodes, ...blockedNodes]);
-        }
+        setLevels(allLevels);
+        setActiveTasks(studentData.levels || []);
 
         const formattedItems: CollectionItem[] = collectionData.map((item: any) => ({
             id: item.parrot_id,
@@ -145,6 +154,42 @@ const PathPage = () => {
     }
   };
 
+  // Applica il filtraggio e il limite giornaliero
+  const limitedLevels = (() => {
+    // Se non c'è appuntamento o non è attivo nell'orario corrente, mostra tutto
+    if (!dailyLimit || !dailyLimit.isActive) return levels;
+
+    // Se ci sono esercizi prescritti SPECIFICI (granular prescription)
+    if (dailyLimit.prescribed.length > 0) {
+      // Filtriamo i livelli per mostrare SOLO quelli prescritti dal logopedista
+      return levels.filter((level: any) => {
+        return dailyLimit.prescribed.includes(level.groupId);
+      }).map((level: any) => {
+        // Grazie all'aggiornamento dell'API, i livelli prescritti arrivano già 
+        // con le info di progresso corrette per la seduta odierna.
+        return { ...level };
+      });
+    }
+
+    // Altrimenti usa il limite numerico legacy (fallback)
+    const limit = mode === "testing" ? dailyLimit.testing : dailyLimit.training;
+    if (limit === 0) return levels; 
+    
+    let availableCount = 0;
+    return levels.map((level) => {
+      if (level.status === 'available') {
+        availableCount++;
+        if (availableCount > limit) {
+          return { ...level, status: 'locked' as const };
+        }
+      }
+      return level;
+    });
+  })();
+
+  // Conta quanti nodi available sono rimasti dopo il limite
+  const availableToday = limitedLevels.filter(l => l.status === 'available').length;
+
   if (loading) {
     return (
         <main className={`relative w-full h-screen overflow-hidden flex items-center justify-center ${mode === "testing" ? "bg-slate-200" : "bg-[#A6DADA]"}`}>
@@ -162,7 +207,35 @@ const PathPage = () => {
 
           <CoinCounter amount={coins} />
 
-          {mode !== "testing" && (
+          {/* Banner esercizi giornalieri */}
+          {dailyLimit && (
+            (mode === "training" ? dailyLimit.training > 0 : dailyLimit.testing > 0) || 
+            (dailyLimit.prescribed.length > 0 && dailyLimit.isActive)
+          ) && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none space-y-2 flex flex-col items-center">
+              <div className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl shadow-lg font-bold text-sm ${
+                mode === "testing"
+                  ? "bg-purple-600 text-white"
+                  : "bg-white text-[#3a7a6e]"
+              }`}>
+                <span className="text-lg">🎯</span>
+                <span>
+                  {dailyLimit.prescribed.length > 0 && dailyLimit.isActive
+                    ? `${availableToday} esercizi prescritti rimasti`
+                    : `${availableToday} esercizi da fare oggi`
+                  }
+                </span>
+              </div>
+              
+              {dailyLimit.isActive && (
+                <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
+                  Seduta in corso ✨
+                </div>
+              )}
+            </div>
+          )}
+
+          {mode !== "testing" && !dailyLimit?.isActive && (
             <Image
               src="/lbush.png"
               alt="Left bush"
@@ -172,9 +245,26 @@ const PathPage = () => {
             />
           )}
 
-          <Path levels={levels} mode={mode} />
+          <Path 
+            levels={limitedLevels} 
+            mode={mode} 
+            isSessionActive={dailyLimit?.isActive && dailyLimit?.prescribed.length > 0} 
+          />
 
-          {mode !== "testing" && (
+          {dailyLimit?.isActive && dailyLimit?.prescribed.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#A6DADA]/80 backdrop-blur-sm z-40">
+              <div className="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-md border-4 border-[#4d8b7d]/20 animate-in zoom-in duration-300">
+                <div className="text-6xl mb-6">🤫</div>
+                <h3 className="text-2xl font-black text-[#0e2a47] mb-4">Seduta Pronta!</h3>
+                <p className="text-slate-500 font-bold leading-relaxed">
+                  Il tuo logopedista sta preparando gli esercizi per te. <br/>
+                  Aspetta un attimo o chiedi a lui/lei cosa fare!
+                </p>
+              </div>
+            </div>
+          )}
+
+          {mode !== "testing" && !dailyLimit?.isActive && (
             <Image
               src="/rbush.png"
               alt="Right bush"
@@ -190,7 +280,9 @@ const PathPage = () => {
             coins={coins}
           />
 
-          <ParrotPopUp nodes={activeTasks} />
+          {(!dailyLimit?.isActive || dailyLimit?.prescribed.length === 0) && (
+            <ParrotPopUp nodes={activeTasks} />
+          )}
          
       </main>
     );

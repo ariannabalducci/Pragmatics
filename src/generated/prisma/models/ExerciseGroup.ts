@@ -168,6 +168,7 @@ export type ExerciseGroupWhereInput = {
   topic?: Prisma.StringFilter<"ExerciseGroup"> | string
   exercises?: Prisma.ExerciseListRelationFilter
   paths?: Prisma.PathListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
 }
 
 export type ExerciseGroupOrderByWithRelationInput = {
@@ -176,6 +177,7 @@ export type ExerciseGroupOrderByWithRelationInput = {
   topic?: Prisma.SortOrder
   exercises?: Prisma.ExerciseOrderByRelationAggregateInput
   paths?: Prisma.PathOrderByRelationAggregateInput
+  appointments?: Prisma.AppointmentOrderByRelationAggregateInput
 }
 
 export type ExerciseGroupWhereUniqueInput = Prisma.AtLeast<{
@@ -187,6 +189,7 @@ export type ExerciseGroupWhereUniqueInput = Prisma.AtLeast<{
   topic?: Prisma.StringFilter<"ExerciseGroup"> | string
   exercises?: Prisma.ExerciseListRelationFilter
   paths?: Prisma.PathListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
 }, "id">
 
 export type ExerciseGroupOrderByWithAggregationInput = {
@@ -213,6 +216,7 @@ export type ExerciseGroupCreateInput = {
   topic: string
   exercises?: Prisma.ExerciseCreateNestedManyWithoutGroupInput
   paths?: Prisma.PathCreateNestedManyWithoutExerciseGroupInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutPrescribedGroupsInput
 }
 
 export type ExerciseGroupUncheckedCreateInput = {
@@ -221,6 +225,7 @@ export type ExerciseGroupUncheckedCreateInput = {
   topic: string
   exercises?: Prisma.ExerciseUncheckedCreateNestedManyWithoutGroupInput
   paths?: Prisma.PathUncheckedCreateNestedManyWithoutExerciseGroupInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPrescribedGroupsInput
 }
 
 export type ExerciseGroupUpdateInput = {
@@ -229,6 +234,7 @@ export type ExerciseGroupUpdateInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   exercises?: Prisma.ExerciseUpdateManyWithoutGroupNestedInput
   paths?: Prisma.PathUpdateManyWithoutExerciseGroupNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutPrescribedGroupsNestedInput
 }
 
 export type ExerciseGroupUncheckedUpdateInput = {
@@ -237,6 +243,7 @@ export type ExerciseGroupUncheckedUpdateInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   exercises?: Prisma.ExerciseUncheckedUpdateManyWithoutGroupNestedInput
   paths?: Prisma.PathUncheckedUpdateManyWithoutExerciseGroupNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPrescribedGroupsNestedInput
 }
 
 export type ExerciseGroupCreateManyInput = {
@@ -280,6 +287,16 @@ export type ExerciseGroupMinOrderByAggregateInput = {
   topic?: Prisma.SortOrder
 }
 
+export type ExerciseGroupListRelationFilter = {
+  every?: Prisma.ExerciseGroupWhereInput
+  some?: Prisma.ExerciseGroupWhereInput
+  none?: Prisma.ExerciseGroupWhereInput
+}
+
+export type ExerciseGroupOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type ExerciseGroupCreateNestedOneWithoutPathsInput = {
   create?: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutPathsInput, Prisma.ExerciseGroupUncheckedCreateWithoutPathsInput>
   connectOrCreate?: Prisma.ExerciseGroupCreateOrConnectWithoutPathsInput
@@ -308,11 +325,50 @@ export type ExerciseGroupUpdateOneRequiredWithoutExercisesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ExerciseGroupUpdateToOneWithWhereWithoutExercisesInput, Prisma.ExerciseGroupUpdateWithoutExercisesInput>, Prisma.ExerciseGroupUncheckedUpdateWithoutExercisesInput>
 }
 
+export type ExerciseGroupCreateNestedManyWithoutAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput> | Prisma.ExerciseGroupCreateWithoutAppointmentsInput[] | Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput[]
+  connectOrCreate?: Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput | Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput[]
+  connect?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+}
+
+export type ExerciseGroupUncheckedCreateNestedManyWithoutAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput> | Prisma.ExerciseGroupCreateWithoutAppointmentsInput[] | Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput[]
+  connectOrCreate?: Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput | Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput[]
+  connect?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+}
+
+export type ExerciseGroupUpdateManyWithoutAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput> | Prisma.ExerciseGroupCreateWithoutAppointmentsInput[] | Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput[]
+  connectOrCreate?: Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput | Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput[]
+  upsert?: Prisma.ExerciseGroupUpsertWithWhereUniqueWithoutAppointmentsInput | Prisma.ExerciseGroupUpsertWithWhereUniqueWithoutAppointmentsInput[]
+  set?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  disconnect?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  delete?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  connect?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  update?: Prisma.ExerciseGroupUpdateWithWhereUniqueWithoutAppointmentsInput | Prisma.ExerciseGroupUpdateWithWhereUniqueWithoutAppointmentsInput[]
+  updateMany?: Prisma.ExerciseGroupUpdateManyWithWhereWithoutAppointmentsInput | Prisma.ExerciseGroupUpdateManyWithWhereWithoutAppointmentsInput[]
+  deleteMany?: Prisma.ExerciseGroupScalarWhereInput | Prisma.ExerciseGroupScalarWhereInput[]
+}
+
+export type ExerciseGroupUncheckedUpdateManyWithoutAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput> | Prisma.ExerciseGroupCreateWithoutAppointmentsInput[] | Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput[]
+  connectOrCreate?: Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput | Prisma.ExerciseGroupCreateOrConnectWithoutAppointmentsInput[]
+  upsert?: Prisma.ExerciseGroupUpsertWithWhereUniqueWithoutAppointmentsInput | Prisma.ExerciseGroupUpsertWithWhereUniqueWithoutAppointmentsInput[]
+  set?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  disconnect?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  delete?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  connect?: Prisma.ExerciseGroupWhereUniqueInput | Prisma.ExerciseGroupWhereUniqueInput[]
+  update?: Prisma.ExerciseGroupUpdateWithWhereUniqueWithoutAppointmentsInput | Prisma.ExerciseGroupUpdateWithWhereUniqueWithoutAppointmentsInput[]
+  updateMany?: Prisma.ExerciseGroupUpdateManyWithWhereWithoutAppointmentsInput | Prisma.ExerciseGroupUpdateManyWithWhereWithoutAppointmentsInput[]
+  deleteMany?: Prisma.ExerciseGroupScalarWhereInput | Prisma.ExerciseGroupScalarWhereInput[]
+}
+
 export type ExerciseGroupCreateWithoutPathsInput = {
   id?: string
   title: string
   topic: string
   exercises?: Prisma.ExerciseCreateNestedManyWithoutGroupInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutPrescribedGroupsInput
 }
 
 export type ExerciseGroupUncheckedCreateWithoutPathsInput = {
@@ -320,6 +376,7 @@ export type ExerciseGroupUncheckedCreateWithoutPathsInput = {
   title: string
   topic: string
   exercises?: Prisma.ExerciseUncheckedCreateNestedManyWithoutGroupInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPrescribedGroupsInput
 }
 
 export type ExerciseGroupCreateOrConnectWithoutPathsInput = {
@@ -343,6 +400,7 @@ export type ExerciseGroupUpdateWithoutPathsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   exercises?: Prisma.ExerciseUpdateManyWithoutGroupNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutPrescribedGroupsNestedInput
 }
 
 export type ExerciseGroupUncheckedUpdateWithoutPathsInput = {
@@ -350,6 +408,7 @@ export type ExerciseGroupUncheckedUpdateWithoutPathsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   exercises?: Prisma.ExerciseUncheckedUpdateManyWithoutGroupNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPrescribedGroupsNestedInput
 }
 
 export type ExerciseGroupCreateWithoutExercisesInput = {
@@ -357,6 +416,7 @@ export type ExerciseGroupCreateWithoutExercisesInput = {
   title: string
   topic: string
   paths?: Prisma.PathCreateNestedManyWithoutExerciseGroupInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutPrescribedGroupsInput
 }
 
 export type ExerciseGroupUncheckedCreateWithoutExercisesInput = {
@@ -364,6 +424,7 @@ export type ExerciseGroupUncheckedCreateWithoutExercisesInput = {
   title: string
   topic: string
   paths?: Prisma.PathUncheckedCreateNestedManyWithoutExerciseGroupInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutPrescribedGroupsInput
 }
 
 export type ExerciseGroupCreateOrConnectWithoutExercisesInput = {
@@ -387,6 +448,7 @@ export type ExerciseGroupUpdateWithoutExercisesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   paths?: Prisma.PathUpdateManyWithoutExerciseGroupNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutPrescribedGroupsNestedInput
 }
 
 export type ExerciseGroupUncheckedUpdateWithoutExercisesInput = {
@@ -394,6 +456,75 @@ export type ExerciseGroupUncheckedUpdateWithoutExercisesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   paths?: Prisma.PathUncheckedUpdateManyWithoutExerciseGroupNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutPrescribedGroupsNestedInput
+}
+
+export type ExerciseGroupCreateWithoutAppointmentsInput = {
+  id?: string
+  title: string
+  topic: string
+  exercises?: Prisma.ExerciseCreateNestedManyWithoutGroupInput
+  paths?: Prisma.PathCreateNestedManyWithoutExerciseGroupInput
+}
+
+export type ExerciseGroupUncheckedCreateWithoutAppointmentsInput = {
+  id?: string
+  title: string
+  topic: string
+  exercises?: Prisma.ExerciseUncheckedCreateNestedManyWithoutGroupInput
+  paths?: Prisma.PathUncheckedCreateNestedManyWithoutExerciseGroupInput
+}
+
+export type ExerciseGroupCreateOrConnectWithoutAppointmentsInput = {
+  where: Prisma.ExerciseGroupWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput>
+}
+
+export type ExerciseGroupUpsertWithWhereUniqueWithoutAppointmentsInput = {
+  where: Prisma.ExerciseGroupWhereUniqueInput
+  update: Prisma.XOR<Prisma.ExerciseGroupUpdateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedUpdateWithoutAppointmentsInput>
+  create: Prisma.XOR<Prisma.ExerciseGroupCreateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedCreateWithoutAppointmentsInput>
+}
+
+export type ExerciseGroupUpdateWithWhereUniqueWithoutAppointmentsInput = {
+  where: Prisma.ExerciseGroupWhereUniqueInput
+  data: Prisma.XOR<Prisma.ExerciseGroupUpdateWithoutAppointmentsInput, Prisma.ExerciseGroupUncheckedUpdateWithoutAppointmentsInput>
+}
+
+export type ExerciseGroupUpdateManyWithWhereWithoutAppointmentsInput = {
+  where: Prisma.ExerciseGroupScalarWhereInput
+  data: Prisma.XOR<Prisma.ExerciseGroupUpdateManyMutationInput, Prisma.ExerciseGroupUncheckedUpdateManyWithoutAppointmentsInput>
+}
+
+export type ExerciseGroupScalarWhereInput = {
+  AND?: Prisma.ExerciseGroupScalarWhereInput | Prisma.ExerciseGroupScalarWhereInput[]
+  OR?: Prisma.ExerciseGroupScalarWhereInput[]
+  NOT?: Prisma.ExerciseGroupScalarWhereInput | Prisma.ExerciseGroupScalarWhereInput[]
+  id?: Prisma.StringFilter<"ExerciseGroup"> | string
+  title?: Prisma.StringFilter<"ExerciseGroup"> | string
+  topic?: Prisma.StringFilter<"ExerciseGroup"> | string
+}
+
+export type ExerciseGroupUpdateWithoutAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  exercises?: Prisma.ExerciseUpdateManyWithoutGroupNestedInput
+  paths?: Prisma.PathUpdateManyWithoutExerciseGroupNestedInput
+}
+
+export type ExerciseGroupUncheckedUpdateWithoutAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  exercises?: Prisma.ExerciseUncheckedUpdateManyWithoutGroupNestedInput
+  paths?: Prisma.PathUncheckedUpdateManyWithoutExerciseGroupNestedInput
+}
+
+export type ExerciseGroupUncheckedUpdateManyWithoutAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -404,11 +535,13 @@ export type ExerciseGroupUncheckedUpdateWithoutExercisesInput = {
 export type ExerciseGroupCountOutputType = {
   exercises: number
   paths: number
+  appointments: number
 }
 
 export type ExerciseGroupCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   exercises?: boolean | ExerciseGroupCountOutputTypeCountExercisesArgs
   paths?: boolean | ExerciseGroupCountOutputTypeCountPathsArgs
+  appointments?: boolean | ExerciseGroupCountOutputTypeCountAppointmentsArgs
 }
 
 /**
@@ -435,6 +568,13 @@ export type ExerciseGroupCountOutputTypeCountPathsArgs<ExtArgs extends runtime.T
   where?: Prisma.PathWhereInput
 }
 
+/**
+ * ExerciseGroupCountOutputType without action
+ */
+export type ExerciseGroupCountOutputTypeCountAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppointmentWhereInput
+}
+
 
 export type ExerciseGroupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -442,6 +582,7 @@ export type ExerciseGroupSelect<ExtArgs extends runtime.Types.Extensions.Interna
   topic?: boolean
   exercises?: boolean | Prisma.ExerciseGroup$exercisesArgs<ExtArgs>
   paths?: boolean | Prisma.ExerciseGroup$pathsArgs<ExtArgs>
+  appointments?: boolean | Prisma.ExerciseGroup$appointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ExerciseGroupCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["exerciseGroup"]>
 
@@ -467,6 +608,7 @@ export type ExerciseGroupOmit<ExtArgs extends runtime.Types.Extensions.InternalA
 export type ExerciseGroupInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   exercises?: boolean | Prisma.ExerciseGroup$exercisesArgs<ExtArgs>
   paths?: boolean | Prisma.ExerciseGroup$pathsArgs<ExtArgs>
+  appointments?: boolean | Prisma.ExerciseGroup$appointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ExerciseGroupCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExerciseGroupIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -477,6 +619,7 @@ export type $ExerciseGroupPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     exercises: Prisma.$ExercisePayload<ExtArgs>[]
     paths: Prisma.$PathPayload<ExtArgs>[]
+    appointments: Prisma.$AppointmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -878,6 +1021,7 @@ export interface Prisma__ExerciseGroupClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   exercises<T extends Prisma.ExerciseGroup$exercisesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExerciseGroup$exercisesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExercisePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   paths<T extends Prisma.ExerciseGroup$pathsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExerciseGroup$pathsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PathPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  appointments<T extends Prisma.ExerciseGroup$appointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExerciseGroup$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1343,6 +1487,30 @@ export type ExerciseGroup$pathsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.PathScalarFieldEnum | Prisma.PathScalarFieldEnum[]
+}
+
+/**
+ * ExerciseGroup.appointments
+ */
+export type ExerciseGroup$appointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Appointment
+   */
+  select?: Prisma.AppointmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Appointment
+   */
+  omit?: Prisma.AppointmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppointmentInclude<ExtArgs> | null
+  where?: Prisma.AppointmentWhereInput
+  orderBy?: Prisma.AppointmentOrderByWithRelationInput | Prisma.AppointmentOrderByWithRelationInput[]
+  cursor?: Prisma.AppointmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppointmentScalarFieldEnum | Prisma.AppointmentScalarFieldEnum[]
 }
 
 /**

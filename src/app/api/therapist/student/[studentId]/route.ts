@@ -17,7 +17,6 @@ const verifyToken = (req: Request) => {
   }
 };
 
-// Aggiungi o aggiorna la GET nel tuo route.ts
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ studentId: string }> }
@@ -33,13 +32,98 @@ export async function GET(
       include: {
         user: true,
         appointments: {
-          orderBy: { startTime: 'asc' }, // Ordine cronologico per il calendario
+          orderBy: { startTime: 'desc' },
+          include: { prescribedGroups: true }
         },
-        _count: { select: { attempts: true } }
+        attempts: {
+          include: {
+            exercise: {
+              include: {
+                group: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'asc' } // Ascending for graph progression
+        },
+        _count: { select: { appointments: true } }
       },
     });
 
     if (!student) return NextResponse.json({ error: 'Paziente non trovato' }, { status: 404 });
+
+    const now = new Date();
+
+    // Raggruppamento appuntamenti
+    const allApps = student.appointments.map(app => {
+      const relatedAttempts = student.attempts.filter(attempt => {
+        const appDate = new Date(app.startTime);
+        const attDate = new Date(attempt.createdAt);
+        return attDate.toDateString() === appDate.toDateString();
+      });
+
+      return {
+        id: app.id,
+        date: app.startTime,
+        type: app.type,
+        duration: app.duration,
+        note: app.note,
+        isPast: new Date(app.startTime) < now,
+        results: relatedAttempts.map(att => ({
+          id: att.id,
+          exerciseType: att.exercise.exerciseType,
+          groupTitle: att.exercise.group.title,
+          success: att.success,
+          durationSeconds: att.durationSeconds,
+          triesTillCorrect: att.triesTillCorrect,
+          textAttempt: att.textAttempt,
+          createdAt: att.createdAt
+        }))
+      };
+    });
+
+    const upcoming = allApps.filter(a => !a.isPast).reverse();
+    const past = allApps.filter(a => a.isPast);
+
+    // Dati per il grafico (Progressi nel tempo)
+    // Mappa i topic a categorie fisse
+    const categoriesMapping: Record<string, string> = {
+      "Inferenze": "Pragmatica",
+      "Ironia": "Pragmatica",
+      "Conversazione": "Pragmatica",
+      "Emozioni": "Pragmatica",
+      "Narrazione": "Narrazione",
+      "Storie": "Narrazione",
+      "Sequenze": "Narrazione"
+    };
+
+    const progressData: any[] = [];
+    const dateGroups: Record<string, any> = {};
+
+    student.attempts.forEach(att => {
+        const dateStr = new Date(att.createdAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+        if (!dateGroups[dateStr]) dateGroups[dateStr] = { date: dateStr, projects: 0, narration: 0, pragmatic: 0, countP: 0, countN: 0 };
+        
+        const topic = att.exercise.group.topic;
+        const category = categoriesMapping[topic] || (topic.toLowerCase().includes('narrazione') ? 'Narrazione' : 'Pragmatica');
+        
+        const score = att.success ? 100 : 0; // Semplificato, o 100 - (tries * 10)
+        
+        if (category === 'Pragmatica') {
+            dateGroups[dateStr].pragmatic += score;
+            dateGroups[dateStr].countP++;
+        } else {
+            dateGroups[dateStr].narration += score;
+            dateGroups[dateStr].countN++;
+        }
+    });
+
+    Object.values(dateGroups).forEach((g: any) => {
+        progressData.push({
+            date: g.date,
+            pragmatica: g.countP > 0 ? Math.round(g.pragmatic / g.countP) : null,
+            narrazione: g.countN > 0 ? Math.round(g.narration / g.countN) : null
+        });
+    });
 
     return NextResponse.json({
       id: student.userId,
@@ -48,21 +132,16 @@ export async function GET(
       age: student.age,
       initials: (student.user.name[0] + student.user.surname[0]).toUpperCase(),
       diagnosis: student.description || "", 
-      totalSessions: student._count.attempts,
-      lastSessionDate: student.appointments[0]?.startTime || null,
-      // Usiamo il campo 'diagnosis' del DB per salvare gli obiettivi separati da ";"
-      objectives: student.diagnosis ? student.diagnosis.split(';') : [],
-      // Usiamo note se presenti o una stringa vuota
-      notes: "", 
-      appointments: student.appointments.map(app => ({
-        id: app.id,
-        date: app.startTime, 
-        type: app.type,
-        duration: app.duration,
-        note: app.note
-      }))
+      objectives: student.diagnosis || "",
+      notes: student.internalNotes || "",
+      totalSessions: student.appointments.length,
+      lastSessionDate: past[0]?.date || null,
+      upcomingAppointments: upcoming,
+      pastAppointments: past,
+      progressData: progressData.slice(-10) // Ultime 10 rilevazioni
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
   }
 }
@@ -74,20 +153,19 @@ export async function PATCH(
   const { studentId } = await params;
   try {
     const body = await request.json();
-    const { description, diagnosis, notes, appointmentId, appointmentNote } = body;
+    const { description, diagnosis, internalNotes, appointmentId, appointmentNote } = body;
 
-    // 1. Aggiornamento dati generali del bambino (Diagnosi e Obiettivi)
-    if (description !== undefined || diagnosis !== undefined) {
+    if (description !== undefined || diagnosis !== undefined || internalNotes !== undefined) {
       await prisma.child.update({
         where: { userId: studentId },
         data: {
-          description: description, // Diagnosi
-          diagnosis: diagnosis,     // Obiettivi (stringa o separata da ;)
+          description: description,
+          diagnosis: diagnosis,
+          internalNotes: internalNotes
         },
       });
     }
 
-    // 2. Aggiornamento note specifiche di un appuntamento
     if (appointmentId && appointmentNote !== undefined) {
       await prisma.appointment.update({
         where: { id: appointmentId },
@@ -97,7 +175,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Errore durante il salvataggio' }, { status: 500 });
+    return NextResponse.json({ error: 'Errore' }, { status: 500 });
   }
 }

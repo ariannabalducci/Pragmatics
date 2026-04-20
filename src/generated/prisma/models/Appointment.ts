@@ -20,8 +20,20 @@ export type AppointmentModel = runtime.Types.Result.DefaultSelection<Prisma.$App
 
 export type AggregateAppointment = {
   _count: AppointmentCountAggregateOutputType | null
+  _avg: AppointmentAvgAggregateOutputType | null
+  _sum: AppointmentSumAggregateOutputType | null
   _min: AppointmentMinAggregateOutputType | null
   _max: AppointmentMaxAggregateOutputType | null
+}
+
+export type AppointmentAvgAggregateOutputType = {
+  trainingExercises: number | null
+  testingExercises: number | null
+}
+
+export type AppointmentSumAggregateOutputType = {
+  trainingExercises: number | null
+  testingExercises: number | null
 }
 
 export type AppointmentMinAggregateOutputType = {
@@ -30,6 +42,8 @@ export type AppointmentMinAggregateOutputType = {
   type: string | null
   duration: string | null
   note: string | null
+  trainingExercises: number | null
+  testingExercises: number | null
   therapistId: string | null
   childId: string | null
   createdAt: Date | null
@@ -42,6 +56,8 @@ export type AppointmentMaxAggregateOutputType = {
   type: string | null
   duration: string | null
   note: string | null
+  trainingExercises: number | null
+  testingExercises: number | null
   therapistId: string | null
   childId: string | null
   createdAt: Date | null
@@ -54,6 +70,8 @@ export type AppointmentCountAggregateOutputType = {
   type: number
   duration: number
   note: number
+  trainingExercises: number
+  testingExercises: number
   therapistId: number
   childId: number
   createdAt: number
@@ -62,12 +80,24 @@ export type AppointmentCountAggregateOutputType = {
 }
 
 
+export type AppointmentAvgAggregateInputType = {
+  trainingExercises?: true
+  testingExercises?: true
+}
+
+export type AppointmentSumAggregateInputType = {
+  trainingExercises?: true
+  testingExercises?: true
+}
+
 export type AppointmentMinAggregateInputType = {
   id?: true
   startTime?: true
   type?: true
   duration?: true
   note?: true
+  trainingExercises?: true
+  testingExercises?: true
   therapistId?: true
   childId?: true
   createdAt?: true
@@ -80,6 +110,8 @@ export type AppointmentMaxAggregateInputType = {
   type?: true
   duration?: true
   note?: true
+  trainingExercises?: true
+  testingExercises?: true
   therapistId?: true
   childId?: true
   createdAt?: true
@@ -92,6 +124,8 @@ export type AppointmentCountAggregateInputType = {
   type?: true
   duration?: true
   note?: true
+  trainingExercises?: true
+  testingExercises?: true
   therapistId?: true
   childId?: true
   createdAt?: true
@@ -137,6 +171,18 @@ export type AppointmentAggregateArgs<ExtArgs extends runtime.Types.Extensions.In
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AppointmentAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AppointmentSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AppointmentMinAggregateInputType
@@ -167,6 +213,8 @@ export type AppointmentGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   _count?: AppointmentCountAggregateInputType | true
+  _avg?: AppointmentAvgAggregateInputType
+  _sum?: AppointmentSumAggregateInputType
   _min?: AppointmentMinAggregateInputType
   _max?: AppointmentMaxAggregateInputType
 }
@@ -177,11 +225,15 @@ export type AppointmentGroupByOutputType = {
   type: string
   duration: string
   note: string | null
+  trainingExercises: number
+  testingExercises: number
   therapistId: string
   childId: string
   createdAt: Date
   updatedAt: Date
   _count: AppointmentCountAggregateOutputType | null
+  _avg: AppointmentAvgAggregateOutputType | null
+  _sum: AppointmentSumAggregateOutputType | null
   _min: AppointmentMinAggregateOutputType | null
   _max: AppointmentMaxAggregateOutputType | null
 }
@@ -210,10 +262,13 @@ export type AppointmentWhereInput = {
   type?: Prisma.StringFilter<"Appointment"> | string
   duration?: Prisma.StringFilter<"Appointment"> | string
   note?: Prisma.StringNullableFilter<"Appointment"> | string | null
+  trainingExercises?: Prisma.IntFilter<"Appointment"> | number
+  testingExercises?: Prisma.IntFilter<"Appointment"> | number
   therapistId?: Prisma.StringFilter<"Appointment"> | string
   childId?: Prisma.StringFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupListRelationFilter
   therapist?: Prisma.XOR<Prisma.TherapistScalarRelationFilter, Prisma.TherapistWhereInput>
   child?: Prisma.XOR<Prisma.ChildScalarRelationFilter, Prisma.ChildWhereInput>
 }
@@ -224,10 +279,13 @@ export type AppointmentOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
   therapistId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  prescribedGroups?: Prisma.ExerciseGroupOrderByRelationAggregateInput
   therapist?: Prisma.TherapistOrderByWithRelationInput
   child?: Prisma.ChildOrderByWithRelationInput
 }
@@ -241,10 +299,13 @@ export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.StringFilter<"Appointment"> | string
   duration?: Prisma.StringFilter<"Appointment"> | string
   note?: Prisma.StringNullableFilter<"Appointment"> | string | null
+  trainingExercises?: Prisma.IntFilter<"Appointment"> | number
+  testingExercises?: Prisma.IntFilter<"Appointment"> | number
   therapistId?: Prisma.StringFilter<"Appointment"> | string
   childId?: Prisma.StringFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupListRelationFilter
   therapist?: Prisma.XOR<Prisma.TherapistScalarRelationFilter, Prisma.TherapistWhereInput>
   child?: Prisma.XOR<Prisma.ChildScalarRelationFilter, Prisma.ChildWhereInput>
 }, "id">
@@ -255,13 +316,17 @@ export type AppointmentOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
   therapistId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AppointmentCountOrderByAggregateInput
+  _avg?: Prisma.AppointmentAvgOrderByAggregateInput
   _max?: Prisma.AppointmentMaxOrderByAggregateInput
   _min?: Prisma.AppointmentMinOrderByAggregateInput
+  _sum?: Prisma.AppointmentSumOrderByAggregateInput
 }
 
 export type AppointmentScalarWhereWithAggregatesInput = {
@@ -273,6 +338,8 @@ export type AppointmentScalarWhereWithAggregatesInput = {
   type?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   duration?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null
+  trainingExercises?: Prisma.IntWithAggregatesFilter<"Appointment"> | number
+  testingExercises?: Prisma.IntWithAggregatesFilter<"Appointment"> | number
   therapistId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   childId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string
@@ -285,8 +352,11 @@ export type AppointmentCreateInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  prescribedGroups?: Prisma.ExerciseGroupCreateNestedManyWithoutAppointmentsInput
   therapist: Prisma.TherapistCreateNestedOneWithoutAppointmentsInput
   child: Prisma.ChildCreateNestedOneWithoutAppointmentsInput
 }
@@ -297,10 +367,13 @@ export type AppointmentUncheckedCreateInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   therapistId: string
   childId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUncheckedCreateNestedManyWithoutAppointmentsInput
 }
 
 export type AppointmentUpdateInput = {
@@ -309,8 +382,11 @@ export type AppointmentUpdateInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUpdateManyWithoutAppointmentsNestedInput
   therapist?: Prisma.TherapistUpdateOneRequiredWithoutAppointmentsNestedInput
   child?: Prisma.ChildUpdateOneRequiredWithoutAppointmentsNestedInput
 }
@@ -321,10 +397,13 @@ export type AppointmentUncheckedUpdateInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   therapistId?: Prisma.StringFieldUpdateOperationsInput | string
   childId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUncheckedUpdateManyWithoutAppointmentsNestedInput
 }
 
 export type AppointmentCreateManyInput = {
@@ -333,6 +412,8 @@ export type AppointmentCreateManyInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   therapistId: string
   childId: string
   createdAt?: Date | string
@@ -345,6 +426,8 @@ export type AppointmentUpdateManyMutationInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -355,6 +438,8 @@ export type AppointmentUncheckedUpdateManyInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   therapistId?: Prisma.StringFieldUpdateOperationsInput | string
   childId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -377,10 +462,17 @@ export type AppointmentCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
   therapistId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AppointmentAvgOrderByAggregateInput = {
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
 }
 
 export type AppointmentMaxOrderByAggregateInput = {
@@ -389,6 +481,8 @@ export type AppointmentMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
   therapistId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -401,10 +495,17 @@ export type AppointmentMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
   therapistId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AppointmentSumOrderByAggregateInput = {
+  trainingExercises?: Prisma.SortOrder
+  testingExercises?: Prisma.SortOrder
 }
 
 export type AppointmentCreateNestedManyWithoutTherapistInput = {
@@ -491,14 +592,55 @@ export type AppointmentUncheckedUpdateManyWithoutChildNestedInput = {
   deleteMany?: Prisma.AppointmentScalarWhereInput | Prisma.AppointmentScalarWhereInput[]
 }
 
+export type AppointmentCreateNestedManyWithoutPrescribedGroupsInput = {
+  create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput> | Prisma.AppointmentCreateWithoutPrescribedGroupsInput[] | Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput[]
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput | Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput[]
+  connect?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+}
+
+export type AppointmentUncheckedCreateNestedManyWithoutPrescribedGroupsInput = {
+  create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput> | Prisma.AppointmentCreateWithoutPrescribedGroupsInput[] | Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput[]
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput | Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput[]
+  connect?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+}
+
+export type AppointmentUpdateManyWithoutPrescribedGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput> | Prisma.AppointmentCreateWithoutPrescribedGroupsInput[] | Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput[]
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput | Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput[]
+  upsert?: Prisma.AppointmentUpsertWithWhereUniqueWithoutPrescribedGroupsInput | Prisma.AppointmentUpsertWithWhereUniqueWithoutPrescribedGroupsInput[]
+  set?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  disconnect?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  delete?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  connect?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  update?: Prisma.AppointmentUpdateWithWhereUniqueWithoutPrescribedGroupsInput | Prisma.AppointmentUpdateWithWhereUniqueWithoutPrescribedGroupsInput[]
+  updateMany?: Prisma.AppointmentUpdateManyWithWhereWithoutPrescribedGroupsInput | Prisma.AppointmentUpdateManyWithWhereWithoutPrescribedGroupsInput[]
+  deleteMany?: Prisma.AppointmentScalarWhereInput | Prisma.AppointmentScalarWhereInput[]
+}
+
+export type AppointmentUncheckedUpdateManyWithoutPrescribedGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput> | Prisma.AppointmentCreateWithoutPrescribedGroupsInput[] | Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput[]
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput | Prisma.AppointmentCreateOrConnectWithoutPrescribedGroupsInput[]
+  upsert?: Prisma.AppointmentUpsertWithWhereUniqueWithoutPrescribedGroupsInput | Prisma.AppointmentUpsertWithWhereUniqueWithoutPrescribedGroupsInput[]
+  set?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  disconnect?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  delete?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  connect?: Prisma.AppointmentWhereUniqueInput | Prisma.AppointmentWhereUniqueInput[]
+  update?: Prisma.AppointmentUpdateWithWhereUniqueWithoutPrescribedGroupsInput | Prisma.AppointmentUpdateWithWhereUniqueWithoutPrescribedGroupsInput[]
+  updateMany?: Prisma.AppointmentUpdateManyWithWhereWithoutPrescribedGroupsInput | Prisma.AppointmentUpdateManyWithWhereWithoutPrescribedGroupsInput[]
+  deleteMany?: Prisma.AppointmentScalarWhereInput | Prisma.AppointmentScalarWhereInput[]
+}
+
 export type AppointmentCreateWithoutTherapistInput = {
   id?: string
   startTime: Date | string
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  prescribedGroups?: Prisma.ExerciseGroupCreateNestedManyWithoutAppointmentsInput
   child: Prisma.ChildCreateNestedOneWithoutAppointmentsInput
 }
 
@@ -508,9 +650,12 @@ export type AppointmentUncheckedCreateWithoutTherapistInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   childId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUncheckedCreateNestedManyWithoutAppointmentsInput
 }
 
 export type AppointmentCreateOrConnectWithoutTherapistInput = {
@@ -548,6 +693,8 @@ export type AppointmentScalarWhereInput = {
   type?: Prisma.StringFilter<"Appointment"> | string
   duration?: Prisma.StringFilter<"Appointment"> | string
   note?: Prisma.StringNullableFilter<"Appointment"> | string | null
+  trainingExercises?: Prisma.IntFilter<"Appointment"> | number
+  testingExercises?: Prisma.IntFilter<"Appointment"> | number
   therapistId?: Prisma.StringFilter<"Appointment"> | string
   childId?: Prisma.StringFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
@@ -560,8 +707,11 @@ export type AppointmentCreateWithoutChildInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  prescribedGroups?: Prisma.ExerciseGroupCreateNestedManyWithoutAppointmentsInput
   therapist: Prisma.TherapistCreateNestedOneWithoutAppointmentsInput
 }
 
@@ -571,9 +721,12 @@ export type AppointmentUncheckedCreateWithoutChildInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   therapistId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUncheckedCreateNestedManyWithoutAppointmentsInput
 }
 
 export type AppointmentCreateOrConnectWithoutChildInput = {
@@ -602,12 +755,63 @@ export type AppointmentUpdateManyWithWhereWithoutChildInput = {
   data: Prisma.XOR<Prisma.AppointmentUpdateManyMutationInput, Prisma.AppointmentUncheckedUpdateManyWithoutChildInput>
 }
 
+export type AppointmentCreateWithoutPrescribedGroupsInput = {
+  id?: string
+  startTime: Date | string
+  type: string
+  duration: string
+  note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  therapist: Prisma.TherapistCreateNestedOneWithoutAppointmentsInput
+  child: Prisma.ChildCreateNestedOneWithoutAppointmentsInput
+}
+
+export type AppointmentUncheckedCreateWithoutPrescribedGroupsInput = {
+  id?: string
+  startTime: Date | string
+  type: string
+  duration: string
+  note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
+  therapistId: string
+  childId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AppointmentCreateOrConnectWithoutPrescribedGroupsInput = {
+  where: Prisma.AppointmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput>
+}
+
+export type AppointmentUpsertWithWhereUniqueWithoutPrescribedGroupsInput = {
+  where: Prisma.AppointmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.AppointmentUpdateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedUpdateWithoutPrescribedGroupsInput>
+  create: Prisma.XOR<Prisma.AppointmentCreateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedCreateWithoutPrescribedGroupsInput>
+}
+
+export type AppointmentUpdateWithWhereUniqueWithoutPrescribedGroupsInput = {
+  where: Prisma.AppointmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.AppointmentUpdateWithoutPrescribedGroupsInput, Prisma.AppointmentUncheckedUpdateWithoutPrescribedGroupsInput>
+}
+
+export type AppointmentUpdateManyWithWhereWithoutPrescribedGroupsInput = {
+  where: Prisma.AppointmentScalarWhereInput
+  data: Prisma.XOR<Prisma.AppointmentUpdateManyMutationInput, Prisma.AppointmentUncheckedUpdateManyWithoutPrescribedGroupsInput>
+}
+
 export type AppointmentCreateManyTherapistInput = {
   id?: string
   startTime: Date | string
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   childId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -619,8 +823,11 @@ export type AppointmentUpdateWithoutTherapistInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUpdateManyWithoutAppointmentsNestedInput
   child?: Prisma.ChildUpdateOneRequiredWithoutAppointmentsNestedInput
 }
 
@@ -630,9 +837,12 @@ export type AppointmentUncheckedUpdateWithoutTherapistInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   childId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUncheckedUpdateManyWithoutAppointmentsNestedInput
 }
 
 export type AppointmentUncheckedUpdateManyWithoutTherapistInput = {
@@ -641,6 +851,8 @@ export type AppointmentUncheckedUpdateManyWithoutTherapistInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   childId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -652,6 +864,8 @@ export type AppointmentCreateManyChildInput = {
   type: string
   duration: string
   note?: string | null
+  trainingExercises?: number
+  testingExercises?: number
   therapistId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -663,8 +877,11 @@ export type AppointmentUpdateWithoutChildInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUpdateManyWithoutAppointmentsNestedInput
   therapist?: Prisma.TherapistUpdateOneRequiredWithoutAppointmentsNestedInput
 }
 
@@ -674,9 +891,12 @@ export type AppointmentUncheckedUpdateWithoutChildInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   therapistId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prescribedGroups?: Prisma.ExerciseGroupUncheckedUpdateManyWithoutAppointmentsNestedInput
 }
 
 export type AppointmentUncheckedUpdateManyWithoutChildInput = {
@@ -685,11 +905,84 @@ export type AppointmentUncheckedUpdateManyWithoutChildInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
   therapistId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type AppointmentUpdateWithoutPrescribedGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  therapist?: Prisma.TherapistUpdateOneRequiredWithoutAppointmentsNestedInput
+  child?: Prisma.ChildUpdateOneRequiredWithoutAppointmentsNestedInput
+}
+
+export type AppointmentUncheckedUpdateWithoutPrescribedGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  therapistId?: Prisma.StringFieldUpdateOperationsInput | string
+  childId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AppointmentUncheckedUpdateManyWithoutPrescribedGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trainingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  testingExercises?: Prisma.IntFieldUpdateOperationsInput | number
+  therapistId?: Prisma.StringFieldUpdateOperationsInput | string
+  childId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type AppointmentCountOutputType
+ */
+
+export type AppointmentCountOutputType = {
+  prescribedGroups: number
+}
+
+export type AppointmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  prescribedGroups?: boolean | AppointmentCountOutputTypeCountPrescribedGroupsArgs
+}
+
+/**
+ * AppointmentCountOutputType without action
+ */
+export type AppointmentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppointmentCountOutputType
+   */
+  select?: Prisma.AppointmentCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AppointmentCountOutputType without action
+ */
+export type AppointmentCountOutputTypeCountPrescribedGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExerciseGroupWhereInput
+}
 
 
 export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -698,12 +991,16 @@ export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   type?: boolean
   duration?: boolean
   note?: boolean
+  trainingExercises?: boolean
+  testingExercises?: boolean
   therapistId?: boolean
   childId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  prescribedGroups?: boolean | Prisma.Appointment$prescribedGroupsArgs<ExtArgs>
   therapist?: boolean | Prisma.TherapistDefaultArgs<ExtArgs>
   child?: boolean | Prisma.ChildDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.AppointmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appointment"]>
 
 export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -712,6 +1009,8 @@ export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   type?: boolean
   duration?: boolean
   note?: boolean
+  trainingExercises?: boolean
+  testingExercises?: boolean
   therapistId?: boolean
   childId?: boolean
   createdAt?: boolean
@@ -726,6 +1025,8 @@ export type AppointmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   type?: boolean
   duration?: boolean
   note?: boolean
+  trainingExercises?: boolean
+  testingExercises?: boolean
   therapistId?: boolean
   childId?: boolean
   createdAt?: boolean
@@ -740,16 +1041,20 @@ export type AppointmentSelectScalar = {
   type?: boolean
   duration?: boolean
   note?: boolean
+  trainingExercises?: boolean
+  testingExercises?: boolean
   therapistId?: boolean
   childId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "startTime" | "type" | "duration" | "note" | "therapistId" | "childId" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
+export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "startTime" | "type" | "duration" | "note" | "trainingExercises" | "testingExercises" | "therapistId" | "childId" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
 export type AppointmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  prescribedGroups?: boolean | Prisma.Appointment$prescribedGroupsArgs<ExtArgs>
   therapist?: boolean | Prisma.TherapistDefaultArgs<ExtArgs>
   child?: boolean | Prisma.ChildDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.AppointmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AppointmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   therapist?: boolean | Prisma.TherapistDefaultArgs<ExtArgs>
@@ -763,6 +1068,7 @@ export type AppointmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Appointment"
   objects: {
+    prescribedGroups: Prisma.$ExerciseGroupPayload<ExtArgs>[]
     therapist: Prisma.$TherapistPayload<ExtArgs>
     child: Prisma.$ChildPayload<ExtArgs>
   }
@@ -772,6 +1078,8 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     type: string
     duration: string
     note: string | null
+    trainingExercises: number
+    testingExercises: number
     therapistId: string
     childId: string
     createdAt: Date
@@ -1170,6 +1478,7 @@ readonly fields: AppointmentFieldRefs;
  */
 export interface Prisma__AppointmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  prescribedGroups<T extends Prisma.Appointment$prescribedGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$prescribedGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExerciseGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   therapist<T extends Prisma.TherapistDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TherapistDefaultArgs<ExtArgs>>): Prisma.Prisma__TherapistClient<runtime.Types.Result.GetResult<Prisma.$TherapistPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   child<T extends Prisma.ChildDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChildDefaultArgs<ExtArgs>>): Prisma.Prisma__ChildClient<runtime.Types.Result.GetResult<Prisma.$ChildPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1206,6 +1515,8 @@ export interface AppointmentFieldRefs {
   readonly type: Prisma.FieldRef<"Appointment", 'String'>
   readonly duration: Prisma.FieldRef<"Appointment", 'String'>
   readonly note: Prisma.FieldRef<"Appointment", 'String'>
+  readonly trainingExercises: Prisma.FieldRef<"Appointment", 'Int'>
+  readonly testingExercises: Prisma.FieldRef<"Appointment", 'Int'>
   readonly therapistId: Prisma.FieldRef<"Appointment", 'String'>
   readonly childId: Prisma.FieldRef<"Appointment", 'String'>
   readonly createdAt: Prisma.FieldRef<"Appointment", 'DateTime'>
@@ -1603,6 +1914,30 @@ export type AppointmentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many Appointments to delete.
    */
   limit?: number
+}
+
+/**
+ * Appointment.prescribedGroups
+ */
+export type Appointment$prescribedGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExerciseGroup
+   */
+  select?: Prisma.ExerciseGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExerciseGroup
+   */
+  omit?: Prisma.ExerciseGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExerciseGroupInclude<ExtArgs> | null
+  where?: Prisma.ExerciseGroupWhereInput
+  orderBy?: Prisma.ExerciseGroupOrderByWithRelationInput | Prisma.ExerciseGroupOrderByWithRelationInput[]
+  cursor?: Prisma.ExerciseGroupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExerciseGroupScalarFieldEnum | Prisma.ExerciseGroupScalarFieldEnum[]
 }
 
 /**
