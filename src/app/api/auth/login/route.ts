@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { username, password } = body;
+    const { username, password, expectedRole } = body;
 
     if (!username || !password) {
       return NextResponse.json({ error: 'Missing username or password' }, { status: 400 });
@@ -26,6 +26,15 @@ export async function POST(request: Request) {
 
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    // Validate role if expectedRole is provided
+    if (expectedRole && user.role !== expectedRole) {
+      const roleLabel = expectedRole === 'THERAPIST' ? 'un logopedista' : 'un ragazzo';
+      return NextResponse.json(
+        { error: `Queste credenziali non appartengono a ${roleLabel}` },
+        { status: 403 }
+      );
     }
 
     if (!JWT_SECRET) {

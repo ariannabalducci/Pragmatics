@@ -17,7 +17,11 @@ export default function AuthTherapistPage() {
   if (!isMounted) return <main className="min-h-screen bg-[#F0F7F7]" />;
 
   const handleSelectProfile = (profile: "THERAPIST" | "CHILD") => {
-    router.push(`/login?role=${profile}`);
+    if (profile === "THERAPIST") {
+      router.push("/therapist/login");
+    } else {
+      router.push("/login");
+    }
   };
 
   return (

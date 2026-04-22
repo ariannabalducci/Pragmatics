@@ -1,20 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function LoginPage() {
+export default function ChildLoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const roleParam = searchParams?.get("role");
-  const roleLabel = roleParam === "THERAPIST" ? "Logopedista" : roleParam === "CHILD" ? "Ragazzo" : "Utente";
 
   const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,7 +22,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, expectedRole: "CHILD" }),
       });
 
       const data = await res.json();
@@ -37,11 +34,7 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (data.user.role === "CHILD") {
-        router.push("/select-mode");
-      } else if (data.user.role === "THERAPIST") {
-        router.push("/therapist/dashboard");
-      }
+      router.push("/select-mode");
 
     } catch (err: any) {
       setError(err.message);
@@ -68,6 +61,8 @@ export default function LoginPage() {
                     src="/side-parrot.svg"
                     alt="Pappagallo parlante"
                     fill
+                    sizes="600px"
+                    loading="eager"
                     className="object-contain z-10"
                     />
                 </div>
@@ -79,14 +74,15 @@ export default function LoginPage() {
                         src="/login/login-bubble.png" 
                         alt="Fumetto" 
                         fill 
+                        sizes="(max-width: 768px) 100vw, 50vw"
                     />
 
                     <div className="relative z-10 text-center px-12">
                       <p className="text-white text-3xl font-bold mb-4">
-                        Accedi come {roleLabel}
+                        Accedi come Ragazzo
                       </p>
                       <p className="text-white text-lg font-medium">
-                        Inserisci nome utente e password per proseguire nella tua esperienza.
+                        Inserisci nome utente e password per iniziare la tua avventura!
                       </p>
                     </div>
                 </div>
@@ -129,6 +125,13 @@ export default function LoginPage() {
                     {loading ? "Caricamento..." : "Accedi"}
                 </Button>
                 </form>
+
+                <Link 
+                  href="/therapist/login" 
+                  className="mt-4 text-white/80 hover:text-white font-medium text-sm underline underline-offset-4 transition-colors"
+                >
+                  Sei un logopedista? Accedi qui →
+                </Link>
                 
             </div>
         </main>
