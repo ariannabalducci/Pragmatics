@@ -2,21 +2,70 @@
 
 import React, { useState, useEffect, use, useMemo } from "react";
 import Link from "next/link";
-import { 
-  ArrowLeft, Calendar, FileText, Edit2, Plus, Clock, 
-  CheckCircle2, XCircle, ChevronDown, ChevronUp, Target, 
+import {
+  ArrowLeft, Calendar, FileText, Edit2, Plus, Clock,
+  CheckCircle2, XCircle, ChevronDown, ChevronUp, Target,
   TrendingUp, BookOpen, Activity, User as UserIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface Result {
+  id: string;
+  exerciseType: string;
+  groupTitle: string;
+  success: boolean;
+  durationSeconds: number;
+  triesTillCorrect: number;
+  textAttempt: string | any[];
+  createdAt: string;
+}
+
+interface Appointment {
+  id: string;
+  date: string;
+  type: string;
+  duration: string;
+  note: string;
+  isPast: boolean;
+  results: Result[];
+}
+
+interface ProgressPoint {
+  date: string;
+  pragmatica: number | null;
+  narrazione: number | null;
+}
+
+interface Patient {
+  id: string;
+  name: string;
+  surname: string;
+  age: number;
+  initials: string;
+  diagnosis: string;
+  objectives: string;
+  notes: string;
+  totalSessions: number;
+  lastSessionDate: string | null;
+  upcomingAppointments: Appointment[];
+  pastAppointments: Appointment[];
+  progressData: ProgressPoint[];
+}
+
+
 export default function PatientDetailPage({ params }: { params: Promise<{ studentId: string }> }) {
   const { studentId } = use(params);
-  const [patient, setPatient] = useState<any>(null);
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [tempValues, setTempValues] = useState<any>({});
+  const [editingField, setEditingField] = useState<'diagnosis' | 'objectives' | 'notes' | null>(null);
+  const [tempValues, setTempValues] = useState<{
+    diagnosis?: string;
+    objectives?: string;
+    notes?: string;
+  }>({});
   const [expandedResults, setExpandedResults] = useState<string[]>([]);
+
 
   useEffect(() => {
     if (studentId) fetchPatient();
@@ -36,27 +85,29 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
         objectives: data.objectives,
         notes: data.notes
       });
-    } catch (err) { console.error(err); } 
+    } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
-  const handleSaveField = async (field: string) => {
+  const handleSaveField = async (field: 'diagnosis' | 'objectives' | 'notes') => {
     try {
       const res = await fetch(`/api/therapist/student/${studentId}`, {
+
         method: 'PATCH',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ 
-          [field === 'diagnosis' ? 'description' : 
-           field === 'objectives' ? 'diagnosis' : 'internalNotes']: tempValues[field] 
+        body: JSON.stringify({
+          [field === 'diagnosis' ? 'description' :
+            field === 'objectives' ? 'diagnosis' : 'internalNotes']: tempValues[field]
         })
       });
-      if (res.ok) {
-        setPatient({ ...patient, [field]: tempValues[field] });
+      if (res.ok && patient) {
+        setPatient({ ...patient, [field]: tempValues[field] || "" });
         setEditingField(null);
       }
+
     } catch (err) { alert("Errore"); }
   };
 
@@ -94,35 +145,35 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
         </header>
 
         <div className="grid grid-cols-12 gap-8 items-start">
-          
+
           {/* LEFT COLUMN: Info Cards */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
-            
+
             {/* DIAGNOSI */}
-            <InfoCard 
-              title="Diagnosi" 
+            <InfoCard
+              title="Diagnosi"
               icon={<FileText size={18} className="text-purple-400" />}
               value={patient?.diagnosis}
               field="diagnosis"
               tempValue={tempValues.diagnosis}
               isEditing={editingField === 'diagnosis'}
               onEdit={() => setEditingField('diagnosis')}
-              onChange={(v) => setTempValues({...tempValues, diagnosis: v})}
+              onChange={(v) => setTempValues({ ...tempValues, diagnosis: v })}
               onSave={() => handleSaveField('diagnosis')}
               onCancel={() => setEditingField(null)}
               renderList
             />
 
             {/* OBIETTIVI */}
-            <InfoCard 
-              title="Obiettivi" 
+            <InfoCard
+              title="Obiettivi"
               icon={<Target size={18} className="text-[#67A495]" />}
               value={patient?.objectives}
               field="objectives"
               tempValue={tempValues.objectives}
               isEditing={editingField === 'objectives'}
               onEdit={() => setEditingField('objectives')}
-              onChange={(v) => setTempValues({...tempValues, objectives: v})}
+              onChange={(v) => setTempValues({ ...tempValues, objectives: v })}
               onSave={() => handleSaveField('objectives')}
               onCancel={() => setEditingField(null)}
               renderList
@@ -130,15 +181,15 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
             />
 
             {/* NOTE */}
-            <InfoCard 
-              title="Note" 
+            <InfoCard
+              title="Note"
               icon={<Edit2 size={18} className="text-blue-400" />}
               value={patient?.notes}
               field="notes"
               tempValue={tempValues.notes}
               isEditing={editingField === 'notes'}
               onEdit={() => setEditingField('notes')}
-              onChange={(v) => setTempValues({...tempValues, notes: v})}
+              onChange={(v) => setTempValues({ ...tempValues, notes: v })}
               onSave={() => handleSaveField('notes')}
               onCancel={() => setEditingField(null)}
             />
@@ -146,7 +197,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
 
           {/* RIGHT COLUMN: Sessions and Charts */}
           <div className="col-span-12 lg:col-span-8 space-y-8">
-            
+
             {/* PROGRESS CHART CARD */}
             <section className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50">
               <div className="flex items-center justify-between mb-8">
@@ -165,7 +216,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               </div>
 
               <div className="h-64 w-full relative">
-                 <ProgressChart data={patient?.progressData || []} />
+                <ProgressChart data={patient?.progressData || []} />
               </div>
             </section>
 
@@ -198,9 +249,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                 </h3>
                 <div className="space-y-3">
                   {patient?.pastAppointments?.map((app: any) => (
-                    <SessionItem 
-                      key={app.id} 
-                      app={app} 
+                    <SessionItem
+                      key={app.id}
+                      app={app}
                       isExpanded={expandedResults.includes(app.id)}
                       onToggle={() => {
                         setExpandedResults(prev => prev.includes(app.id) ? prev.filter(i => i !== app.id) : [...prev, app.id]);
@@ -218,7 +269,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                   <div className="p-2.5 bg-purple-50 rounded-xl text-purple-400"><TrendingUp size={20} /></div>
                   <h2 className="text-xl font-black text-[#0E2A47]">Ultime Sedute</h2>
                 </div>
-                
+
                 <div className="bg-slate-50/50 rounded-3xl p-8 border border-slate-100">
                   <div className="flex items-center gap-4 mb-6">
                     <Calendar className="text-slate-400" size={18} />
@@ -233,8 +284,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Attività</p>
                       <div className="flex flex-wrap gap-2">
-                        {patient.pastAppointments[0].results.map((res: any, idx: number) => (
+                        {patient.pastAppointments[0].results.map((res, idx) => (
                           <span key={idx} className="px-4 py-2 bg-white rounded-xl text-xs font-bold text-[#0E2A47] border border-slate-100 shadow-sm">
+
                             {res.groupTitle}
                           </span>
                         ))}
@@ -267,11 +319,30 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
 
 // SUB-COMPONENTS
 
-function InfoCard({ title, icon, value, tempValue, isEditing, onEdit, onChange, onSave, onCancel, renderList, bulletIcon }: any) {
+interface InfoCardProps {
+  title: string;
+  icon: React.ReactNode;
+  value: string | undefined;
+  tempValue: string | undefined;
+  isEditing: boolean;
+  onEdit: () => void;
+  onChange: (value: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  renderList?: boolean;
+  bulletIcon?: React.ReactNode;
+  field: string;
+}
+
+function InfoCard({
+  title, icon, value, tempValue, isEditing,
+  onEdit, onChange, onSave, onCancel, renderList, bulletIcon
+}: InfoCardProps) {
+
   const listItems = value ? (typeof value === 'string' ? value.split(/[\n;]+/).filter(Boolean) : []) : [];
 
   return (
-    <motion.section 
+    <motion.section
       layout
       className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 hover:shadow-md transition-shadow group relative"
     >
@@ -322,7 +393,15 @@ function InfoCard({ title, icon, value, tempValue, isEditing, onEdit, onChange, 
   );
 }
 
-function SessionItem({ app, isUpcoming, isExpanded, onToggle }: any) {
+interface SessionItemProps {
+  app: Appointment;
+  isUpcoming?: boolean;
+  isExpanded?: boolean;
+  onToggle?: () => void;
+}
+
+function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps) {
+
   return (
     <div className={cn(
       "group relative border border-slate-100 rounded-[1.8rem] p-5 transition-all bg-white",
@@ -343,20 +422,20 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: any) {
               {new Date(app.date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
             </p>
             <div className="flex items-center gap-2 mt-1">
-               <span className={cn(
-                  "text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm",
-                  isUpcoming ? "bg-white text-[#67A495] border border-teal-50" : "bg-white text-purple-400 border border-purple-50"
-               )}>
-                 {app.type}
-               </span>
-               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-2">
-                 <Clock size={10} className="inline mr-1" /> {app.duration}
-               </span>
-               {!isUpcoming && app.results?.length > 0 && (
-                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-2">
-                   <BookOpen size={10} className="inline mr-1" /> {app.results.length} esercizi
-                 </span>
-               )}
+              <span className={cn(
+                "text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm",
+                isUpcoming ? "bg-white text-[#67A495] border border-teal-50" : "bg-white text-purple-400 border border-purple-50"
+              )}>
+                {app.type}
+              </span>
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-2">
+                <Clock size={10} className="inline mr-1" /> {app.duration}
+              </span>
+              {!isUpcoming && app.results?.length > 0 && (
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-2">
+                  <BookOpen size={10} className="inline mr-1" /> {app.results.length} esercizi
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -367,23 +446,24 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: any) {
           </button>
         )}
         {isUpcoming && (
-           <button className="p-2 hover:bg-teal-50 rounded-xl transition-colors text-slate-300 hover:text-[#67A495]">
-             <Edit2 size={16} />
-           </button>
+          <button className="p-2 hover:bg-teal-50 rounded-xl transition-colors text-slate-300 hover:text-[#67A495]">
+            <Edit2 size={16} />
+          </button>
         )}
       </div>
 
       <AnimatePresence>
         {isExpanded && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
             <div className="mt-5 pt-5 border-t border-slate-50 space-y-2">
-              {app.results.map((res: any, idx: number) => (
+              {app.results.map((res, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+
                   <div className="flex items-center gap-4">
                     <div className={cn(
                       "p-2 rounded-xl",
@@ -407,12 +487,13 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: any) {
                             try {
                               const history = typeof res.textAttempt === 'string' ? JSON.parse(res.textAttempt) : res.textAttempt;
                               if (Array.isArray(history)) {
-                                return history.filter(m => m.role === 'user').map(m => m.parts?.[0]?.text).join(" • ") || "Nessuna risposta";
+                                return history.filter((m: any) => m.role === 'user').map((m: any) => m.parts?.[0]?.text).join(" • ") || "Nessuna risposta";
                               }
-                            } catch (e) {}
+                            } catch (e) { }
                             return "Chat salvata";
                           })()}
                         </p>
+
                       </div>
                     ) : (
                       <div className="text-right">
@@ -441,7 +522,8 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: any) {
   );
 }
 
-function ProgressChart({ data }: { data: any[] }) {
+function ProgressChart({ data }: { data: ProgressPoint[] }) {
+
   if (!data || data.length === 0) return (
     <div className="h-full w-full flex items-center justify-center text-slate-300 text-xs font-bold uppercase tracking-widest bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
       Dati non sufficienti per il grafico
@@ -456,23 +538,23 @@ function ProgressChart({ data }: { data: any[] }) {
 
   const pointsPragmatic = data.map((d, i) => {
     if (d.pragmatica === null) return null;
-    const x = data.length > 1 
-      ? padding + (i / (data.length - 1)) * chartWidth 
+    const x = data.length > 1
+      ? padding + (i / (data.length - 1)) * chartWidth
       : padding + chartWidth / 2;
     const y = height - padding - (d.pragmatica / 100) * chartHeight;
     return { x, y };
-  }).filter(Boolean) as {x: number, y: number}[];
+  }).filter(Boolean) as { x: number, y: number }[];
 
   const pointsNarration = data.map((d, i) => {
     if (d.narrazione === null) return null;
-    const x = data.length > 1 
-      ? padding + (i / (data.length - 1)) * chartWidth 
+    const x = data.length > 1
+      ? padding + (i / (data.length - 1)) * chartWidth
       : padding + chartWidth / 2;
     const y = height - padding - (d.narrazione / 100) * chartHeight;
     return { x, y };
-  }).filter(Boolean) as {x: number, y: number}[];
+  }).filter(Boolean) as { x: number, y: number }[];
 
-  const getPath = (points: {x: number, y: number}[]) => {
+  const getPath = (points: { x: number, y: number }[]) => {
     if (points.length < 2) return "";
     return `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ");
   };
@@ -504,8 +586,8 @@ function ProgressChart({ data }: { data: any[] }) {
 
       {/* X Labels */}
       {data.map((d, i) => {
-        const x = data.length > 1 
-          ? padding + (i / (data.length - 1)) * chartWidth 
+        const x = data.length > 1
+          ? padding + (i / (data.length - 1)) * chartWidth
           : padding + chartWidth / 2;
         if (i % 2 !== 0 && data.length > 5) return null; // Reduce labels
         return (
