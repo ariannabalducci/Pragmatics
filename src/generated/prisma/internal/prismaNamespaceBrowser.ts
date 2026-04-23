@@ -103,6 +103,7 @@ export const ChildScalarFieldEnum = {
   ethnicity: 'ethnicity',
   description: 'description',
   diagnosis: 'diagnosis',
+  internalNotes: 'internalNotes',
   coins: 'coins',
   avatarSkinColor: 'avatarSkinColor',
   avatarHairStyle: 'avatarHairStyle',
