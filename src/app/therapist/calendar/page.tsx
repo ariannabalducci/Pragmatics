@@ -4,7 +4,8 @@ import Link from "next/link";
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Calendar as CalendarIcon, Clock, User, Plus, LogOut,
-  LayoutDashboard, Users, FileText, ChevronLeft, ChevronRight, Target, X
+  LayoutDashboard, Users, FileText, ChevronLeft, ChevronRight, Target, X,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -141,16 +142,16 @@ export default function CalendarPage() {
   return (
     <div className="flex h-screen overflow-hidden font-sans antialiased" style={{ backgroundColor: BRAND.bg }}>
 
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <aside className="w-64 bg-[#4d8b7d] flex flex-col justify-between py-8 shrink-0">
         <div>
           <div className="px-6 flex items-center gap-3 mb-12">
             <div className="bg-white/20 p-2 rounded-xl text-white">
-              <Target size={24} />
+              <Users className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-white font-bold text-lg leading-tight">Praggymatics</h1>
-              <p className="text-white/70 text-xs uppercase tracking-wider font-semibold">Logopedista</p>
+              <p className="text-white/70 text-xs">Dashboard Logopedista</p>
             </div>
           </div>
 
@@ -163,17 +164,24 @@ export default function CalendarPage() {
               <Users className="w-5 h-5" />
               Pazienti
             </Link>
-            <Link href="/therapist/calendar" className="flex items-center gap-3 bg-white text-[#4d8b7d] px-4 py-3 rounded-xl font-semibold shadow-sm">
+            
+            {/* Voce CALENDARIO Attiva - Sfondo Bianco e Testo Verde */}
+            <div className="flex items-center gap-3 bg-white text-[#4d8b7d] px-4 py-3 rounded-xl font-semibold shadow-sm">
               <CalendarIcon className="w-5 h-5" />
               Calendario
+            </div>
+            
+            <Link href="/therapist/ai-assistant" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
+              <Sparkles className="w-5 h-5" />
+              Assistente AI
             </Link>
           </nav>
         </div>
 
         <div className="px-4">
-          <button
+          <button 
             onClick={() => {
-              localStorage.removeItem('token');
+              localStorage.removeItem("token");
               window.location.href = "/";
             }}
             className="flex items-center gap-3 text-white/90 hover:text-white px-4 py-3 w-full transition font-medium hover:bg-white/10 rounded-xl"

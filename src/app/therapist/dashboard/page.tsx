@@ -11,6 +11,7 @@ import {
   TrendingUp,
   HelpCircle,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -103,6 +104,10 @@ export default function Dashboard() {
             <Link href="/therapist/calendar" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <CalendarIcon className="w-5 h-5" />
               Calendario
+            </Link>
+            <Link href="/therapist/ai-assistant" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
+              <Sparkles className="w-5 h-5" />
+              Assistente AI
             </Link>
           </nav>
         </div>

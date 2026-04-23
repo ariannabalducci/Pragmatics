@@ -4,7 +4,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { 
   Users, LayoutDashboard, Calendar as CalendarIcon, 
-  LogOut, Plus, Search, Calendar, Activity, FileText 
+  LogOut, Plus, Search, Calendar, Activity, FileText, 
+  Sparkles
 } from "lucide-react";
 import { PatientListItem } from "@/types";
 import AddPatientModal from "@/components/ui/AddPatientModal";
@@ -45,30 +46,53 @@ export default function PatientsPage() {
 
   return (
     <div className="flex h-screen bg-[#f4f9f8] font-sans antialiased">
+      {/* Sidebar */}
       <aside className="w-64 bg-[#4d8b7d] flex flex-col justify-between py-8 shrink-0">
         <div>
           <div className="px-6 flex items-center gap-3 mb-12">
-            <div className="bg-white/20 p-2 rounded-xl text-white"><Users size={24} /></div>
+            <div className="bg-white/20 p-2 rounded-xl text-white">
+              <Users className="w-6 h-6" />
+            </div>
             <div>
               <h1 className="text-white font-bold text-lg leading-tight">Praggymatics</h1>
-              <p className="text-white/70 text-xs uppercase font-semibold">Logopedista</p>
+              <p className="text-white/70 text-xs">Dashboard Logopedista</p>
             </div>
           </div>
+
           <nav className="px-4 space-y-2">
             <Link href="/therapist/dashboard" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
-              <LayoutDashboard size={20} /> Dashboard
+              <LayoutDashboard className="w-5 h-5" />
+              Dashboard
             </Link>
-            <Link href="/therapist/patients" className="flex items-center gap-3 bg-white text-[#4d8b7d] px-4 py-3 rounded-xl font-semibold shadow-sm">
-              <Users size={20} /> Pazienti
-            </Link>
+
+            {/* Voce PAZIENTI Attiva - Sfondo Bianco e Testo Verde */}
+            <div className="flex items-center gap-3 bg-white text-[#4d8b7d] px-4 py-3 rounded-xl font-semibold shadow-sm">
+              <Users className="w-5 h-5" />
+              Pazienti
+            </div>
+            
             <Link href="/therapist/calendar" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
-              <CalendarIcon size={20} /> Calendario
+              <CalendarIcon className="w-5 h-5" />
+              Calendario
+            </Link>
+            
+            <Link href="/therapist/ai-assistant" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
+              <Sparkles className="w-5 h-5" />
+              Assistente AI
             </Link>
           </nav>
         </div>
+
         <div className="px-4">
-           <button onClick={() => { localStorage.removeItem('token'); window.location.href="/"; }} className="flex items-center gap-3 text-white/90 hover:text-white px-4 py-3 w-full transition font-medium hover:bg-white/10 rounded-xl">
-            <LogOut size={20} /> Log Out
+          <button 
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.href = "/";
+            }}
+            className="flex items-center gap-3 text-white/90 hover:text-white px-4 py-3 w-full transition font-medium hover:bg-white/10 rounded-xl"
+          >
+            <LogOut className="w-5 h-5" />
+            Log Out
           </button>
         </div>
       </aside>
