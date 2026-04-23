@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Play, ClipboardList } from "lucide-react";
+import LogoutButton from "@/components/ui/LogoutButton";
 
 export default function Home() {
   const router = useRouter();
@@ -25,7 +26,11 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center overflow-hidden min-h-screen bg-[#F0F7F7]">
+    <main className="flex flex-col items-center justify-center overflow-hidden min-h-screen bg-[#F0F7F7] relative">
+      <div className="absolute top-4 left-4 z-20">
+        <LogoutButton />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

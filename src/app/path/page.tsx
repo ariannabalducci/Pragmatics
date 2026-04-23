@@ -8,6 +8,7 @@ import CoinCounter from "@/components/ui/CoinCounter";
 import LogoutButton from "@/components/ui/LogoutButton";
 import CollectionSystem, {CollectionItem} from "@/components/ui/CollectionSystem";
 import ParrotPopUp from "@/components/ui/ParrotPopUp";
+import { ArrowLeft } from "lucide-react";
 
 
 
@@ -201,18 +202,25 @@ const PathPage = () => {
     return (
         <main className={`relative w-full h-screen overflow-hidden ${mode === "testing" ? "bg-slate-100" : "bg-[#A6DADA]"}`}>
 
-          <div className="absolute top-4 left-4 z-20">
+          <div className="absolute top-4 left-4 z-20 flex gap-2">
+            <button 
+              onClick={() => router.push("/select-mode")}
+              className="bg-white/80 backdrop-blur-md px-4 py-2 flex items-center gap-2 rounded-2xl shadow-sm text-slate-700 font-bold text-sm hover:bg-white hover:shadow transition-all"
+            >
+              <ArrowLeft size={16} strokeWidth={3} /> Modalità
+            </button>
             <LogoutButton />
           </div>
 
           <CoinCounter amount={coins} />
 
-          {/* Banner esercizi giornalieri */}
-          {dailyLimit && (
-            (mode === "training" ? dailyLimit.training > 0 : dailyLimit.testing > 0) || 
-            (dailyLimit.prescribed.length > 0 && dailyLimit.isActive)
-          ) && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none space-y-2 flex flex-col items-center">
+          {/* Banner esercizi giornalieri e stato seduta */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none space-y-2 flex flex-col items-center">
+            
+            {dailyLimit && (
+              (mode === "training" ? dailyLimit.training > 0 : dailyLimit.testing > 0) || 
+              (dailyLimit.prescribed.length > 0 && dailyLimit.isActive)
+            ) && (
               <div className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl shadow-lg font-bold text-sm ${
                 mode === "testing"
                   ? "bg-purple-600 text-white"
@@ -226,14 +234,15 @@ const PathPage = () => {
                   }
                 </span>
               </div>
-              
-              {dailyLimit.isActive && (
-                <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
-                  Seduta in corso ✨
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            
+            {dailyLimit?.isActive && (
+              <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
+                Seduta in corso ✨
+              </div>
+            )}
+            
+          </div>
 
           {mode !== "testing" && !dailyLimit?.isActive && (
             <Image

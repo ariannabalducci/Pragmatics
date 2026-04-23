@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const appointment = await prisma.appointment.findFirst({
+    const appointments = await prisma.appointment.findMany({
       where: {
         childId: authUser.userId,
         startTime: {
@@ -47,19 +47,48 @@ export async function GET(req: Request) {
       orderBy: { startTime: "asc" },
     });
 
-    if (!appointment) {
+    if (appointments.length === 0) {
       return NextResponse.json({ hasAppointment: false });
     }
 
-    // Calcolo se la seduta è ATTIVA ora
-    const appointmentStart = new Date(appointment.startTime);
-    const durationMinutes = parseInt(appointment.duration?.split(" ")[0] || "45");
-    const appointmentEnd = new Date(appointmentStart.getTime() + durationMinutes * 60000);
-    
-    // isActive è true se siamo nell'orario della seduta 
-    // (Aggiungiamo un buffer di 5 minuti prima per sicurezza)
+    // Troviamo l'appuntamento attivo, o il prossimo
+    let appointment = appointments[0];
+    let isActive = false;
+    let appointmentStart = new Date(appointment.startTime);
+    let durationMinutes = parseInt(appointment.duration?.split(" ")[0] || "45");
+    let appointmentEnd = new Date(appointmentStart.getTime() + durationMinutes * 60000);
+
     const buffer = 5 * 60000;
-    const isActive = now >= new Date(appointmentStart.getTime() - buffer) && now <= appointmentEnd;
+
+    for (const app of appointments) {
+      const start = new Date(app.startTime);
+      const dur = parseInt(app.duration?.split(" ")[0] || "45");
+      const end = new Date(start.getTime() + dur * 60000);
+
+      const active = now >= new Date(start.getTime() - buffer) && now <= end;
+      
+      if (active) {
+        appointment = app;
+        isActive = true;
+        appointmentStart = start;
+        durationMinutes = dur;
+        appointmentEnd = end;
+        break;
+      } else if (now < start && !isActive) {
+        // Se non ne abbiamo ancora trovato uno attivo, e questo è nel futuro, teniamolo come fallback visivo
+        appointment = app;
+        appointmentStart = start;
+        durationMinutes = dur;
+        appointmentEnd = end;
+      }
+    }
+
+    console.log("=== APPOINTMENT DEBUG ===");
+    console.log("Current Time (now):", now.toISOString());
+    console.log("Appointment Start:", appointmentStart.toISOString());
+    console.log("Appointment End:", appointmentEnd.toISOString());
+    console.log("Calculated duration:", durationMinutes);
+    console.log("Is Active?:", isActive);
 
     return NextResponse.json({
       hasAppointment: true,
