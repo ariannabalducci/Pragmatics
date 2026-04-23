@@ -10,6 +10,14 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: "openid email profile https://www.googleapis.com/auth/calendar.events",
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
 
@@ -30,7 +38,7 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, profile }) {
+    async jwt({ token, profile, account }) {
       // On first sign in, enrich the token with our DB user data
       if (profile?.email) {
         const user = await prisma.user.findUnique({
@@ -41,6 +49,26 @@ export const authOptions: NextAuthOptions = {
           token.role = user.role;
           token.name = user.name;
           token.username = user.username;
+
+          // Save Google tokens if provided
+          if (account && account.provider === 'google') {
+            const dataToUpdate: {
+              googleAccessToken?: string;
+              googleRefreshToken?: string;
+              googleTokenExpiresAt?: bigint;
+            } = {};
+            
+            if (account.access_token) dataToUpdate.googleAccessToken = account.access_token;
+            if (account.refresh_token) dataToUpdate.googleRefreshToken = account.refresh_token;
+            if (account.expires_at) dataToUpdate.googleTokenExpiresAt = BigInt(account.expires_at);
+
+            if (Object.keys(dataToUpdate).length > 0) {
+              await prisma.user.update({
+                where: { email: profile.email },
+                data: dataToUpdate,
+              });
+            }
+          }
         }
       }
       return token;

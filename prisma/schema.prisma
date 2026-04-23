@@ -40,6 +40,9 @@ model User {
   name     String
   surname  String
   role     Role    @default(CHILD)
+  googleAccessToken    String?
+  googleRefreshToken   String?
+  googleTokenExpiresAt BigInt?
 
   therapist Therapist?
   child     Child?

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { createGoogleCalendarEvent } from "@/lib/google";
 
 export async function GET() {
   try {
@@ -55,9 +56,30 @@ export async function POST(req: Request) {
         }
       },
       include: {
-        prescribedGroups: true
+        prescribedGroups: true,
+        child: { include: { user: true } }
       }
     });
+
+    try {
+      const startDate = new Date(startTime);
+      const endDate = new Date(startDate.getTime() + duration * 60000);
+      const summary = `Seduta ${type} - ${appointment.child.user.name} ${appointment.child.user.surname}`;
+      let description = note || "";
+      if (prescribedGroups && prescribedGroups.length > 0) {
+        description += `\nEsercizi prescritti: ${appointment.prescribedGroups.map((g: any) => g.title).join(', ')}`;
+      }
+
+      await createGoogleCalendarEvent(therapist.userId, {
+        summary,
+        description,
+        startTime: startDate,
+        endTime: endDate
+      });
+    } catch (gcalError) {
+      console.error("Errore sincronizzazione Google Calendar:", gcalError);
+      // Non blocchiamo il flusso se gcal fallisce
+    }
 
     return NextResponse.json(appointment);
   } catch (error) {
