@@ -54,6 +54,7 @@ async function main() {
       name: 'Mark',
       surname: 'Smith',
       role: 'THERAPIST',
+      email: 'ariannabalduccii@gmail.com',
       therapist: { create: {} }
     },
     include: { therapist: true }
@@ -87,7 +88,7 @@ async function main() {
     include: { child: true }
   })
 
-   const child2 = await prisma.user.create({
+  const child2 = await prisma.user.create({
     data: {
       username: 'sammy_johnson',
       password: hashedPassword,
@@ -184,7 +185,7 @@ async function main() {
     })
   }
 
-  
+
 }
 
 main()
