@@ -147,6 +147,9 @@ export async function POST(
       }
 
       return { success: true, coins_earned: COINS, group_completed: groupCompleted };
+    }, {
+      maxWait: 5000,
+      timeout: 20000,
     });
 
     return NextResponse.json(result);
