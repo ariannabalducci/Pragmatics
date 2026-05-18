@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft, Calendar, FileText, Edit2, Plus, Clock,
   CheckCircle2, XCircle, ChevronDown, ChevronUp, Target,
-  TrendingUp, BookOpen, Activity, User as UserIcon
+  TrendingUp, BookOpen, Activity, User as UserIcon, RotateCcw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -65,6 +65,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
     notes?: string;
   }>({});
   const [expandedResults, setExpandedResults] = useState<string[]>([]);
+  const [resetting, setResetting] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
 
 
   useEffect(() => {
@@ -111,6 +113,28 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
     } catch (err) { alert("Errore"); }
   };
 
+  const handleResetProgress = async () => {
+    if (!window.confirm(`Vuoi resettare tutti i progressi delle sezioni (Sentimenti, Reazioni, Perché, Cloze) per ${patient?.name}? Il bambino ripartirà dall'inizio al prossimo accesso.`)) return;
+    setResetting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/therapist/student/${studentId}/reset-progress`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setResetDone(true);
+        setTimeout(() => setResetDone(false), 3000);
+      } else {
+        alert('Errore durante il reset dei progressi.');
+      }
+    } catch (err) {
+      alert('Errore di rete.');
+    } finally {
+      setResetting(false);
+    }
+  };
+
   if (loading) return (
     <div className="h-screen w-full flex items-center justify-center bg-[#F8FAFB]">
       <div className="flex flex-col items-center gap-4">
@@ -141,6 +165,24 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               <span>•</span>
               <span className="flex items-center gap-1.5"><Clock size={14} className="text-[#67A495]" /> Ultima seduta: {patient?.lastSessionDate ? new Date(patient.lastSessionDate).toLocaleDateString('it-IT') : 'N/D'}</span>
             </div>
+          </div>
+          {/* Pulsante Reset Progressi */}
+          <div className="ml-auto">
+            <button
+              id="reset-progress-btn"
+              onClick={handleResetProgress}
+              disabled={resetting}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black transition-all shadow-sm border",
+                resetDone
+                  ? "bg-green-50 text-green-600 border-green-100"
+                  : "bg-red-50 text-red-400 border-red-100 hover:bg-red-100 hover:text-red-600",
+                resetting && "opacity-60 cursor-not-allowed"
+              )}
+            >
+              <RotateCcw size={15} className={resetting ? "animate-spin" : ""} />
+              {resetDone ? "Progressi resettati ✓" : resetting ? "Reset in corso..." : "Reset Progressi Sezioni"}
+            </button>
           </div>
         </header>
 
@@ -401,6 +443,11 @@ interface SessionItemProps {
 }
 
 function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps) {
+  const [expandedChats, setExpandedChats] = useState<string[]>([]);
+
+  const toggleChat = (resId: string) => {
+    setExpandedChats(prev => prev.includes(resId) ? prev.filter(id => id !== resId) : [...prev, resId]);
+  };
 
   return (
     <div className={cn(
@@ -460,57 +507,105 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-5 pt-5 border-t border-slate-50 space-y-2">
-              {app.results.map((res, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+            <div className="mt-5 pt-5 border-t border-slate-50 space-y-3">
+              {app.results.map((res, idx) => {
+                const isChat = res.exerciseType === 'perche' || res.exerciseType === 'sentimenti';
+                const chatExpanded = expandedChats.includes(res.id);
 
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "p-2 rounded-xl",
-                      res.success ? "bg-teal-100 text-[#67A495]" : "bg-red-100 text-red-500"
-                    )}>
-                      {res.success ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                    </div>
-                    <div>
-                      <p className="font-bold text-xs text-[#0E2A47]">{res.groupTitle}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{res.exerciseType}</p>
-                    </div>
-                  </div>
+                let chatHistory: { role: string, text: string }[] = [];
+                if (isChat && res.textAttempt) {
+                  try {
+                    const parsed = typeof res.textAttempt === 'string' ? JSON.parse(res.textAttempt) : res.textAttempt;
+                    if (Array.isArray(parsed)) {
+                      chatHistory = parsed.map((m: any) => ({
+                        role: m.role || '',
+                        text: m.text || m.parts?.[0]?.text || ''
+                      }));
+                    }
+                  } catch (e) {
+                    console.error("Errore parsing chatHistory", e);
+                  }
+                }
 
-                  <div className="flex items-center gap-8 pr-4">
-                    {/* Dettaglio specifico per tipo di esercizio */}
-                    {res.exerciseType === 'chat' ? (
-                      <div className="max-w-[300px] text-right">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Conversazione</p>
-                        <p className="text-[11px] font-medium text-slate-500 italic line-clamp-1">
-                          {(() => {
-                            try {
-                              const history = typeof res.textAttempt === 'string' ? JSON.parse(res.textAttempt) : res.textAttempt;
-                              if (Array.isArray(history)) {
-                                return history.filter((m: any) => m.role === 'user').map((m: any) => m.parts?.[0]?.text).join(" • ") || "Nessuna risposta";
-                              }
-                            } catch (e) { }
-                            return "Chat salvata";
-                          })()}
-                        </p>
-
+                return (
+                  <div key={idx} className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+                    <div className="flex items-center justify-between p-4 bg-slate-50/20">
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "p-2 rounded-xl",
+                          res.success ? "bg-teal-100 text-[#67A495]" : "bg-red-100 text-red-500"
+                        )}>
+                          {res.success ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                        </div>
+                        <div>
+                          <p className="font-bold text-xs text-[#0E2A47]">{res.groupTitle}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{res.exerciseType}</p>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="text-right">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Errori</p>
-                        <p className={cn("text-xs font-black", res.triesTillCorrect > 0 ? "text-orange-400" : "text-[#67A495]")}>
-                          {res.triesTillCorrect || 0}
-                        </p>
-                      </div>
-                    )}
 
-                    <div className="text-right min-w-[60px]">
-                      <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Tempo</p>
-                      <p className="text-xs font-black text-[#0E2A47]">{res.durationSeconds}s</p>
+                      <div className="flex items-center gap-8 pr-4">
+                        {isChat ? (
+                          <button
+                            onClick={() => toggleChat(res.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#EFF8F8] text-[#67A495] hover:bg-[#DCEFEF] rounded-xl text-[11px] font-black transition-colors"
+                          >
+                            <FileText size={12} />
+                            {chatExpanded ? "Nascondi Chat" : "Vedi Chat"}
+                          </button>
+                        ) : (
+                          <div className="text-right">
+                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Errori</p>
+                            <p className={cn("text-xs font-black", res.triesTillCorrect > 0 ? "text-orange-400" : "text-[#67A495]")}>
+                              {res.triesTillCorrect || 0}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="text-right min-w-[60px]">
+                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Tempo</p>
+                          <p className="text-xs font-black text-[#0E2A47]">{res.durationSeconds}s</p>
+                        </div>
+                      </div>
                     </div>
+
+                    <AnimatePresence>
+                      {isChat && chatExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="bg-slate-50/50 border-t border-slate-100 p-4"
+                        >
+                          <div className="max-w-2xl mx-auto space-y-3">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Trascrizione Chatbot</p>
+                            {chatHistory.length === 0 ? (
+                              <p className="text-xs text-slate-400 italic">Nessun messaggio scambiato.</p>
+                            ) : (
+                              chatHistory.map((msg, mIdx) => {
+                                const isUser = msg.role === 'user';
+                                return (
+                                  <div key={mIdx} className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}>
+                                    <div className={`px-4 py-2.5 rounded-2xl max-w-[85%] text-xs font-medium ${
+                                      isUser
+                                        ? "bg-white text-gray-700 border border-slate-200 rounded-br-none shadow-sm"
+                                        : "bg-[#67A495] text-white rounded-bl-none shadow-sm"
+                                    }`}>
+                                      <p className="font-bold text-[9px] uppercase tracking-wider opacity-60 mb-1">
+                                        {isUser ? "Bambino" : "Praggy"}
+                                      </p>
+                                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {app.note && (
                 <p className="text-[11px] italic text-slate-400 mt-4 px-2 font-medium">"{app.note}"</p>
               )}

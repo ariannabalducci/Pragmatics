@@ -46,6 +46,7 @@ export async function POST(
           durationSeconds: Number(duration_seconds),
           triesTillCorrect: Number(tries_till_correct),
           textAttempt: text_attempt,
+          mode: mode || 'training',
           success: true,
         }
       });
@@ -86,61 +87,78 @@ export async function POST(
         });
 
         if (currentPath) {
-          await tx.path.update({
-              where: { id: currentPath.id },
-              data: { status: 'completed' }
-          });
-
-          // CONTROLLO LIMITE GIORNALIERO PRIMA DI SBLOCCARE IL PROSSIMO
+          // CONTROLLO SE C'È UNA SEDUTA ATTIVA IN QUESTO MOMENTO
           const now = new Date();
           const startOfDay = new Date(now);
           startOfDay.setHours(0, 0, 0, 0);
           const endOfDay = new Date(now);
           endOfDay.setHours(23, 59, 59, 999);
 
-          const appointment = await tx.appointment.findFirst({
+          const appointments = await tx.appointment.findMany({
             where: {
               childId: authUser.userId,
               startTime: { gte: startOfDay, lte: endOfDay }
             }
           });
 
-          let shouldUnlockNext = true;
+          let isSessionActive = false;
+          const buffer = 5 * 60000; // 5 min buffer
 
-          if (appointment) {
-            // Determiniamo il limite in base al mode passato o al tipo di appuntamento
-            const currentMode = mode || (appointment.type === 'valutazione' ? 'testing' : 'training');
-            const limit = currentMode === 'testing' ? appointment.testingExercises : appointment.trainingExercises;
-
-            if (limit > 0) {
-              const availableGroupsCount = await tx.path.count({
-                where: {
-                  childId: authUser.userId,
-                  status: 'available'
-                }
-              });
-              
-              // Se abbiamo già raggiunto o superato il limite di gruppi "disponibili", non sblocchiamo il prossimo
-              if (availableGroupsCount >= limit) {
-                shouldUnlockNext = false;
-              }
+          for (const app of appointments) {
+            const start = new Date(app.startTime);
+            const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
+            const end = new Date(start.getTime() + durationMinutes * 60000);
+            
+            if (now >= new Date(start.getTime() - buffer) && now <= end) {
+              isSessionActive = true;
+              break;
             }
           }
 
-          if (shouldUnlockNext) {
-            const nextInPlaylist = await tx.path.findFirst({
-                where: {
-                    childId: authUser.userId,
-                    status: 'blocked'
-                },
-                orderBy: { position: 'asc' }
+          // SE LA SEDUTA È ATTIVA, NON AGGIORNIAMO LA PATH (MAPPA A CASA)
+          if (!isSessionActive) {
+            await tx.path.update({
+                where: { id: currentPath.id },
+                data: { status: 'completed' }
             });
 
-            if (nextInPlaylist) {
-                await tx.path.update({
-                    where: { id: nextInPlaylist.id },
-                    data: { status: 'available' }
+            // CONTROLLO LIMITE GIORNALIERO PRIMA DI SBLOCCARE IL PROSSIMO
+            const appointment = appointments[0];
+            let shouldUnlockNext = true;
+
+            if (appointment) {
+              const currentMode = mode || (appointment.type === 'valutazione' ? 'testing' : 'training');
+              const limit = currentMode === 'testing' ? appointment.testingExercises : appointment.trainingExercises;
+
+              if (limit > 0) {
+                const availableGroupsCount = await tx.path.count({
+                  where: {
+                    childId: authUser.userId,
+                    status: 'available'
+                  }
                 });
+                
+                if (availableGroupsCount >= limit) {
+                  shouldUnlockNext = false;
+                }
+              }
+            }
+
+            if (shouldUnlockNext) {
+              const nextInPlaylist = await tx.path.findFirst({
+                  where: {
+                      childId: authUser.userId,
+                      status: 'blocked'
+                  },
+                  orderBy: { position: 'asc' }
+              });
+
+              if (nextInPlaylist) {
+                  await tx.path.update({
+                      where: { id: nextInPlaylist.id },
+                      data: { status: 'available' }
+                  });
+              }
             }
           }
         }

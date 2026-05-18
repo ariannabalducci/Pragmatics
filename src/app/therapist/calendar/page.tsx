@@ -139,6 +139,30 @@ export default function CalendarPage() {
     return appointments.filter(app => isSameDay(new Date(app.startTime), selectedDate));
   }, [appointments, selectedDate]);
 
+  const groupedExercises = useMemo(() => {
+    const groups: Record<string, { label: string, color: string, list: any[] }> = {
+      generic: { label: "Mappa Principale", color: "bg-teal-500 text-white", list: [] },
+      cloze: { label: "Cloze", color: "bg-purple-500 text-white", list: [] },
+      sentimenti: { label: "Sentimenti", color: "bg-red-500 text-white", list: [] },
+      perche: { label: "Perché", color: "bg-blue-500 text-white", list: [] },
+      reazioni: { label: "Reazioni", color: "bg-orange-500 text-white", list: [] },
+    };
+
+    allExercises.forEach(ex => {
+      const type = ex.groupType || 'generic';
+      if (groups[type]) {
+        groups[type].list.push(ex);
+      } else {
+        if (!groups[type]) {
+          groups[type] = { label: ex.groupTypeLabel || type, color: "bg-slate-500 text-white", list: [] };
+        }
+        groups[type].list.push(ex);
+      }
+    });
+
+    return Object.entries(groups).filter(([_, group]) => group.list.length > 0);
+  }, [allExercises]);
+
   return (
     <div className="flex h-screen overflow-hidden font-sans antialiased" style={{ backgroundColor: BRAND.bg }}>
 
@@ -290,8 +314,8 @@ export default function CalendarPage() {
       {/* MODALE */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl max-h-[95vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-center mb-6 shrink-0">
               <h3 className="text-xl font-bold text-[#0e2a47]">Nuovo Appuntamento</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><X size={20} /></button>
             </div>
@@ -345,39 +369,58 @@ export default function CalendarPage() {
                   <p className="text-[10px] font-bold uppercase text-[#4d8b7d] tracking-wider">Esercizi Prescritti</p>
                   <span className="text-[9px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full">{newApp.prescribedGroups.length} Selezionati</span>
                 </div>
-                <div className="space-y-1.5 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
-                  {allExercises.map((ex) => {
-                    const isSelected = newApp.prescribedGroups.includes(ex.id);
-                    return (
-                      <label 
-                        key={ex.id} 
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all shadow-sm",
-                          isSelected 
-                            ? "border-[#4d8b7d] bg-[#eff9f8] scale-[1.01] shadow-md" 
-                            : "border-transparent bg-white hover:border-slate-200"
-                        )}
-                      >
-                        <input 
-                          type="checkbox" 
-                          className="w-4 h-4 accent-[#4d8b7d] rounded cursor-pointer"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            const ids = e.target.checked 
-                              ? [...newApp.prescribedGroups, ex.id]
-                              : newApp.prescribedGroups.filter(id => id !== ex.id);
-                            setNewApp({ ...newApp, prescribedGroups: ids });
-                          }}
-                        />
-                        <div className="flex flex-col">
-                          <span className={cn("text-xs font-bold transition-colors", isSelected ? "text-[#4d8b7d]" : "text-[#0e2a47]")}>
-                            {ex.displayName}
-                          </span>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase">{ex.topic}</span>
-                        </div>
-                      </label>
-                    );
-                  })}
+                <div className="space-y-5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {groupedExercises.map(([key, category]) => (
+                    <div key={key} className="space-y-2">
+                      <div className="flex items-center gap-2 sticky top-0 bg-[#eff9f8] z-10 py-1 px-2 rounded-lg border border-teal-100/30">
+                        <div className={cn("w-1.5 h-1.5 rounded-full", 
+                          key === 'generic' ? "bg-teal-500" :
+                          key === 'cloze' ? "bg-purple-500" :
+                          key === 'sentimenti' ? "bg-red-500" :
+                          key === 'perche' ? "bg-blue-500" : "bg-orange-500"
+                        )} />
+                        <h4 className="text-[9px] font-black text-[#0e2a47] uppercase tracking-wider">
+                          {category.label}
+                        </h4>
+                        <span className="ml-auto text-[8px] font-bold text-slate-400 bg-white px-1.5 py-0.2 rounded-full">
+                          {category.list.length}
+                        </span>
+                      </div>
+                      <div className="space-y-1.5 pl-0.5">
+                        {category.list.map((ex) => {
+                          const isSelected = newApp.prescribedGroups.includes(ex.id);
+                          return (
+                            <label 
+                              key={ex.id} 
+                              className={cn(
+                                "flex items-center gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all shadow-sm bg-white",
+                                isSelected 
+                                  ? "border-[#4d8b7d] bg-[#eff9f8] scale-[1.01] shadow-md" 
+                                  : "border-transparent hover:border-slate-200"
+                              )}
+                            >
+                              <input 
+                                type="checkbox" 
+                                className="w-4 h-4 accent-[#4d8b7d] rounded cursor-pointer shrink-0"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const ids = e.target.checked 
+                                    ? [...newApp.prescribedGroups, ex.id]
+                                    : newApp.prescribedGroups.filter(id => id !== ex.id);
+                                  setNewApp({ ...newApp, prescribedGroups: ids });
+                                }}
+                              />
+                              <div className="flex flex-col flex-1 min-w-0">
+                                <span className={cn("text-xs font-bold transition-colors truncate", isSelected ? "text-[#4d8b7d]" : "text-[#0e2a47]")}>
+                                  {ex.displayName}
+                                </span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

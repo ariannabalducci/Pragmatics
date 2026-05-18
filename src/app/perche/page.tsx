@@ -10,31 +10,76 @@ import { ChatHistory, Message, MessageRole } from "../../types";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+type ExerciseContent = {
+  id: string;
+  questionTitle: string;
+  imageId: string;
+};
+
 const PercheContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const exerciseId = searchParams.get('id');
+
+    const exerciseId = searchParams.get('exerciseId'); // UUID dal DB
+    const groupId = searchParams.get('groupId');
     const questionTitle = searchParams.get('title') || "Domanda Causale";
 
+    const [content, setContent] = useState<ExerciseContent | null>(null);
     const [history, setHistory] = useState<ChatHistory>([]);
     const [loading, setLoading] = useState(true);
-    const [imageSrc, setImageSrc] = useState(`/images/perche/${exerciseId}.png`);
+    const [imageSrc, setImageSrc] = useState('/parrot.gif');
+    const [startTime] = useState(Date.now());
 
     useEffect(() => {
-        setLoading(false);
-        setImageSrc(`/images/perche/${exerciseId}.png`);
+        const fetchData = async () => {
+            if (!exerciseId) { setLoading(false); return; }
+            try {
+                const token = localStorage.getItem("token");
+                const mode = localStorage.getItem("pragmatics_mode") || "training";
+                const res = await fetch(`/api/exercise/${exerciseId}?mode=${mode}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error("Fetch failed");
+                const json = await res.json();
+                const c = json.content_json as ExerciseContent;
+                setContent(c);
+                setImageSrc(`/images/perche/${c.imageId}.png`);
+            } catch (err) {
+                console.error("Errore caricamento perche:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, [exerciseId]);
 
-    const handleFinish = () => {
+    const handleFinish = async () => {
+        const mode = localStorage.getItem("pragmatics_mode") || "training";
         if (exerciseId) {
-            const completedStr = localStorage.getItem('completed_perche');
-            let completed = completedStr ? JSON.parse(completedStr) : [];
-            if (!completed.includes(exerciseId)) {
-                completed.push(exerciseId);
-                localStorage.setItem('completed_perche', JSON.stringify(completed));
+            try {
+                const token = localStorage.getItem("token");
+                await fetch(`/api/exercise/${exerciseId}/attempt`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        duration_seconds: Math.round((Date.now() - startTime) / 1000),
+                        tries_till_correct: 0,
+                        text_attempt: history.map(m => ({ role: m.role, text: m.parts[0]?.text })),
+                        mode: mode
+                    }),
+                });
+            } catch (err) {
+                console.error("Errore salvataggio attempt:", err);
             }
         }
-        router.push('/congratulations?returnTo=/path-perche');
+        if (mode === "testing") {
+            router.push('/path-perche');
+        } else {
+            router.push('/congratulations?returnTo=/path-perche');
+        }
     };
 
     const handleSend = async (message: string) => {
@@ -45,57 +90,49 @@ const PercheContent = () => {
             parts: [{ text: message }],
         };
 
-        const currentHistory = [...history]; 
-        setHistory([...currentHistory, newUserMessage]); 
+        const currentHistory = [...history];
+        setHistory([...currentHistory, newUserMessage]);
 
         try {
             const token = localStorage.getItem("token");
 
             const response = await fetch("/api/chat-perche", {
                 method: "POST",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     questionTitle: questionTitle,
-                    message: message,    
-                    history: currentHistory 
+                    message: message,
+                    history: currentHistory
                 }),
             });
 
             const data = await response.json();
 
-            if (data.error && !data.response) { 
+            if (data.error && !data.response) {
                 console.error("AI Error:", data.error);
                 return;
             }
 
             const aiText = data.response || "Squawk! Non ho capito.";
-            
             const aiMessage: Message = {
                 role: "model" as MessageRole,
                 parts: [{ text: aiText }],
             };
-
             setHistory((prev: ChatHistory) => [...prev, aiMessage]);
-
-            if (data.is_ended) {
-                setTimeout(() => {
-                    handleFinish();
-                }, 2500);
-            }
 
         } catch (error) {
             console.error("Request Failed:", error);
         }
     };
 
-    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Loading...</div>;
+    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Caricamento...</div>;
 
     return (
         <main className="bg-[#E5F2FC] grid grid-rows-[min-content_1fr] grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 w-screen h-screen pb-6 px-6 overflow-hidden">
-            
+
             {/* TOP BAR */}
             <div className="col-span-1 md:col-span-2 flex items-center justify-between pt-5">
                 <a href="/path-perche">
@@ -114,10 +151,9 @@ const PercheContent = () => {
                 <LogoutButton />
             </div>
 
-            {/* LEFT COLUMN: IMAGE PLACEHOLDER */}
-            <div className="flex flex-col items-center justify-center p-4 lg:p-8">
+            {/* IMAGE */}
+            <div className="flex flex-col items-center justify-center p-4 lg:p-8 min-h-0">
                 <div className="w-full h-full max-h-[600px] bg-white rounded-[3rem] shadow-xl border-4 border-blue-200 flex flex-col items-center justify-center relative overflow-hidden">
-                    {/* Placeholder per il caricamento massivo futuro */}
                     <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
                         <Image
                             src={imageSrc}
@@ -131,12 +167,11 @@ const PercheContent = () => {
                 </div>
             </div>
 
-            {/* RIGHT COLUMN: CHATBOT */}
-            <div className="flex flex-col h-full py-4 lg:py-8 pr-0 lg:pr-4">
-                <div className="flex-1 bg-white rounded-[3rem] shadow-xl border-4 border-[#62B4A5] flex flex-col p-4 lg:p-6 min-h-0 relative">
-                    {/* Intestazione Chat */}
+            {/* CHAT */}
+            <div className="flex flex-col min-h-0 py-4 lg:py-8 pr-0 lg:pr-4 overflow-hidden">
+                <div className="flex-1 bg-white rounded-[3rem] shadow-xl border-4 border-[#62B4A5] flex flex-col p-4 lg:p-6 min-h-0 overflow-hidden relative">
                     <div className="shrink-0 mb-4 flex items-center gap-4 border-b-2 border-slate-100 pb-4">
-                         <div className="w-14 h-14 bg-[#EFF8F8] rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-inner border-2 border-[#62B4A5]">
+                        <div className="w-14 h-14 bg-[#EFF8F8] rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-inner border-2 border-[#62B4A5]">
                             <Image src="/parrot.gif" width={50} height={50} alt="Praggy" unoptimized />
                         </div>
                         <div>
@@ -145,7 +180,6 @@ const PercheContent = () => {
                         </div>
                     </div>
 
-                    {/* Finestra Messaggi */}
                     <div className="flex-1 min-h-0 relative">
                         {history.length === 0 ? (
                             <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-60">
@@ -157,7 +191,6 @@ const PercheContent = () => {
                         )}
                     </div>
 
-                    {/* Input Field */}
                     <div className="shrink-0 pt-4 mt-2">
                         <ChatInput onSend={handleSend} />
                     </div>
@@ -170,7 +203,7 @@ const PercheContent = () => {
 
 const PerchePage = () => {
     return (
-        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Loading...</div>}>
+        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Caricamento...</div>}>
             <PercheContent />
         </Suspense>
     );

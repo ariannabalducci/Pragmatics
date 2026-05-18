@@ -6,27 +6,19 @@ import Image from "next/image";
 import { ArrowLeft, Play, Lock, Star } from "lucide-react";
 import LogoutButton from "@/components/ui/LogoutButton";
 import { Button } from "@/components/ui/button";
+import { useProgressReset } from "@/lib/hooks/useProgressReset";
 
-const TITLES = [
-  "Perché si devono indossare i vestiti?",
-  "Perché si deve andare a scuola?",
-  "Perché bisogna andare a lavorare?",
-  "Perché si stirano i vestiti prima di indossarli?",
-  "Perché ci laviamo le mani?",
-  "Perché gli autobus hanno molti sedili/posti?",
-  "Perché bisogna lavarsi i denti?",
-  "Perché esistono le finestre?",
-  "Perché usiamo gli orologi?",
-  "Perché dobbiamo dormire?",
-  "Perché si indossano le calze prima delle scarpe?",
-  "Perché chiudiamo la porta di casa a chiave?",
-  "Perché usiamo il telefono?",
-  "Perché dormiamo sul materasso?",
-  "Perché mettiamo benzina nelle automobili, nei camion e nei motorini?"
-];
+type PercheNode = {
+  exerciseGroupId: string;
+  exerciseId: string;
+  title: string;
+  status: "available" | "blocked" | "completed";
+};
 
-// Nodi statici per la dimostrazione
-export type PercheNode = { id: string, title: string, status: "available" | "locked" | "completed", progress: number };
+type DailyLimit = {
+  prescribed: string[];
+  isActive: boolean;
+};
 
 const WAVE_CONFIG = {
   amplitude: 90,
@@ -64,46 +56,67 @@ export default function PathPerchePage() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [nodes, setNodes] = useState<PercheNode[]>([]);
+  const [dailyLimit, setDailyLimit] = useState<DailyLimit | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useProgressReset();
 
   useEffect(() => {
-    const completedStr = localStorage.getItem('completed_perche');
-    const completed = completedStr ? JSON.parse(completedStr) : [];
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
+        const mode = localStorage.getItem("pragmatics_mode") || "training";
 
-    let nextAvailableIndex = 0;
-    for (let i = 0; i < TITLES.length; i++) {
-        if (completed.includes(`perche_${i + 1}`)) {
-            nextAvailableIndex = i + 1;
+        const [nodesRes, todayRes] = await Promise.all([
+          fetch(`/api/exercises/by-type/perche?mode=${mode}`, { headers }),
+          fetch("/api/appointments/today", { headers }),
+        ]);
+
+        if (nodesRes.ok) setNodes(await nodesRes.json());
+
+        if (todayRes.ok) {
+          const todayData = await todayRes.json();
+          if (todayData.hasAppointment) {
+            setDailyLimit({
+              prescribed: todayData.prescribedExercises || [],
+              isActive: todayData.isActive || false,
+            });
+          }
         }
-    }
-
-    const calculatedNodes = TITLES.map((title, i) => {
-        const id = `perche_${i + 1}`;
-        const isCompleted = completed.includes(id);
-        const isAvailable = i === nextAvailableIndex || isCompleted;
-
-        return {
-            id,
-            title,
-            status: isCompleted ? "completed" : (isAvailable ? "available" : "locked"),
-            progress: 0
-        } as PercheNode;
-    });
-
-    setNodes(calculatedNodes);
+      } catch (err) {
+        console.error("Errore caricamento perche:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
+
+  const visibleNodes = (() => {
+    if (!dailyLimit || !dailyLimit.isActive) return nodes;
+    if (dailyLimit.prescribed.length > 0) {
+      return nodes.filter((n) => dailyLimit.prescribed.includes(n.exerciseGroupId));
+    }
+    return nodes;
+  })();
+
+  const isSessionActive = dailyLimit?.isActive && dailyLimit.prescribed.length > 0;
+  const noExercisesToday = isSessionActive && visibleNodes.length === 0;
 
   const getWaveY = (x: number) => {
     return WAVE_CONFIG.yOffset + WAVE_CONFIG.amplitude * Math.sin(WAVE_CONFIG.frequency * x);
   };
 
   const pathData = useMemo(() => {
-    const totalWidth = TITLES.length * WAVE_CONFIG.step + 600;
+    const count = visibleNodes.length || 1;
+    const totalWidth = count * WAVE_CONFIG.step + 600;
     let d = `M 0 ${getWaveY(0).toFixed(2)}`;
     for (let x = 0; x <= totalWidth; x += 10) {
       d += ` L ${x} ${getWaveY(x).toFixed(2)}`;
     }
     return d;
-  }, []);
+  }, [visibleNodes.length]);
 
   const handleMouseDown = (e: MouseEvent) => {
     if (!scrollContainerRef.current) return;
@@ -122,10 +135,18 @@ export default function PathPerchePage() {
 
   const stopDragging = () => setIsDragging(false);
 
+  if (loading) {
+    return (
+      <main className="relative w-full h-screen overflow-hidden bg-[#2C82C9] flex items-center justify-center">
+        <div className="text-white text-2xl font-bold">Caricamento...</div>
+      </main>
+    );
+  }
+
   return (
     <main className="relative w-full h-screen overflow-hidden bg-[#2C82C9]">
       <div className="absolute top-4 left-4 z-20 flex gap-2">
-        <button 
+        <button
           onClick={() => router.push("/select-mode")}
           className="bg-white/80 backdrop-blur-md px-4 py-2 flex items-center gap-2 rounded-2xl shadow-sm text-slate-700 font-bold text-sm hover:bg-white hover:shadow transition-all"
         >
@@ -134,8 +155,31 @@ export default function PathPerchePage() {
         <LogoutButton />
       </div>
 
+      {isSessionActive && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 pointer-events-none">
+          <div className="bg-white text-[#2C82C9] px-5 py-2.5 rounded-2xl shadow-lg font-bold text-sm">
+            🎯 {visibleNodes.filter(n => n.status !== 'completed').length} esercizi prescritti rimasti
+          </div>
+          <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
+            Seduta in corso ✨
+          </div>
+        </div>
+      )}
+
       <Image src="/lbush.png" alt="Left bush" width={400} height={400} className="absolute top-0 left-0 z-0 opacity-80 mix-blend-overlay" />
       <Image src="/rbush.png" alt="Right bush" width={600} height={600} className="absolute bottom-0 right-0 z-10 opacity-80 mix-blend-overlay" />
+
+      {noExercisesToday && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#2C82C9]/80 backdrop-blur-sm z-40">
+          <div className="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-md border-4 border-blue-100 animate-in zoom-in duration-300">
+            <div className="text-6xl mb-6">🤫</div>
+            <h3 className="text-2xl font-black text-[#0e2a47] mb-4">Nessun esercizio per oggi</h3>
+            <p className="text-slate-500 font-bold leading-relaxed">
+              Il tuo logopedista non ha prescritto domande "Perché" per questa seduta.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div
         className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
@@ -145,38 +189,35 @@ export default function PathPerchePage() {
         onMouseMove={handleMouseMove}
       >
         <div ref={scrollContainerRef} className="w-full h-full overflow-x-auto overflow-y-hidden relative no-scrollbar">
-          <div className="relative h-full pointer-events-auto" style={{ width: `${TITLES.length * WAVE_CONFIG.step + 600}px` }}>
+          <div className="relative h-full pointer-events-auto" style={{ width: `${visibleNodes.length * WAVE_CONFIG.step + 600}px` }}>
             <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-5">
               <path d={pathData} fill="none" stroke="#5DA0D6" strokeWidth={WAVE_CONFIG.strokeWidth / 5} strokeLinecap="round" transform="translate(0, 140)" />
               <path d={pathData} fill="none" stroke="#7CB4DF" strokeWidth={WAVE_CONFIG.strokeWidth} strokeLinecap="round" />
             </svg>
 
-            {nodes.map((level, index) => {
+            {visibleNodes.map((level, index) => {
               const x = index * WAVE_CONFIG.step + 200;
               const y = getWaveY(x);
 
               return (
-                <div key={level.id} className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-transform z-10 ${level.status === 'available' ? 'hover:scale-115' : ''}`} style={{ left: x, top: y }}>
-                  
-                  {/* Titolo sopra al nodo */}
+                <div key={level.exerciseGroupId} className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-transform z-10 ${level.status === 'available' ? 'hover:scale-115' : ''}`} style={{ left: x, top: y }}>
                   <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[220px] bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-xl border-2 border-blue-200 text-[#0e2a47] font-black text-sm uppercase text-center leading-tight z-20">
                     {level.title}
                   </div>
-
                   <div className="relative group transition-transform">
-                    <ProgressRing progress={level.status === 'locked' ? 0 : level.status === 'completed' ? 2 : level.progress} />
+                    <ProgressRing progress={level.status === 'completed' ? 2 : 0} />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Button
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => {
                           if (level.status === 'available' || level.status === 'completed') {
-                            router.push(`/perche?id=${level.id}&title=${encodeURIComponent(level.title)}`);
+                            router.push(`/perche?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`);
                           }
                         }}
-                        variant={level.status === 'locked' ? "locked" : level.status === 'completed' ? "completed" : "play"}
+                        variant={level.status === 'blocked' ? "locked" : level.status === 'completed' ? "completed" : "play"}
                         size="play"
                       >
-                        {level.status === 'locked' ? <Lock /> : level.status === 'completed' ? <Star fill="currentColor" /> : <Play fill="currentColor" />}
+                        {level.status === 'blocked' ? <Lock /> : level.status === 'completed' ? <Star fill="currentColor" /> : <Play fill="currentColor" />}
                       </Button>
                     </div>
                   </div>

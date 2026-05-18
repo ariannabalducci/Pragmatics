@@ -23,6 +23,18 @@ enum Role {
 enum ExerciseType {
   story
   chat
+  cloze
+  sentimenti
+  perche
+  reazioni
+}
+
+enum ExerciseGroupType {
+  generic
+  cloze
+  sentimenti
+  perche
+  reazioni
 }
 
 enum ExerciseGroupStatus {
@@ -70,6 +82,8 @@ model Child {
 
   coins Int @default(0)
 
+  progressResetAt DateTime? // Impostato dal terapista per resettare i progressi localStorage del bambino
+
   avatarSkinColor String @default("#ffffff")
   avatarHairStyle String @default("man_1")
   avatarHairColor String @default("#ffffff")
@@ -116,9 +130,10 @@ model Path {
 }
 
 model ExerciseGroup {
-  id String @id @default(uuid())
+  id        String             @id @default(uuid())
   title     String
   topic     String
+  groupType ExerciseGroupType  @default(generic)
   exercises Exercise[]
   paths     Path[]
   appointments Appointment[]
@@ -149,6 +164,7 @@ model ExerciseAttempt {
   durationSeconds  Int
   triesTillCorrect Int?
   textAttempt      Json?
+  mode             String   @default("training") // "training" o "testing"
   
   createdAt DateTime @default(now())
 }

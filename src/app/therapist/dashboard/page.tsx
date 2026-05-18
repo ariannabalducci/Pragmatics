@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [children, setChildren] = useState<ChildData[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [exercises, setExercises] = useState<any[]>([]); // Stato per la libreria esercizi
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -75,7 +76,18 @@ export default function Dashboard() {
       }));
   }, [appointments]);
 
-  const totalSessions = children.reduce((sum, c) => sum + (c.sessionsCompleted ?? 0), 0);
+
+  const exercisesByCategory = useMemo(() => {
+    const grouped: Record<string, typeof exercises> = {};
+    for (const ex of exercises) {
+      const label = ex.groupTypeLabel || ex.groupType;
+      if (!grouped[label]) {
+        grouped[label] = [];
+      }
+      grouped[label].push(ex);
+    }
+    return grouped;
+  }, [exercises]);
 
   return (
     <div className="flex h-screen bg-[#f4f9f8] font-sans text-slate-800">
@@ -134,7 +146,7 @@ export default function Dashboard() {
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
             <div>
               <p className="text-slate-400 text-sm font-semibold mb-2">Pazienti Seguiti</p>
@@ -152,16 +164,6 @@ export default function Dashboard() {
             </div>
             <div className="bg-[#f6f2fa] p-3 rounded-xl text-[#7d5ba6]">
               <CalendarIcon className="w-7 h-7" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
-            <div>
-              <p className="text-slate-400 text-sm font-semibold mb-2">Sedute Totali</p>
-              <span className="text-5xl font-bold text-[#3b82f6]">{totalSessions}</span>
-            </div>
-            <div className="bg-[#eff6ff] p-3 rounded-xl text-[#3b82f6]">
-              <TrendingUp className="w-7 h-7" />
             </div>
           </div>
         </div>
@@ -189,7 +191,7 @@ export default function Dashboard() {
                       <div>
                         <p className="font-bold text-lg text-slate-800">{apt.displayChildName}</p>
                         <p className="text-sm text-slate-500 font-medium">
-                          {apt.displayTime} • {apt.duration} min • <span className="italic">{apt.type}</span>
+                          {apt.displayTime} • {apt.duration} • <span className="italic">{apt.type}</span>
                         </p>
                       </div>
                     </div>
@@ -208,18 +210,42 @@ export default function Dashboard() {
               <span className="bg-[#eff9f8] text-[#4d8b7d] px-3 py-1 rounded-full text-xs font-bold uppercase">{exercises.length} Disponibili</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-              {exercises.map((ex) => (
-                <div key={ex.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-[#4d8b7d]/30 transition group cursor-default">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-white p-2 rounded-lg text-[#4d8b7d] shadow-sm group-hover:bg-[#4d8b7d] group-hover:text-white transition-colors">
-                      <TrendingUp size={18} />
-                    </div>
-                    <p className="font-bold text-[#0e2a47] text-sm leading-tight">{ex.displayName}</p>
+            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+              {Object.entries(exercisesByCategory).map(([category, catExercises]) => {
+                const isExpanded = expandedCategory === category;
+                return (
+                  <div key={category} className="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden transition-all">
+                    <button 
+                      onClick={() => setExpandedCategory(isExpanded ? null : category)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-slate-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="bg-white p-2 rounded-lg text-[#4d8b7d] shadow-sm">
+                          <TrendingUp size={18} />
+                        </div>
+                        <h4 className="font-bold text-[#0e2a47]">{category}</h4>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-slate-400 bg-white px-2 py-1 rounded-md shadow-sm">
+                          {catExercises.length}
+                        </span>
+                        <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                      </div>
+                    </button>
+                    
+                    {isExpanded && (
+                      <div className="p-4 pt-0 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 border-t border-slate-100 mt-2">
+                        {catExercises.map((ex) => (
+                          <div key={ex.id} className="p-3 bg-white rounded-xl shadow-sm border border-slate-100 hover:border-[#4d8b7d]/30 transition group cursor-default">
+                            <p className="font-bold text-[#0e2a47] text-xs leading-tight mb-1 truncate" title={ex.displayName}>{ex.displayName}</p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider truncate" title={ex.topic}>{ex.topic}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{ex.topic}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         </div>

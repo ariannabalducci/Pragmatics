@@ -33,7 +33,8 @@ const ChatPage = () => {
 
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`/api/exercise/${exerciseId}`, {
+                const mode = localStorage.getItem("pragmatics_mode") || "training";
+                const res = await fetch(`/api/exercise/${exerciseId}?mode=${mode}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 
@@ -72,6 +73,7 @@ const ChatPage = () => {
         if (!exerciseId || !startTime) return;
 
         const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const mode = localStorage.getItem("pragmatics_mode") || "training";
 
         try {
             const token = localStorage.getItem("token");
@@ -86,9 +88,15 @@ const ChatPage = () => {
                     success: true,
                     duration_seconds: durationSeconds,
                     tries_till_correct: 0,
-                    text_attempt: JSON.stringify(history)
+                    text_attempt: JSON.stringify(history),
+                    mode: mode
                 })
             });
+
+            if (mode === "testing") {
+                router.push("/path");
+                return;
+            }
 
             if (res.ok || res.status === 409) {
                 router.push('/congratulations');

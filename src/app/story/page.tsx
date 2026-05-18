@@ -13,7 +13,6 @@ const StoryPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const exerciseId = searchParams.get('id');
-    const isTesting = searchParams.get('mode') === 'testing';
 
     const [interactions, setInteractions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -27,13 +26,20 @@ const StoryPage = () => {
 
     const [quizStatus, setQuizStatus] = useState<string | null>(null);
 
+    const [isTesting, setIsTesting] = useState(false);
+
+    useEffect(() => {
+        setIsTesting(localStorage.getItem('pragmatics_mode') === 'testing');
+    }, []);
+
     useEffect(() => {
         const fetchExerciseData = async () => {
             if (!exerciseId) return;
 
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`/api/exercise/${exerciseId}`, {
+                const mode = localStorage.getItem("pragmatics_mode") || "training";
+                const res = await fetch(`/api/exercise/${exerciseId}?mode=${mode}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -45,14 +51,10 @@ const StoryPage = () => {
                 }
 
                 const fetchedInteractions = data.content_json?.interactions || [];
-
-                // In entrambe le modalità, la storia termina con il quiz. 
-                // Evitiamo che ci siano interazioni extra (es. prompt del chatbot) dopo il quiz.
                 const quizIndex = fetchedInteractions.findIndex((int: any) => int.options && int.options.length > 0);
                 const finalInteractions = quizIndex !== -1 ? fetchedInteractions.slice(0, quizIndex + 1) : fetchedInteractions;
 
                 setInteractions(finalInteractions);
-
                 setStartTime(Date.now());
 
             } catch (err) {
@@ -84,22 +86,9 @@ const StoryPage = () => {
         if (!exerciseId || !startTime) return;
 
         const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const mode = localStorage.getItem('pragmatics_mode') || 'training';
 
         try {
-            if (isTesting) {
-                // In Testing, non salviamo sul DB ma solo localmente per disaccoppiare dal training
-                const testedStr = localStorage.getItem('testedExercises') || '[]';
-                const tested = JSON.parse(testedStr);
-
-                if (exerciseId && !tested.includes(exerciseId)) {
-                    tested.push(exerciseId);
-                    localStorage.setItem('testedExercises', JSON.stringify(tested));
-                }
-
-                router.push('/path');
-                return;
-            }
-
             const token = localStorage.getItem("token");
 
             const res = await fetch(`/api/exercise/${exerciseId}/attempt`, {
@@ -112,9 +101,14 @@ const StoryPage = () => {
                     success: quizStatus === 'correct',
                     duration_seconds: durationSeconds,
                     tries_till_correct: mistakes,
-                    mode: 'training' // Story mode is training unless specifically Testing
+                    mode: mode
                 })
             });
+
+            if (mode === 'testing') {
+                router.push('/path');
+                return;
+            }
 
             if (res.ok || res.status === 409) {
                 router.push('/congratulations');

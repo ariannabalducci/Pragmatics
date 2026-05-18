@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
+export const dynamic = 'force-dynamic';
+
 const SECRET_KEY = process.env.JWT_SECRET;
 
 const verifyToken = (req: Request) => {
@@ -25,6 +27,9 @@ export async function GET(
   const authUser = verifyToken(request);
   const { userId } = await params;
 
+  const { searchParams } = new URL(request.url);
+  const mode = searchParams.get('mode') || 'training';
+
   if (!authUser || authUser.role !== 'CHILD' || authUser.userId !== userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -37,6 +42,10 @@ export async function GET(
         attempts: {
           where: { success: true },
           orderBy: { createdAt: 'desc' }
+        },
+        appointments: {
+          include: { prescribedGroups: true },
+          orderBy: { startTime: 'desc' }
         },
         paths: {
           include: {
@@ -57,64 +66,132 @@ export async function GET(
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    // Recuperiamo l'appuntamento di oggi per gestire il progresso in seduta
+    // Rilevamento seduta attiva — STRETTO: attiva solo nell'esatto intervallo [startTime, end].
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
-    const appointment = await prisma.appointment.findFirst({
-        where: {
-            childId: userId,
-            startTime: { gte: startOfDay, lte: endOfDay }
-        },
-        include: { prescribedGroups: true }
-    });
+    const appointments = child.appointments;
 
-    const prescribedGroupIds = new Set(appointment?.prescribedGroups.map(g => g.id) || []);
-    const isSessionActive = appointment?.trainingExercises! > 0 || prescribedGroupIds.size > 0;
+    let isSessionActive = false;
+    let appointment: (typeof appointments)[0] | null = null;
 
-    const completedExerciseIds = new Set(child.attempts.map(a => a.exerciseId));
-    const todayCompletedExerciseIds = new Set(
-        child.attempts
-            .filter(a => a.createdAt >= startOfDay && a.createdAt <= endOfDay)
-            .map(a => a.exerciseId)
-    );
+    // Trova l'appuntamento odierno attivo nell'esatto orario [start, end]
+    for (const app of appointments) {
+      const appStart = new Date(app.startTime);
+      if (appStart >= startOfDay && appStart <= endOfDay) {
+        const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
+        const appEnd = new Date(appStart.getTime() + durationMinutes * 60000);
+        if (now >= appStart && now <= appEnd) {
+          appointment = app;
+          isSessionActive = true;
+          break;
+        }
+      }
+    }
+
+    const prescribedGroupIds = new Set(isSessionActive && appointment ? ((appointment as any)?.prescribedGroups?.map((g: any) => g.id) || []) : []);
+
+    // Tentativi effettuati durante la seduta: finestra generosa di 30 min prima e dopo la seduta
+    let sessionCompletedExerciseIds = new Set<string>();
+    if (isSessionActive && appointment) {
+      const start = new Date(appointment.startTime).getTime();
+      const durationMinutes = parseInt(appointment.duration?.split(" ")[0] || "45");
+      const end = start + durationMinutes * 60000;
+      
+      const sessionAttempts = child.attempts.filter(a => {
+        const attTime = new Date(a.createdAt).getTime();
+        return attTime >= start && attTime <= end;
+      });
+      
+      sessionCompletedExerciseIds = new Set(sessionAttempts.map(a => a.exerciseId));
+    }
+
+    // Tentativi a casa: tutto ciò che NON è dentro nessuna finestra di seduta
+    const isAttemptInAnySession = (createdAt: Date) => {
+      const attTime = new Date(createdAt).getTime();
+      return appointments.some(app => {
+        const appStart = new Date(app.startTime);
+        if (appStart < startOfDay || appStart > endOfDay) return false; // solo appuntamenti odierni
+        const start = new Date(app.startTime).getTime();
+        const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
+        const end = start + durationMinutes * 60000;
+        return attTime >= start && attTime <= end;
+      });
+    };
+
+    const homeAttempts = child.attempts.filter(a => !isAttemptInAnySession(a.createdAt) && a.mode === mode);
+    const homeCompletedExerciseIds = new Set(homeAttempts.map(a => a.exerciseId));
 
     const activeLevels: any[] = [];
-    const allLevels = child.paths.map((path) => {
+    // Filtra solo i gruppi di tipo "generic" per la path principale
+    const genericPaths = child.paths.filter((p) => p.exerciseGroup.groupType === 'generic');
+
+    const groupCompletedAtHome = genericPaths.map((path) => {
+      const group = path.exerciseGroup;
+      const completedCount = group.exercises.filter(ex => homeCompletedExerciseIds.has(ex.id)).length;
+      return group.exercises.length > 0 && completedCount === group.exercises.length;
+    });
+
+    let firstAvailableFound = false;
+
+    const allLevels = genericPaths.map((path, index) => {
         const group = path.exerciseGroup;
         const isPrescribedToday = prescribedGroupIds.has(group.id);
         
-        let status = path.status;
+        if (isSessionActive) {
+            let status = 'blocked';
+            let progress = 0;
+            let activeExerciseId = group.exercises[0]?.id;
+
+            if (isPrescribedToday) {
+                const completedInGroupSession = group.exercises.filter(ex => 
+                    sessionCompletedExerciseIds.has(ex.id)
+                ).length;
+                
+                progress = group.exercises.length > 0 ? completedInGroupSession / group.exercises.length : 0;
+                status = completedInGroupSession === group.exercises.length ? 'completed' : 'available';
+                
+                const currentEx = group.exercises.find((e) => !sessionCompletedExerciseIds.has(e.id));
+                activeExerciseId = currentEx?.id || group.exercises[0]?.id;
+            }
+
+            const levelData = {
+                id: path.id,
+                groupId: path.exerciseGroupId,
+                status,
+                group_title: group.title,
+                group_topic: group.topic,
+                progress: progress >= 1 ? 2 : (progress > 0 ? 1 : 0),
+                activeExerciseId,
+                firstExerciseId: group.exercises[0]?.id
+            };
+
+            if (status === 'available') {
+                activeLevels.push(levelData);
+            }
+
+            return levelData;
+        }
+
+        let status = 'blocked';
         let progress = 0;
         let activeExerciseId = group.exercises[0]?.id;
 
-        if (status === 'completed') {
-            progress = 2;
-        }
+        const isCompleted = groupCompletedAtHome[index];
 
-        // Se è prescritto per oggi, forziamo la disponibilità e ricalcoliamo il progresso
-        if (isPrescribedToday) {
+        if (isCompleted) {
+            status = 'completed';
+            progress = 2;
+        } else if (!firstAvailableFound) {
             status = 'available';
+            firstAvailableFound = true;
             
-            const completedInGroupToday = group.exercises.filter(ex => 
-                todayCompletedExerciseIds.has(ex.id)
-            ).length;
-            
-            progress = group.exercises.length > 0 ? completedInGroupToday / group.exercises.length : 0;
-            // Se abbiamo finito tutto oggi, status torna completed per questo set
-            if (completedInGroupToday === group.exercises.length) {
-                status = 'completed';
-            }
-            
-            const currentEx = group.exercises.find((e) => !todayCompletedExerciseIds.has(e.id));
-            activeExerciseId = currentEx?.id || group.exercises[0]?.id;
-        } else if (status === 'available') {
             const completedInGroupCount = group.exercises.filter(ex => 
-                completedExerciseIds.has(ex.id)
+                homeCompletedExerciseIds.has(ex.id)
             ).length;
             progress = group.exercises.length > 0 ? completedInGroupCount / group.exercises.length : 0;
-            const currentEx = group.exercises.find((e) => !completedExerciseIds.has(e.id));
+            const currentEx = group.exercises.find((e) => !homeCompletedExerciseIds.has(e.id));
             activeExerciseId = currentEx?.id || group.exercises[0]?.id;
         }
 
@@ -124,7 +201,7 @@ export async function GET(
             status,
             group_title: group.title,
             group_topic: group.topic,
-            progress: progress >= 1 ? 2 : (progress > 0 ? 1 : 0), // Normalizziamo a 0, 1, 2 per il ProgressRing
+            progress: progress >= 1 ? 2 : (progress > 0 ? 1 : 0),
             activeExerciseId,
             firstExerciseId: group.exercises[0]?.id
         };
@@ -141,7 +218,8 @@ export async function GET(
       nr_completed: allLevels.filter(l => l.status === 'completed').length,
       nr_blocked: allLevels.filter(l => l.status === 'blocked').length,
       levels: activeLevels,
-      all_levels: allLevels
+      all_levels: allLevels,
+      progressResetAt: child.progressResetAt ?? null,
     });
 
   } catch (error) {

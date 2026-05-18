@@ -11,6 +11,7 @@ npm install next react react-dom
 npx prisma generate
 npx prisma db push
 npx tsx prisma/seed.ts
+npx tsx prisma/seed-special-exercises.ts
 ```
 
 - Launch the app:

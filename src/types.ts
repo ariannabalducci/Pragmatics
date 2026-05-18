@@ -1,4 +1,4 @@
-// src/types.ts
+
 
 export type MessageRole = "user" | "parrot";
 
@@ -11,7 +11,7 @@ export interface Message {
   parts: MessagePart[];
 }
 
-export interface ChatHistory extends Array<Message> {}
+export interface ChatHistory extends Array<Message> { }
 
 export interface GenerationConfig {
   temperature: number;
@@ -25,19 +25,19 @@ export interface ChatSettings {
   systemInstruction: string;
 }
 
-// Raggruppiamo i tipi relativi ai pazienti
+
 export interface PatientListItem {
-  id: string; // userId nel tuo schema
+  id: string;
   name: string;
   surname: string;
   age: number;
-  diagnosis: string | null; // mappato su child.description
-  totalSessions: number;    // calcolato dal numero di ExerciseAttempt o Appointments
-  lastSessionDate: string | null; // preso dall'ultimo Appointment
-  initials: string;         // es: "MR"
+  diagnosis: string | null;
+  totalSessions: number;
+  lastSessionDate: string | null;
+  initials: string;
 }
 
-// Mantieni questo se ti serve per il dettaglio del bambino
+
 export interface ChildData {
   id: string;
   name: string;

@@ -45,14 +45,39 @@ const PathPage = () => {
           return;
         }
 
-        const [studentRes, collectionRes, todayRes] = await Promise.all([
-            fetch(`/api/student/${user.id}`, {
+        const storedMode = (localStorage.getItem("pragmatics_mode") === "testing" ? "testing" : "training") as "training" | "testing";
+
+        // 1. Recuperiamo prima l'appuntamento per forzare la sincronizzazione del mode (training/testing)
+        const todayRes = await fetch(`/api/appointments/today`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        let forcedMode = storedMode;
+        if (todayRes.ok) {
+            const todayData = await todayRes.json();
+            if (todayData.hasAppointment) {
+                setDailyLimit({
+                    training: todayData.trainingExercises ?? 0,
+                    testing: todayData.testingExercises ?? 0,
+                    prescribed: todayData.prescribedExercises || [],
+                    isActive: todayData.isActive || false
+                });
+
+                // Forziamo sempre il mode quando c'è un appuntamento oggi (isActive o meno),
+                // usando il campo sessionMode già mappato correttamente dall'API.
+                if (todayData.sessionMode) {
+                    forcedMode = todayData.sessionMode as "training" | "testing";
+                    localStorage.setItem("pragmatics_mode", forcedMode);
+                }
+            }
+        }
+
+        // 2. Fetchiamo i dati dello studente usando il forcedMode sincronizzato
+        const [studentRes, collectionRes] = await Promise.all([
+            fetch(`/api/student/${user.id}?mode=${forcedMode}`, {
                 headers: { Authorization: `Bearer ${token}` }
             }),
             fetch(`/api/student/${user.id}/collection`, {
-                headers: { Authorization: `Bearer ${token}` }
-            }),
-            fetch(`/api/appointments/today`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
         ]);
@@ -68,23 +93,7 @@ const PathPage = () => {
         const studentData = await studentRes.json();
         const collectionData = await collectionRes.json();
         
-        // Leggi l'appuntamento di oggi (se esiste)
-        if (todayRes.ok) {
-            const todayData = await todayRes.json();
-            if (todayData.hasAppointment) {
-                setDailyLimit({
-                    training: todayData.trainingExercises ?? 0,
-                    testing: todayData.testingExercises ?? 0,
-                    prescribed: todayData.prescribedExercises || [],
-                    isActive: todayData.isActive || false
-                });
-            }
-        }
-        
-        const storedMode = localStorage.getItem("pragmatics_mode");
-        if (storedMode === "testing" || storedMode === "training") {
-            setMode(storedMode);
-        }
+        setMode(forcedMode);
 
         setCoins(studentData.coins || 0);
 

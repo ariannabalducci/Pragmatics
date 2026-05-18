@@ -55,10 +55,18 @@ export async function GET(
 
     // Raggruppamento appuntamenti
     const allApps = student.appointments.map(app => {
+      const prescribedIds = app.prescribedGroups.map(g => g.id);
       const relatedAttempts = student.attempts.filter(attempt => {
-        const appDate = new Date(app.startTime);
-        const attDate = new Date(attempt.createdAt);
-        return attDate.toDateString() === appDate.toDateString();
+        const start = new Date(app.startTime).getTime();
+        const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
+        const end = start + durationMinutes * 60000;
+        
+        const attTime = new Date(attempt.createdAt).getTime();
+        const buffer = 5 * 60000; // 5 minuti di tolleranza
+        
+        const isInSessionTime = attTime >= start - buffer && attTime <= end + buffer;
+        const isPrescribed = prescribedIds.includes(attempt.exercise.groupId);
+        return isInSessionTime && isPrescribed;
       });
 
       return {
@@ -138,7 +146,8 @@ export async function GET(
       lastSessionDate: past[0]?.date || null,
       upcomingAppointments: upcoming,
       pastAppointments: past,
-      progressData: progressData.slice(-10) // Ultime 10 rilevazioni
+      progressData: progressData.slice(-10), // Ultime 10 rilevazioni
+      progressResetAt: student.progressResetAt ?? null,
     });
   } catch (error) {
     console.error(error);

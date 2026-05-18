@@ -32,7 +32,7 @@ export async function GET(request: Request) {
           take: 1 // Prendiamo solo il più recente
         },
         _count: {
-          select: { attempts: true } // Conteggio per "Sedute totali"
+          select: { appointments: true } // Conteggio per "Sedute totali"
         }
       }
     });
@@ -43,8 +43,8 @@ export async function GET(request: Request) {
       surname: child.user.surname,
       age: child.age,
       gender: child.gender,
-      description: child.description, // Usato come "Diagnosi" nel design
-      totalSessions: child._count.attempts,
+      diagnosis: child.description, // Mappato su child.description
+      totalSessions: child._count.appointments,
       lastSessionDate: child.appointments[0]?.startTime || null,
       initials: `${child.user.name[0]}${child.user.surname[0]}`.toUpperCase(),
       avatar: {

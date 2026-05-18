@@ -8,88 +8,137 @@ import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/ui/LogoutButton";
 import { motion, AnimatePresence } from "framer-motion";
 
-/*
-  Dati degli esercizi.
-  correctOption: "A" o "B" indica quale opzione è quella corretta.
-  Le immagini vanno in public/images/reazioni/<exerciseId>_situazione.png,
-  public/images/reazioni/<exerciseId>_a.png, public/images/reazioni/<exerciseId>_b.png
-*/
-const EXERCISE_DATA: Record<
-  string,
-  {
-    situazioneDesc: string;
-    opzioneADesc: string;
-    opzioneBDesc: string;
-    correctOption: "A" | "B";
-  }
-> = {
-  caduta: {
-    situazioneDesc:
-      "Bambino che cade durante un gioco mentre un altro fischia.",
-    opzioneADesc: "Bambino che si avvicina e aiuta il compagno caduto.",
-    opzioneBDesc: "Bambino che urla contro il compagno a terra.",
-    correctOption: "A",
-  },
-  cucina: {
-    situazioneDesc:
-      "Bambino che aiuta la mamma a cucinare ma rovescia la farina.",
-    opzioneADesc:
-      "Mamma che pulisce con faccia triste e manda il bambino in dispensa.",
-    opzioneBDesc:
-      "Mamma che consola il bambino e puliscono la farina insieme.",
-    correctOption: "B",
-  },
+type ReazioniContent = {
+  id: string;
+  situazioneDesc: string;
+  opzioneADesc: string;
+  opzioneBDesc: string;
+  correctOption: "A" | "B";
 };
 
 function ReazioniContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const exerciseId = searchParams.get("id") || "caduta";
+
+  const exerciseId = searchParams.get("exerciseId"); // UUID dal DB
+  const groupId = searchParams.get("groupId");
   const exerciseTitle = searchParams.get("title") || "Esercizio Reazioni";
 
-  const data = EXERCISE_DATA[exerciseId] || EXERCISE_DATA["caduta"];
+  const [data, setData] = useState<ReazioniContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [startTime] = useState(Date.now());
 
-  const [situazioneSrc, setSituazioneSrc] = useState(
-    `/images/reazioni/${exerciseId}_situazione.png`
-  );
-  const [optionASrc, setOptionASrc] = useState(
-    `/images/reazioni/${exerciseId}_a.png`
-  );
-  const [optionBSrc, setOptionBSrc] = useState(
-    `/images/reazioni/${exerciseId}_b.png`
-  );
-
+  const [situazioneSrc, setSituazioneSrc] = useState("/parrot.gif");
+  const [optionASrc, setOptionASrc] = useState("/parrot.gif");
+  const [optionBSrc, setOptionBSrc] = useState("/parrot.gif");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
 
   useEffect(() => {
-    setSituazioneSrc(`/images/reazioni/${exerciseId}_situazione.png`);
-    setOptionASrc(`/images/reazioni/${exerciseId}_a.png`);
-    setOptionBSrc(`/images/reazioni/${exerciseId}_b.png`);
-    setFeedback(null);
+    const fetchData = async () => {
+      if (!exerciseId) { setLoading(false); return; }
+      try {
+        const token = localStorage.getItem("token");
+        const mode = localStorage.getItem("pragmatics_mode") || "training";
+        const res = await fetch(`/api/exercise/${exerciseId}?mode=${mode}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Fetch failed");
+        const json = await res.json();
+        const c = json.content_json as ReazioniContent;
+        setData(c);
+        setSituazioneSrc(`/images/reazioni/${c.id}_situazione.png`);
+        setOptionASrc(`/images/reazioni/${c.id}_a.png`);
+        setOptionBSrc(`/images/reazioni/${c.id}_b.png`);
+        setFeedback(null);
+      } catch (err) {
+        console.error("Errore caricamento reazioni:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [exerciseId]);
 
-  const handleChoice = (choice: "A" | "B") => {
-    if (feedback) return; // Già scelto
+  const handleChoice = async (choice: "A" | "B") => {
+    if (!data || feedback) return;
 
-    if (choice === data.correctOption) {
-      setFeedback("correct");
-      // Salva completamento
-      const completedStr = localStorage.getItem("completed_reazioni");
-      let completed = completedStr ? JSON.parse(completedStr) : [];
-      if (!completed.includes(exerciseId)) {
-        completed.push(exerciseId);
-        localStorage.setItem("completed_reazioni", JSON.stringify(completed));
+    const mode = localStorage.getItem("pragmatics_mode") || "training";
+    const isCorrect = choice === data.correctOption;
+
+    if (mode === "testing") {
+      // Nessun feedback in testing: salvataggio immediato e ritorno alla mappa
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`/api/exercise/${exerciseId}/attempt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            duration_seconds: Math.round((Date.now() - startTime) / 1000),
+            tries_till_correct: isCorrect ? 0 : 1,
+            text_attempt: { chosen: choice, correct: data.correctOption },
+            mode: mode
+          }),
+        });
+      } catch (err) {
+        console.error("Errore salvataggio attempt:", err);
+      }
+      router.push("/path-reazioni");
+      return;
+    }
+
+    if (isCorrect) {
+      // Salva attempt nel DB
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`/api/exercise/${exerciseId}/attempt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            duration_seconds: Math.round((Date.now() - startTime) / 1000),
+            tries_till_correct: 0,
+            text_attempt: { chosen: choice, correct: data.correctOption },
+            mode: mode
+          }),
+        });
+      } catch (err) {
+        console.error("Errore salvataggio attempt:", err);
+      }
+      router.push("/congratulations?returnTo=/path-reazioni");
+    } else {
+      setFeedback("wrong");
+      // Salva comunque il completamento nel DB in modo da riempire la stella
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`/api/exercise/${exerciseId}/attempt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            duration_seconds: Math.round((Date.now() - startTime) / 1000),
+            tries_till_correct: 1,
+            text_attempt: { chosen: choice, correct: data.correctOption },
+            mode: mode
+          }),
+        });
+      } catch (err) {
+        console.error("Errore salvataggio attempt:", err);
       }
       setTimeout(() => {
         router.push("/congratulations?returnTo=/path-reazioni");
-      }, 2000);
-    } else {
-      setFeedback("wrong");
-      setTimeout(() => {
-        router.push("/path-reazioni");
-      }, 2000);
+      }, 1500);
     }
   };
+
+  if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Caricamento...</div>;
+  if (!data) return <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Esercizio non trovato.</div>;
 
   return (
     <main className="bg-[#FEF5E7] flex flex-col w-screen h-screen overflow-hidden">
@@ -110,51 +159,37 @@ function ReazioniContent() {
 
       {/* CONTENT */}
       <div className="flex-1 flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 min-h-0 overflow-auto relative">
+
         {/* FEEDBACK OVERLAY */}
         <AnimatePresence>
-          {feedback && (
+          {feedback === "wrong" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className={`absolute inset-0 z-50 flex items-center justify-center backdrop-blur-md ${
-                feedback === "correct"
-                  ? "bg-green-500/30"
-                  : "bg-red-500/30"
-              }`}
+              className="absolute inset-0 z-50 flex items-center justify-center bg-[#FEF5E7]"
             >
               <div
-                className={`text-5xl md:text-7xl font-black ${
-                  feedback === "correct" ? "text-green-600" : "text-red-600"
-                } bg-white/90 px-12 py-8 rounded-[3rem] shadow-2xl border-4 ${
-                  feedback === "correct"
-                    ? "border-green-300"
-                    : "border-red-300"
-                }`}
+                className="text-5xl md:text-7xl font-black text-red-600 bg-white px-12 py-8 rounded-[3rem] shadow-2xl border-4 border-red-300 animate-bounce"
               >
-                {feedback === "correct" ? "GOOD JOB! 🎉" : "SBAGLIATO 😔"}
+                SBAGLIATO 😔
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* SITUAZIONE IMAGE */}
+        {/* SITUAZIONE */}
         <div className="w-full max-w-2xl h-[35vh] bg-white rounded-3xl shadow-xl border-4 border-orange-200 relative overflow-hidden shrink-0">
           <Image
             src={situazioneSrc}
             alt={data.situazioneDesc}
             fill
-            className={`object-contain ${
-              situazioneSrc === "/parrot.gif"
-                ? "opacity-50 grayscale scale-50"
-                : "p-3"
-            }`}
+            className={`object-contain ${situazioneSrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
             onError={() => setSituazioneSrc("/parrot.gif")}
             unoptimized
           />
         </div>
 
-        {/* ISTRUZIONE */}
         <h3 className="text-lg md:text-2xl font-black text-[#0e2a47] text-center shrink-0">
           QUALE DELLE DUE REAZIONI È CORRETTA?
         </h3>
@@ -180,11 +215,7 @@ function ReazioniContent() {
               src={optionASrc}
               alt={data.opzioneADesc}
               fill
-              className={`object-contain ${
-                optionASrc === "/parrot.gif"
-                  ? "opacity-50 grayscale scale-50"
-                  : "p-3"
-              }`}
+              className={`object-contain ${optionASrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
               onError={() => setOptionASrc("/parrot.gif")}
               unoptimized
             />
@@ -212,11 +243,7 @@ function ReazioniContent() {
               src={optionBSrc}
               alt={data.opzioneBDesc}
               fill
-              className={`object-contain ${
-                optionBSrc === "/parrot.gif"
-                  ? "opacity-50 grayscale scale-50"
-                  : "p-3"
-              }`}
+              className={`object-contain ${optionBSrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
               onError={() => setOptionBSrc("/parrot.gif")}
               unoptimized
             />
@@ -232,13 +259,7 @@ function ReazioniContent() {
 
 export default function ReazioniPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Caricamento...</div>}>
       <ReazioniContent />
     </Suspense>
   );

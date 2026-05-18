@@ -25,24 +25,19 @@ export async function GET(req: Request) {
 
   try {
     const now = new Date();
-    // Finestra: dalle 00:00 alle 23:59 del giorno corrente
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
+    const GRACE_FUTURE_MS = 15 * 60000; // 15 minuti di margine nel futuro
 
     const appointments = await prisma.appointment.findMany({
       where: {
         childId: authUser.userId,
-        startTime: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
+        startTime: { gte: startOfDay, lte: endOfDay },
       },
       include: {
-        prescribedGroups: {
-          select: { id: true }
-        }
+        prescribedGroups: { select: { id: true } }
       },
       orderBy: { startTime: "asc" },
     });
@@ -51,23 +46,21 @@ export async function GET(req: Request) {
       return NextResponse.json({ hasAppointment: false });
     }
 
-    // Troviamo l'appuntamento attivo, o il prossimo
+    // Approccio robusto: un appuntamento è "attivo" se il suo orario è già passato
+    // (con un margine di 15 minuti nel futuro per gestire piccoli disallineamenti)
     let appointment = appointments[0];
     let isActive = false;
     let appointmentStart = new Date(appointment.startTime);
     let durationMinutes = parseInt(appointment.duration?.split(" ")[0] || "45");
     let appointmentEnd = new Date(appointmentStart.getTime() + durationMinutes * 60000);
 
-    const buffer = 5 * 60000;
-
     for (const app of appointments) {
       const start = new Date(app.startTime);
       const dur = parseInt(app.duration?.split(" ")[0] || "45");
       const end = new Date(start.getTime() + dur * 60000);
 
-      const active = now >= new Date(start.getTime() - buffer) && now <= end;
-      
-      if (active) {
+      // Attivo SOLO nell'esatto intervallo [startTime, endTime]
+      if (now >= start && now <= end) {
         appointment = app;
         isActive = true;
         appointmentStart = start;
@@ -75,7 +68,7 @@ export async function GET(req: Request) {
         appointmentEnd = end;
         break;
       } else if (now < start && !isActive) {
-        // Se non ne abbiamo ancora trovato uno attivo, e questo è nel futuro, teniamolo come fallback visivo
+        // Prossimo futuro come fallback visivo
         appointment = app;
         appointmentStart = start;
         durationMinutes = dur;
@@ -83,17 +76,16 @@ export async function GET(req: Request) {
       }
     }
 
-    console.log("=== APPOINTMENT DEBUG ===");
-    console.log("Current Time (now):", now.toISOString());
-    console.log("Appointment Start:", appointmentStart.toISOString());
-    console.log("Appointment End:", appointmentEnd.toISOString());
-    console.log("Calculated duration:", durationMinutes);
-    console.log("Is Active?:", isActive);
+    // sessionMode: mappa il tipo DB al valore atteso dal frontend, solo se attivo
+    const sessionMode = isActive
+      ? (appointment.type === "valutazione" ? "testing" : "training")
+      : null;
 
     return NextResponse.json({
       hasAppointment: true,
       isActive,
       type: appointment.type,
+      sessionMode,
       trainingExercises: appointment.trainingExercises,
       testingExercises: appointment.testingExercises,
       prescribedExercises: appointment.prescribedGroups.map(g => g.id),

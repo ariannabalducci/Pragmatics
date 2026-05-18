@@ -6,154 +6,70 @@ import { ArrowLeft, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/ui/LogoutButton";
 
-/* ===== DATI DEGLI ESERCIZI ===== */
-
 type ClozeExercise = {
-  /* Ogni elemento è una stringa di testo OPPURE un placeholder "[N]" */
   segments: string[];
-  /* Numero totale di buchi */
   blankCount: number;
-  /* Parole da trascinare (ordine casuale) */
   words: string[];
-  /* Mappa: indice buco → parola corretta */
   solutions: Record<number, string>;
 };
-
-const EXERCISES: Record<string, ClozeExercise> = {
-  dolly: {
-    segments: [
-      "C'era una volta una ",
-      "[1]",
-      " di nome Dolly che faceva la ",
-      "[2]",
-      " in un ristorante di città, ma il suo sogno più grande era quello di diventare una famosa ",
-      "[3]",
-      ". Ogni giorno andava in edicola ad acquistare il ",
-      "[4]",
-      " per leggere se c'erano richieste di attrici. Finalmente un ",
-      "[5]",
-      " lesse che poteva presentarsi in Via Garibaldi per una ",
-      "[6]",
-      ". Partì il mattino presto e si recò a fare la prova. Il suo stupore fu grande quando scoprì una coda interminabile di aspiranti ",
-      "[7]",
-      ". Dolly era molto preoccupata e pensò che non ce l'avrebbe mai fatta a spuntarla sulle concorrenti. Venne il suo turno. Le chiesero di recitare ad alta voce le parole: «Porterò le vostre ",
-      "[8]",
-      " quando saranno pronte». Era proprio la frase più adatta per lei che questa frase era abituata a dirla cento volte al giorno. Si classificò ",
-      "[9]",
-      " e fu così che, con sua grande gioia, il suo sogno si ",
-      "[10]",
-      " e diventò un'attrice famosa.",
-    ],
-    blankCount: 10,
-    words: [
-      "attrice",
-      "ragazza",
-      "audizione",
-      "giornale",
-      "prima",
-      "cameriera",
-      "avverò",
-      "giorno",
-      "attrici",
-      "patatine fritte",
-    ],
-    solutions: {
-      1: "ragazza",
-      2: "cameriera",
-      3: "attrice",
-      4: "giornale",
-      5: "giorno",
-      6: "audizione",
-      7: "attrici",
-      8: "patatine fritte",
-      9: "prima",
-      10: "avverò",
-    },
-  },
-  pippi: {
-    segments: [
-      "Una mattina Pippi giunse nel cortile della scuola al galoppo del suo ",
-      "[1]",
-      ". Scese, spalancò la porta dell'",
-      "[2]",
-      " ed entrò, sventolando il suo largo ",
-      "[3]",
-      ". «Salute a tutti! Arrivo in tempo per le moltiplicazioni?». Tom e Anna subito batterono le ",
-      "[4]",
-      " per la contentezza. «Benvenuta tra noi, Pippi! Intanto dimmi il tuo ",
-      "[5]",
-      "», disse la maestra. «Mi chiamo Pippi e sono figlia del capitano Calzelunghe.». «Bene! Cominciamo dall'",
-      "[6]",
-      ". Tu sei brava, vero Pippi Calzelunghe? Allora dimmi, quanto fa 7+5?». Pippi, un po' ",
-      "[7]",
-      ", guardò la ",
-      "[8]",
-      " e rispose: «Così, a occhio e croce, fa 67». «Ma no, 7+5 fa 12!», la corresse la maestra. «Ma se lo sapeva», replicò Pippi, «perché me l'ha chiesto?».",
-    ],
-    blankCount: 8,
-    words: [
-      "cappello",
-      "aritmetica",
-      "cavallo",
-      "cognome",
-      "aula",
-      "mani",
-      "meravigliata",
-      "maestra",
-    ],
-    solutions: {
-      1: "cavallo",
-      2: "aula",
-      3: "cappello",
-      4: "mani",
-      5: "cognome",
-      6: "aritmetica",
-      7: "meravigliata",
-      8: "maestra",
-    },
-  },
-};
-
-/* ===== COMPONENTE PRINCIPALE ===== */
 
 function ClozeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const exerciseId = searchParams.get("id") || "dolly";
+
+  const exerciseId = searchParams.get("exerciseId"); // UUID dal DB
+  const groupId = searchParams.get("groupId");
   const exerciseTitle = searchParams.get("title") || "Esercizio Cloze";
 
-  const data = EXERCISES[exerciseId] || EXERCISES["dolly"];
+  const [data, setData] = useState<ClozeExercise | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [startTime] = useState(Date.now());
 
-  // Stato: cosa c'è in ogni buco (indice buco → parola o null)
   const [filledBlanks, setFilledBlanks] = useState<Record<number, string>>({});
-  // Stato: risultato verifica (indice buco → true/false) o null se non ancora verificato
   const [results, setResults] = useState<Record<number, boolean> | null>(null);
-  // Parola attualmente trascinata
   const [dragging, setDragging] = useState<string | null>(null);
+  const [mode, setMode] = useState<string>("training");
 
-  // Parole disponibili nella banca = tutte quelle non piazzate
-  const usedWords = Object.values(filledBlanks);
-  const availableWords = data.words.filter(
-    (w) => !usedWords.includes(w)
-  );
+  useEffect(() => {
+    setMode(localStorage.getItem("pragmatics_mode") || "training");
+  }, []);
 
-  // Reset quando cambia esercizio
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!exerciseId) { setLoading(false); return; }
+      try {
+        const token = localStorage.getItem("token");
+        const mode = localStorage.getItem("pragmatics_mode") || "training";
+        const res = await fetch(`/api/exercise/${exerciseId}?mode=${mode}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Fetch failed");
+        const json = await res.json();
+        setData(json.content_json as ClozeExercise);
+      } catch (err) {
+        console.error("Errore caricamento cloze:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [exerciseId]);
+
   useEffect(() => {
     setFilledBlanks({});
     setResults(null);
   }, [exerciseId]);
 
-  /* --- DRAG HANDLERS --- */
+  const availableWords = data
+    ? data.words.filter((w) => !Object.values(filledBlanks).includes(w))
+    : [];
 
-  const handleDragStartFromBank = (word: string) => {
-    setDragging(word);
-  };
+  const handleDragStartFromBank = (word: string) => setDragging(word);
 
   const handleDragStartFromBlank = (blankIndex: number) => {
     const word = filledBlanks[blankIndex];
     if (word) {
       setDragging(word);
-      // Rimuovi dal buco corrente
       setFilledBlanks((prev) => {
         const copy = { ...prev };
         delete copy[blankIndex];
@@ -165,55 +81,65 @@ function ClozeContent() {
   const handleDropOnBlank = (e: DragEvent, blankIndex: number) => {
     e.preventDefault();
     if (!dragging) return;
-
-    // Se il buco ha già una parola, rimettila nella banca
-    setFilledBlanks((prev) => {
-      const copy = { ...prev };
-      copy[blankIndex] = dragging!;
-      return copy;
-    });
+    setFilledBlanks((prev) => ({ ...prev, [blankIndex]: dragging! }));
     setDragging(null);
-    setResults(null); // Resetta la verifica se si sposta qualcosa
+    setResults(null);
   };
 
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
+  const handleDragOver = (e: DragEvent) => e.preventDefault();
+  const handleDragEnd = () => setDragging(null);
+
+  const saveAttempt = async (allCorrect: boolean, triesTillCorrect: number) => {
+    if (!exerciseId) return;
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`/api/exercise/${exerciseId}/attempt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          duration_seconds: Math.round((Date.now() - startTime) / 1000),
+          tries_till_correct: triesTillCorrect,
+          text_attempt: filledBlanks,
+          mode: mode
+        }),
+      });
+    } catch (err) {
+      console.error("Errore salvataggio attempt:", err);
+    }
   };
 
-  const handleDragEnd = () => {
-    setDragging(null);
-  };
-
-  /* --- VERIFICA --- */
-
-  const handleVerify = () => {
+  const handleVerify = async () => {
+    if (!data) return;
     const newResults: Record<number, boolean> = {};
+    let wrongCount = 0;
     for (let i = 1; i <= data.blankCount; i++) {
       const placed = filledBlanks[i];
       newResults[i] = placed === data.solutions[i];
+      if (!newResults[i]) wrongCount++;
     }
+    
+    if (mode === "testing") {
+      await saveAttempt(wrongCount === 0, wrongCount);
+      router.push("/path-cloze");
+      return;
+    }
+
     setResults(newResults);
 
-    // Se tutto corretto, salva progresso
     const allCorrect = Object.values(newResults).every((v) => v);
-    if (allCorrect) {
-      const completedStr = localStorage.getItem("completed_cloze");
-      let completed = completedStr ? JSON.parse(completedStr) : [];
-      if (!completed.includes(exerciseId)) {
-        completed.push(exerciseId);
-        localStorage.setItem("completed_cloze", JSON.stringify(completed));
-      }
-      setTimeout(() => {
-        router.push("/congratulations?returnTo=/path-cloze");
-      }, 2500);
-    }
+    await saveAttempt(allCorrect, wrongCount);
+    
+    setTimeout(() => {
+      router.push("/congratulations?returnTo=/path-cloze");
+    }, 2000);
   };
 
-  /* --- RENDER SEGMENT --- */
-
   const renderSegments = () => {
+    if (!data) return null;
     return data.segments.map((seg, idx) => {
-      // Controlla se è un placeholder tipo [N]
       const match = seg.match(/^\[(\d+)\]$/);
       if (match) {
         const blankIndex = parseInt(match[1]);
@@ -229,7 +155,7 @@ function ClozeContent() {
             onDrop={(e) => handleDropOnBlank(e, blankIndex)}
             onDragEnd={handleDragEnd}
             className={`
-              inline-flex items-center gap-1 mx-1 px-3 py-1 rounded-xl min-w-[100px] min-h-[36px] text-center font-bold
+              inline-flex items-center gap-2 mx-3 px-4 py-1.5 rounded-xl min-w-[120px] min-h-[38px] text-center font-bold
               border-2 border-dashed transition-all cursor-pointer
               ${
                 word
@@ -249,15 +175,15 @@ function ClozeContent() {
           </span>
         );
       }
-
-      // Testo normale
       return <span key={idx}>{seg}</span>;
     });
   };
 
+  if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Caricamento...</div>;
+  if (!data) return <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Esercizio non trovato.</div>;
+
   return (
     <main className="bg-[#F5EEF8] flex flex-col w-screen h-screen overflow-hidden">
-      {/* TOP BAR */}
       <div className="shrink-0 flex items-center justify-between pt-5 px-6">
         <a href="/path-cloze">
           <Button variant="back" size="icon-sm" title="Back">
@@ -272,28 +198,24 @@ function ClozeContent() {
         <LogoutButton />
       </div>
 
-      {/* MAIN CONTENT: testo + banca parole */}
       <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 md:p-6 min-h-0 overflow-hidden">
-
-        {/* TESTO CON BUCHI */}
         <div className="flex-1 bg-white rounded-3xl shadow-xl border-4 border-purple-200 p-6 md:p-8 min-h-0 overflow-y-auto">
           <p className="text-base md:text-lg leading-loose text-[#0e2a47] font-medium">
             {renderSegments()}
           </p>
         </div>
 
-        {/* BANCA PAROLE + BOTTONE */}
         <div className="lg:w-[280px] shrink-0 flex flex-col gap-4">
           <div className="bg-white rounded-3xl shadow-xl border-4 border-[#8E44AD] p-4 flex-1 min-h-0 overflow-y-auto">
             <h3 className="font-black text-[#8E44AD] text-center mb-4 text-lg">PAROLE</h3>
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex flex-wrap gap-3 justify-center">
               {availableWords.map((word) => (
                 <div
                   key={word}
                   draggable
                   onDragStart={() => handleDragStartFromBank(word)}
                   onDragEnd={handleDragEnd}
-                  className="bg-[#8E44AD] text-white font-bold px-4 py-2 rounded-xl cursor-grab active:cursor-grabbing shadow-md hover:bg-[#7D3C98] hover:shadow-lg hover:scale-105 transition-all select-none text-sm"
+                  className="bg-[#8E44AD] text-white font-bold px-5 py-2.5 rounded-xl cursor-grab active:cursor-grabbing shadow-md hover:bg-[#7D3C98] hover:shadow-lg hover:scale-105 transition-all select-none text-sm"
                 >
                   {word}
                 </div>
@@ -308,7 +230,7 @@ function ClozeContent() {
             onClick={handleVerify}
             className="w-full bg-[#8E44AD] text-white hover:bg-[#7D3C98] font-black text-lg py-6 rounded-2xl shadow-lg"
           >
-            HO FINITO ✓
+            {mode === "testing" ? "CONTINUA" : "HO FINITO ✓"}
           </Button>
 
           <Button
@@ -325,13 +247,7 @@ function ClozeContent() {
 
 export default function ClozePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Caricamento...</div>}>
       <ClozeContent />
     </Suspense>
   );
