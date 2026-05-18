@@ -8,27 +8,28 @@
         "interactions": [
             {
                 "parrot_msg": "L'orso sta cercando in tutta la casa il suo cappello preferito da venti minuti.",
-                "background_img": "exercises/hallway.svg",
+                "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "object_img": "exercises/objects/hat.png"
             },
             {
                 "parrot_msg": "Si avvicina all'asino e gli chiede: 'Hai visto il mio cappello da qualche parte? L'ho perso!'",
-                "background_img": "exercises/hallway.svg",
+                "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "character2_img": "exercises/characters/donkey.png",
                 "object_img": "exercises/objects/hat.png"
             },
             {
                 "parrot_msg": "L'asino ride, lo indica e dice: 'Ma se ce l'hai proprio sulla testa!'",
-                "background_img": "exercises/hallway.svg",
+                "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "character2_img": "exercises/characters/donkey.png",
+                "character2_msg": "exercises/speech/baloon_donkey.png",
                 "object_img": "exercises/objects/hat.png"
             },
             {
                 "parrot_msg": "Perché l'orso non riusciva a trovare il suo cappello?",
-                "background_img": "exercises/hallway.svg",
+                "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "character2_img": "exercises/characters/donkey.png",
                 "object_img": "exercises/objects/hat.png",

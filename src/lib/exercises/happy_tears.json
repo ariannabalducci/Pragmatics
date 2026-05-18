@@ -8,19 +8,19 @@
         "interactions": [
             {
                 "parrot_msg": "La tua amica, Anna, è arrivata prima nella grande corsa e stringe tra le mani un trofeo d'oro scintillante.",
-                "background_img": "exercises/podium.svg",
+                "background_img": "exercises/backgrounds/podium.svg",
                 "character1_img": "exercises/characters/bunny_boy.png",
                 "object_img": "exercises/objects/trophy.png"
             },
             {
                 "parrot_msg": "Delle lacrime iniziano a scendere sulle guance di Anna mentre abbraccia il suo trofeo.",
-                "background_img": "exercises/podium.svg",
+                "background_img": "exercises/backgrounds/podium.svg",
                 "character1_img": "exercises/characters/bunny_boy.png",
                 "object_img": "exercises/objects/trophy.png"
             },
             {
                 "parrot_msg": "Perché Anna sta piangendo?",
-                "background_img": "exercises/podium.svg",
+                "background_img": "exercises/backgrounds/podium.svg",
                 "character1_img": "exercises/characters/bunny_boy.png",
                 "character2_img": "exercises/characters/mouse.png",
                 "object_img": "exercises/objects/trophy.png",

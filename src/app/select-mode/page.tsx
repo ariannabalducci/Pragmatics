@@ -11,19 +11,34 @@ export default function SelectModePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [expandedCard, setExpandedCard] = useState<"training" | "testing" | null>(null);
+  // sessionMode: null = nessuna sessione, "training"/"testing" = sessione attiva
   const [sessionMode, setSessionMode] = useState<"training" | "testing" | null>(null);
+  // sessionChecked: false finché l'API non ha risposto — blocca il rendering delle card
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
 
     // Controlla se c'è una sessione attiva e quale modalità impone
     const checkSession = async () => {
+      // Timeout di 5 secondi: se l'API non risponde, mostriamo comunque le card
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 5000);
+
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token) {
+          setSessionChecked(true);
+          clearTimeout(timeoutId);
+          return;
+        }
         const res = await fetch("/api/appointments/today", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         if (res.ok) {
           const data = await res.json();
           if (data.hasAppointment && data.isActive && data.sessionMode) {
@@ -31,13 +46,19 @@ export default function SelectModePage() {
             localStorage.setItem("pragmatics_mode", data.sessionMode);
           }
         }
-      } catch {}
+      } catch {
+        // In caso di errore o timeout, mostriamo comunque le card
+      }
+      setSessionChecked(true);
     };
     checkSession();
   }, []);
 
-  if (!isMounted) {
-    return <main className="min-h-screen bg-[#F0F7F7]" />;
+  // Non renderizzare nulla finché non siamo montati E la sessione non è stata verificata
+  if (!isMounted || !sessionChecked) {
+    return <main className="min-h-screen bg-[#F0F7F7] flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-[#62B4A5] border-t-transparent rounded-full animate-spin" />
+    </main>;
   }
 
   const handleSelectCategory = (mode: "training" | "testing", path: string) => {

@@ -8,25 +8,26 @@
         "interactions": [
             {
                 "parrot_msg": "Tu e il tuo amico Liam siete al ristorante.",
-                "background_img": "exercises/restaurant.svg",
+                "background_img": "exercises/backgrounds/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png"
             },
             {
                 "parrot_msg": "Alla fine del pranzo, chiedi al tuo amico: 'Cosa ne pensi della nuova cuoca?'",
-                "background_img": "exercises/restaurant.svg",
+                "background_img": "exercises/backgrounds/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png"
             },
             {
                 "parrot_msg": "Liam risponde: 'Non saprei cosa dire, non l'ho ancora vista!'",
-                "background_img": "exercises/restaurant.svg",
+                "background_img": "exercises/backgrounds/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
-                "character2_img": "exercises/characters/liam.png"
+                "character2_img": "exercises/characters/liam.png",
+                "character2_msg": "exercises/speech/baloon_liam.png"
             },
             {
                 "parrot_msg": "Cosa ha frainteso Liam?",
-                "background_img": "exercises/restaurant.svg",
+                "background_img": "exercises/backgrounds/restaurant.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/liam.png",
                 "correct_option": 0,

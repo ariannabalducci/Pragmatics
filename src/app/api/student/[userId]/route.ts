@@ -140,7 +140,7 @@ export async function GET(
         const isPrescribedToday = prescribedGroupIds.has(group.id);
         
         if (isSessionActive) {
-            let status = 'blocked';
+            let status = 'locked';
             let progress = 0;
             let activeExerciseId = group.exercises[0]?.id;
 
@@ -174,7 +174,7 @@ export async function GET(
             return levelData;
         }
 
-        let status = 'blocked';
+        let status = 'locked';
         let progress = 0;
         let activeExerciseId = group.exercises[0]?.id;
 
@@ -216,7 +216,7 @@ export async function GET(
     return NextResponse.json({
       coins: child.coins,
       nr_completed: allLevels.filter(l => l.status === 'completed').length,
-      nr_blocked: allLevels.filter(l => l.status === 'blocked').length,
+      nr_locked: allLevels.filter(l => l.status === 'locked').length,
       levels: activeLevels,
       all_levels: allLevels,
       progressResetAt: child.progressResetAt ?? null,

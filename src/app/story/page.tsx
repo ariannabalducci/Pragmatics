@@ -38,8 +38,7 @@ const StoryPage = () => {
 
             try {
                 const token = localStorage.getItem("token");
-                const mode = localStorage.getItem("pragmatics_mode") || "training";
-                const res = await fetch(`/api/exercise/${exerciseId}?mode=${mode}`, {
+                const res = await fetch(`/api/exercise/${exerciseId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

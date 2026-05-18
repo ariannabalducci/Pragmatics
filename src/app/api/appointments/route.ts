@@ -21,7 +21,7 @@ export async function GET() {
       note: app.note,
       trainingExercises: app.trainingExercises,
       testingExercises: app.testingExercises,
-      prescribedExercises: app.prescribedGroups.map(g => ({ id: g.id, title: g.title })),
+      prescribedExercises: app.prescribedGroups.map(g => ({ id: g.id, title: g.title, groupType: g.groupType })),
     }));
 
     return NextResponse.json(formatted);

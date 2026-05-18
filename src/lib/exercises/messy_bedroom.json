@@ -8,27 +8,28 @@
         "interactions": [
             {
                 "parrot_msg": "La camera da letto del tuo amico è un vero disastro. Ci sono giocattoli sparsi ovunque sul pavimento.",
-                "background_img": "exercises/messy_room.svg",
+                "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "object_img": "exercises/objects/toys.png"
             },
             {
                 "parrot_msg": "Il papà del tuo amico entra nella stanza e inciampa su un cubetto di legno.",
-                "background_img": "exercises/messy_room.svg",
+                "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "character2_img": "exercises/characters/dad.png",
                 "object_img": "exercises/objects/toys.png"
             },
             {
                 "parrot_msg": "Il papà si guarda intorno e dice: 'Vedo che oggi ti sei impegnato tantissimo a pulire la tua stanza!'",
-                "background_img": "exercises/messy_room.svg",
+                "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "character2_img": "exercises/characters/dad.png",
+                "character2_msg": "exercises/speech/baloon_dad.png",
                 "object_img": "exercises/objects/toys.png"
             },
             {
                 "parrot_msg": "Perché il papà ha detto questo?",
-                "background_img": "exercises/messy_room.svg",
+                "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "character2_img": "exercises/characters/dad.png",
                 "object_img": "exercises/objects/toys.png",

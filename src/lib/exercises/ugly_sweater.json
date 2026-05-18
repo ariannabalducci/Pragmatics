@@ -8,27 +8,27 @@
         "interactions": [
             {
                 "parrot_msg": "È il tuo compleanno e la tua nonna ha fatto per te un maglione molto brutto che prude tantissimo.",
-                "background_img": "exercises/classroom.svg",
+                "background_img": "exercises/backgrounds/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "object_img": "exercises/objects/ugly_sweater.png"
             },
             {
                 "parrot_msg": "La nonna ti chiede: 'Ti piace il maglione che ho fatto per te, tesoro?'",
-                "background_img": "exercises/classroom.svg",
+                "background_img": "exercises/backgrounds/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "character2_img": "exercises/characters/grandma.png",
                 "object_img": "exercises/objects/ugly_sweater.png"
             },
             {
                 "parrot_msg": "Il maialino sorride e dice: 'Oh sì, lo adoro! Grazie, nonna!'",
-                "background_img": "exercises/classroom.svg",
+                "background_img": "exercises/backgrounds/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "character2_img": "exercises/characters/grandma.png",
                 "object_img": "exercises/objects/ugly_sweater.png"
             },
             {
                 "parrot_msg": "Perché il maialino ha detto di adorare il maglione?",
-                "background_img": "exercises/classroom.svg",
+                "background_img": "exercises/backgrounds/classroom.svg",
                 "character1_img": "exercises/characters/piglet.png",
                 "character2_img": "exercises/characters/grandma.png",
                 "object_img": "exercises/objects/ugly_sweater.png",

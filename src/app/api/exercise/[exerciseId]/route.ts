@@ -169,33 +169,39 @@ export async function GET(
                 isAvailable = currentGroupStatus === 'available' || currentGroupStatus === 'completed';
             }
         } else {
-            // Controllo legacy per i percorsi generici
-            const studentPath = exercise.group.paths[0];
-            if (studentPath) {
-                isAvailable = studentPath.status === 'available' || studentPath.status === 'completed';
+            // Esercizi generici: controlla prima sessione attiva, poi progressione casa
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+            const todayAppointments = await prisma.appointment.findMany({
+                where: {
+                    childId: authUser.userId,
+                    startTime: { gte: startOfDay, lte: endOfDay }
+                },
+                include: { prescribedGroups: true },
+                orderBy: { startTime: 'asc' }
+            });
+
+            let sessionPrescribedIds = new Set<string>();
+            for (const app of todayAppointments) {
+                const start = new Date(app.startTime);
+                const dur = parseInt(app.duration?.split(' ')[0] || '45');
+                const end = new Date(start.getTime() + dur * 60000);
+                if (now >= start && now <= end) {
+                    sessionPrescribedIds = new Set(app.prescribedGroups.map((g: any) => g.id));
+                    break;
+                }
             }
 
-            if (!isAvailable) {
-                const now = new Date();
-                const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-
-                const child = await prisma.child.findUnique({
-                    where: { userId: authUser.userId }
-                });
-
-                if (child) {
-                    const appointment = await prisma.appointment.findFirst({
-                        where: {
-                            childId: authUser.userId,
-                            startTime: { gte: startOfDay, lte: endOfDay }
-                        },
-                        include: { prescribedGroups: true }
-                    });
-
-                    if (appointment && appointment.prescribedGroups.some(g => g.id === exercise.groupId)) {
-                        isAvailable = true;
-                    }
+            // Sessione attiva + esercizio prescritto → sempre disponibile
+            if (sessionPrescribedIds.has(exercise.groupId)) {
+                isAvailable = true;
+            } else {
+                // Fuori sessione: usa status dal DB come approssimazione
+                const studentPath = exercise.group.paths[0];
+                if (studentPath) {
+                    isAvailable = studentPath.status === 'available' || studentPath.status === 'completed';
                 }
             }
         }
@@ -216,7 +222,23 @@ export async function GET(
 
         const completedCount = successfulAttempts.length;
 
-        if (exercise.position > completedCount + 1) {
+        // Skip check sequenziale se l'esercizio è prescritto in una sessione attiva
+        const now2 = new Date();
+        const sod2 = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate());
+        const eod2 = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate(), 23, 59, 59);
+        const activeApp = await prisma.appointment.findFirst({
+            where: { childId: authUser.userId, startTime: { gte: sod2, lte: eod2 } },
+            include: { prescribedGroups: true },
+            orderBy: { startTime: 'asc' }
+        });
+        const isInActiveSession = activeApp && (() => {
+            const s = new Date(activeApp.startTime);
+            const d = parseInt(activeApp.duration?.split(' ')[0] || '45');
+            const e = new Date(s.getTime() + d * 60000);
+            return now2 >= s && now2 <= e;
+        })() && activeApp.prescribedGroups.some((g: any) => g.id === exercise.groupId);
+
+        if (!isInActiveSession && exercise.position > completedCount + 1) {
              return NextResponse.json({ 
                  error: `You must complete the previous exercises first.`
              }, { status: 403 });

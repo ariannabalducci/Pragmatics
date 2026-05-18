@@ -275,6 +275,13 @@ export default function CalendarPage() {
               </div>
             </div>
 
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full py-4 rounded-2xl bg-[#4d8b7d] text-white font-bold shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+            >
+              <Plus size={18} /> Nuovo Appuntamento
+            </button>
+
             <div className="space-y-4">
               {loading ? (
                 <p className="text-center text-slate-400 text-xs italic">Caricamento...</p>
@@ -301,12 +308,6 @@ export default function CalendarPage() {
               )}
             </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="w-full py-4 rounded-2xl bg-[#4d8b7d] text-white font-bold shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-            >
-              <Plus size={18} /> Nuovo Appuntamento
-            </button>
           </div>
         </div>
       </main>
@@ -491,18 +492,44 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
         </div>
       )}
 
-      {prescribedExercises.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-slate-50">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Esercizi Prescritti</p>
-          <div className="flex flex-wrap gap-2">
-            {prescribedExercises.map((ex: any) => (
-              <span key={ex.id} className="bg-teal-50 text-[#4d8b7d] text-[10px] font-bold px-2 py-1 rounded-lg border border-teal-100">
-                {ex.title}
-              </span>
-            ))}
+      {prescribedExercises.length > 0 && (() => {
+        // Raggruppa per tipologia
+        const typeConfig: Record<string, { label: string; color: string }> = {
+          generic:    { label: "Mappa Principale", color: "bg-teal-100 text-teal-700" },
+          cloze:      { label: "Cloze",            color: "bg-purple-100 text-purple-700" },
+          sentimenti: { label: "Sentimenti",       color: "bg-red-100 text-red-700" },
+          perche:     { label: "Perché",           color: "bg-blue-100 text-blue-700" },
+          reazioni:   { label: "Reazioni",         color: "bg-orange-100 text-orange-700" },
+        };
+        const grouped: Record<string, any[]> = {};
+        prescribedExercises.forEach((ex: any) => {
+          const t = ex.groupType || "generic";
+          if (!grouped[t]) grouped[t] = [];
+          grouped[t].push(ex);
+        });
+        return (
+          <div className="mt-4 pt-3 border-t border-slate-50 space-y-3">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Esercizi Prescritti</p>
+            {Object.entries(grouped).map(([type, exercises]) => {
+              const cfg = typeConfig[type] || { label: type, color: "bg-slate-100 text-slate-700" };
+              return (
+                <div key={type}>
+                  <span className={`inline-block text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full mb-1.5 ${cfg.color}`}>
+                    {cfg.label}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {exercises.map((ex: any) => (
+                      <span key={ex.id} className="bg-slate-50 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded-lg border border-slate-100">
+                        {ex.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {note && (
         <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-700 italic leading-relaxed flex items-start gap-2">
