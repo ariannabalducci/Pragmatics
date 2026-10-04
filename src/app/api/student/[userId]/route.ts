@@ -1,30 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
+import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
-
-const SECRET_KEY = process.env.JWT_SECRET;
-
-const verifyToken = (req: Request) => {
-  if (!SECRET_KEY) throw new Error('JWT_SECRET not defined');
-  try {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) return null;
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, SECRET_KEY);
-    return decoded as { userId: string; role: string };
-  } catch {
-    return null;
-  }
-};
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
-  
 ) {
-  const authUser = verifyToken(request);
+  const authUser = getAuthUser(request);
   const { userId } = await params;
 
   const { searchParams } = new URL(request.url);

@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../[...nextauth]/route";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET!;
+import { signAuthToken } from "@/lib/auth";
 
 // Called by the client after a successful Google sign-in via NextAuth.
 // Returns a custom JWT (same format as the password login) so the rest
@@ -21,11 +19,7 @@ export async function GET() {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const token = jwt.sign(
-    { userId: user.id, role: user.role },
-    JWT_SECRET,
-    { expiresIn: "12h" }
-  );
+  const token = signAuthToken({ userId: user.id, role: user.role });
 
   return NextResponse.json({
     success: true,

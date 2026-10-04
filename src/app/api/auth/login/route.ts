@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { signAuthToken } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
@@ -37,16 +35,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!JWT_SECRET) {
-      console.error("JWT_SECRET is missing");
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    }
-
-    const token = jwt.sign(
-      { userId: user.id, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '12h' }
-    );
+    const token = signAuthToken({ userId: user.id, role: user.role });
 
     return NextResponse.json({
       success: true,
