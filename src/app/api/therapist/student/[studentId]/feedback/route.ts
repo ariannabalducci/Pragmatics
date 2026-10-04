@@ -1,46 +1,27 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
-
-const SECRET_KEY = process.env.JWT_SECRET;
-
-const verifyToken = (req: Request) => {
-  if (!SECRET_KEY) throw new Error('JWT_SECRET not defined');
-  try {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) return null;
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, SECRET_KEY);
-    return decoded as { userId: string; role: string };
-  } catch {
-    return null;
-  }
-};
+import { getAuthUser, isTherapistOf } from '@/lib/auth';
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ studentId: string }> }
 ) {
   const { studentId } = await params;
-  const authUser = verifyToken(request);
+  const authUser = getAuthUser(request);
   if (!authUser || authUser.role !== 'THERAPIST') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
+    if (!(await isTherapistOf(authUser.userId, studentId))) {
+      return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
+    }
+
     const { feedback } = await request.json();
-
-    const therapist = await prisma.therapist.findUniqueOrThrow({
-        where: { userId: authUser.userId }
-    });
-
-    const child = await prisma.child.findUniqueOrThrow({
-        where: { userId: studentId }
-    });
 
     const newFeedback = await prisma.feedback.create({
         data: {
             content: feedback,
-            therapistId: therapist.userId,
-            childId: child.userId
+            therapistId: authUser.userId,
+            childId: studentId
         }
     });
 

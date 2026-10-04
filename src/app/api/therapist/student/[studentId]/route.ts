@@ -1,30 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
-
-const SECRET_KEY = process.env.JWT_SECRET;
-
-const verifyToken = (req: Request) => {
-  if (!SECRET_KEY) throw new Error('JWT_SECRET not defined');
-  try {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) return null;
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, SECRET_KEY);
-    return decoded as { userId: string; role: string };
-  } catch {
-    return null;
-  }
-};
+import { getAuthUser, isTherapistOf } from '@/lib/auth';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ studentId: string }> }
 ) {
   const { studentId } = await params;
-  const authUser = verifyToken(request);
+  const authUser = getAuthUser(request);
 
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!authUser || authUser.role !== 'THERAPIST') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
     const student = await prisma.child.findUnique({
@@ -49,7 +34,9 @@ export async function GET(
       },
     });
 
-    if (!student) return NextResponse.json({ error: 'Paziente non trovato' }, { status: 404 });
+    if (!student || student.therapistId !== authUser.userId) {
+      return NextResponse.json({ error: 'Paziente non trovato' }, { status: 404 });
+    }
 
     const now = new Date();
 
@@ -160,7 +147,15 @@ export async function PATCH(
   { params }: { params: Promise<{ studentId: string }> }
 ) {
   const { studentId } = await params;
+  const authUser = getAuthUser(request);
+
+  if (!authUser || authUser.role !== 'THERAPIST') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
+    if (!(await isTherapistOf(authUser.userId, studentId))) {
+      return NextResponse.json({ error: 'Paziente non trovato' }, { status: 404 });
+    }
+
     const body = await request.json();
     const { description, diagnosis, internalNotes, appointmentId, appointmentNote } = body;
 
@@ -176,8 +171,8 @@ export async function PATCH(
     }
 
     if (appointmentId && appointmentNote !== undefined) {
-      await prisma.appointment.update({
-        where: { id: appointmentId },
+      await prisma.appointment.updateMany({
+        where: { id: appointmentId, childId: studentId, therapistId: authUser.userId },
         data: { note: appointmentNote }
       });
     }
