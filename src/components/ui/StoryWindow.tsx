@@ -2,34 +2,34 @@
 
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from "@/lib/utils";
-
-interface InteractionData {
-    parrot_msg?: string;
-    character1_msg?: string;
-    character2_msg?: string;
-    background_img?: string;
-    character1_img?: string;
-    character2_img?: string;
-    object_img?: string;
-    options?: string[];
-    correct_option?: number;
-    type?: string;
-}
+import { useIsClient } from '@/lib/hooks/useIsClient';
+import type { StoryInteraction } from '@/types';
 
 interface StoryWindowProps {
-    interactionData: InteractionData;
+    interactionData: StoryInteraction;
     onAnswer?: (isCorrect: boolean) => void;
     quizStatus: string | null;
     isTesting?: boolean;
 }
 
 const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: StoryWindowProps) => {
-    const [isMounted, setIsMounted] = useState(false);
+    const isMounted = useIsClient();
     const [tempSelectedIndex, setTempSelectedIndex] = useState<number | null>(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [showWrongFeedback, setShowWrongFeedback] = useState(false);
+    const [prevSlide, setPrevSlide] = useState({ interactionData, quizStatus });
+
+    // Reset the answer when the slide changes or the user goes back.
+    if (prevSlide.interactionData !== interactionData || prevSlide.quizStatus !== quizStatus) {
+        setPrevSlide({ interactionData, quizStatus });
+        if (quizStatus === null) {
+            setTempSelectedIndex(null);
+            setIsSubmitted(false);
+            setShowWrongFeedback(false);
+        }
+    }
 
     const {
         parrot_msg,
@@ -42,20 +42,6 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
         options,
         correct_option
     } = interactionData;
-
-    // 1. Fix Hydration
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    // 2. Reset the state when the slide changes or the user goes back
-    useEffect(() => {
-        if (quizStatus === null) {
-            setTempSelectedIndex(null);
-            setIsSubmitted(false);
-            setShowWrongFeedback(false);
-        }
-    }, [interactionData, quizStatus]);
 
     const handleConfirm = () => {
         if (tempSelectedIndex !== null && onAnswer) {

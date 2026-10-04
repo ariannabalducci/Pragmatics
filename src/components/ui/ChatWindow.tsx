@@ -1,28 +1,15 @@
 "use client";
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-
-interface InteractionData {
-    parrot_msg?: string;
-    character1_msg?: string;
-    character2_msg?: string;
-    background_img?: string;
-    character1_img?: string;
-    character2_img?: string;
-    object_img?: string;
-}
+import { useIsClient } from '@/lib/hooks/useIsClient';
+import type { StoryInteraction } from '@/types';
 
 interface ChatWindowProps {
-    interactionData: InteractionData;
+    interactionData: StoryInteraction;
 }
 
 const ChatWindow = ({ interactionData }: ChatWindowProps) => {
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    const isMounted = useIsClient();
 
     // Render nothing until mounted to avoid hydration mismatches.
     if (!isMounted) return null;

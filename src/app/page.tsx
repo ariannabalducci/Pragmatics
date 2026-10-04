@@ -1,18 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Users, UserCog } from "lucide-react";
+import { useIsClient } from "@/lib/hooks/useIsClient";
 
 export default function HomePage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsClient();
 
   if (!isMounted) return <main className="min-h-screen bg-[#F0F7F7]" />;
 

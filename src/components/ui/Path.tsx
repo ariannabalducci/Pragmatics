@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, MouseEvent } from 'react';
 import { Play, Lock, Star } from 'lucide-react';
 import { Button } from './button';
 import ExerciseSystem from './ExerciseSystem';
-import { progress } from 'framer-motion';
+import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
 
 const WAVE_CONFIG = {
   amplitude: 90,
@@ -15,6 +15,7 @@ const WAVE_CONFIG = {
 
 export interface LevelNode {
   id: string | number;
+  groupId?: string;
   status: 'locked' | 'available' | 'completed';
   group_title?: string;
   group_topic?: string;
@@ -39,13 +40,11 @@ export default function Path({
 
   const [selectedLevel, setSelectedLevel] = useState<LevelNode | null>(null);
 
-  const [testedNodes, setTestedNodes] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (mode === "testing") {
-      setTestedNodes(JSON.parse(localStorage.getItem('testedExercises') || '[]'));
-    }
-  }, [mode]);
+  const testedExercises = useLocalStorage('testedExercises');
+  const testedNodes = useMemo<string[]>(
+    () => (mode === "testing" ? JSON.parse(testedExercises || '[]') : []),
+    [mode, testedExercises]
+  );
 
   const displayLevels = useMemo(() => {
     if (mode !== "testing") return levels;
@@ -58,14 +57,14 @@ export default function Path({
       const prevLevel = index > 0 ? levels[index - 1] : null;
       const isPrevCompleted = prevLevel && prevLevel.firstExerciseId ? testedNodes.includes(prevLevel.firstExerciseId) : false;
       
-      let newStatus = 'locked';
+      let newStatus: LevelNode['status'] = 'locked';
       if (isCompleted) {
         newStatus = 'completed';
       } else if (index === 0 || isPrevCompleted) {
         newStatus = 'available';
       }
       
-      return { ...level, status: newStatus as any };
+      return { ...level, status: newStatus };
     });
   }, [levels, mode, testedNodes]);
 
@@ -281,8 +280,6 @@ function ProgressRing({ progress }: { progress: number }) {
   // Colors
   const ringColor = '#D9D9D9'; // Grey
   const activeColor = '#FFE53B'; // Yellow
-
-  const activeSegments = progress;
 
   // Math for the partial ring
   const maxProgress = 2;

@@ -6,10 +6,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Play, ClipboardList, HelpCircle, Map, Heart, Zap, BookOpen } from "lucide-react";
 import LogoutButton from "@/components/ui/LogoutButton";
+import { useIsClient } from "@/lib/hooks/useIsClient";
 
 export default function SelectModePage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useIsClient();
   const [expandedCard, setExpandedCard] = useState<"training" | "testing" | null>(null);
   // null when no session is active
   const [sessionMode, setSessionMode] = useState<"training" | "testing" | null>(null);
@@ -17,8 +18,6 @@ export default function SelectModePage() {
   const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
-
     const checkSession = async () => {
       // Show the cards anyway if the API doesn't answer within 5 seconds.
       const controller = new AbortController();

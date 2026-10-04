@@ -6,22 +6,24 @@ import Image from "next/image";
 import { useState, useEffect, Suspense } from 'react';
 import ChatInput from "@/components/ui/ChatInput";
 import MessageWindow from "@/components/ui/MessageWindow";
-import { ChatHistory, Message, MessageRole } from "../../types";
+import { ChatHistory, Message, MessageRole, StoryInteraction } from "../../types";
 import { ArrowLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import ChatWindow from "@/components/ui/ChatWindow";
 import { useRouter, useSearchParams } from "next/navigation";
+
+const NO_INTERACTION: StoryInteraction = {};
 
 const ChatContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const exerciseId = searchParams.get('id');
 
-    const [interactions, setInteractions] = useState<any[]>([]);
+    const [interactions, setInteractions] = useState<StoryInteraction[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const [currentInteractionIndex, setCurrentInteractionIndex] = useState(0);
-    const [currentInteraction, setCurrentInteraction] = useState({});
+    const currentInteraction = interactions[currentInteractionIndex] ?? NO_INTERACTION;
 
     const [history, setHistory] = useState<ChatHistory>([]);
     
@@ -60,12 +62,6 @@ const ChatContent = () => {
 
         fetchExerciseData();
     }, [exerciseId]);
-
-    useEffect(() => {
-        if (interactions.length > 0) {
-            setCurrentInteraction(interactions[currentInteractionIndex]);
-        }
-    }, [currentInteractionIndex, interactions]);
 
     const isChatMode = interactions.length > 0 && currentInteractionIndex === interactions.length - 1;
 

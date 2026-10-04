@@ -3,10 +3,14 @@
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/ui/LogoutButton";
 import Image from "next/image";
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import StoryWindow from "@/components/ui/StoryWindow";
 import { ArrowLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLocalStorage } from "@/lib/hooks/useLocalStorage";
+import type { StoryInteraction } from "@/types";
+
+const NO_INTERACTION: StoryInteraction = {};
 
 const StoryContent = () => {
 
@@ -14,23 +18,18 @@ const StoryContent = () => {
     const searchParams = useSearchParams();
     const exerciseId = searchParams.get('id');
 
-    const [interactions, setInteractions] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [interactions, setInteractions] = useState<StoryInteraction[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const [startTime, setStartTime] = useState<number | null>(null);
     const [mistakes, setMistakes] = useState(0);
 
     const [currentInteractionIndex, setCurrentInteractionIndex] = useState(0);
-    const [currentInteraction, setCurrentInteraction] = useState<any>({});
+    const currentInteraction = interactions[currentInteractionIndex] ?? NO_INTERACTION;
 
     const [quizStatus, setQuizStatus] = useState<string | null>(null);
 
-    const [isTesting, setIsTesting] = useState(false);
-
-    useEffect(() => {
-        setIsTesting(localStorage.getItem('pragmatics_mode') === 'testing');
-    }, []);
+    const isTesting = useLocalStorage('pragmatics_mode') === 'testing';
 
     useEffect(() => {
         const fetchExerciseData = async () => {
@@ -49,8 +48,8 @@ const StoryContent = () => {
                     return;
                 }
 
-                const fetchedInteractions = data.content_json?.interactions || [];
-                const quizIndex = fetchedInteractions.findIndex((int: any) => int.options && int.options.length > 0);
+                const fetchedInteractions: StoryInteraction[] = data.content_json?.interactions || [];
+                const quizIndex = fetchedInteractions.findIndex((int) => int.options && int.options.length > 0);
                 const finalInteractions = quizIndex !== -1 ? fetchedInteractions.slice(0, quizIndex + 1) : fetchedInteractions;
 
                 setInteractions(finalInteractions);
@@ -59,20 +58,11 @@ const StoryContent = () => {
             } catch (err) {
                 console.error(err);
                 setError("Network error occurred");
-            } finally {
-                setLoading(false);
             }
         };
 
         fetchExerciseData();
     }, [exerciseId]);
-
-    useEffect(() => {
-        if (interactions.length > 0) {
-            setCurrentInteraction(interactions[currentInteractionIndex]);
-            setQuizStatus(null);
-        }
-    }, [currentInteractionIndex, interactions]);
 
     const handleAnswer = (isCorrect: boolean) => {
         if (!isCorrect) {
@@ -131,6 +121,7 @@ const StoryContent = () => {
 
         if (currentInteractionIndex < interactions.length - 1) {
             setCurrentInteractionIndex(prevIndex => prevIndex + 1);
+            setQuizStatus(null);
         } else {
             handleFinish();
         }
@@ -139,6 +130,7 @@ const StoryContent = () => {
     const handlePrev = () => {
         if (currentInteractionIndex > 0) {
             setCurrentInteractionIndex(prevIndex => prevIndex - 1);
+            setQuizStatus(null);
         }
     };
 
@@ -194,12 +186,16 @@ const StoryContent = () => {
             </div>
 
             <div className="flex flex-col gap-1 row-start-2 col-start-2 pr-15">
-                <StoryWindow
-                    interactionData={currentInteraction}
-                    quizStatus={quizStatus}
-                    onAnswer={handleAnswer}
-                    isTesting={isTesting}
-                />
+                {error ? (
+                    <p className="text-red-500 font-bold text-center mt-10">{error}</p>
+                ) : (
+                    <StoryWindow
+                        interactionData={currentInteraction}
+                        quizStatus={quizStatus}
+                        onAnswer={handleAnswer}
+                        isTesting={isTesting}
+                    />
+                )}
             </div>
         </main>
     );
