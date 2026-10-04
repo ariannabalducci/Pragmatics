@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { chatWithAzure } from '@/utils/azureHelpers';
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(request: Request) {
+  const authUser = getAuthUser(request);
+  if (!authUser || authUser.role !== 'THERAPIST') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { messages } = body;
@@ -43,8 +49,6 @@ REGOLE DI FORMATTAZIONE:
 REGOLA TECNICA OBBLIGATORIA: 
 Rispondi ESCLUSIVAMENTE con un oggetto JSON valido.
 Formato: {"message": "contenuto della risposta con fonti e markdown", "is_ended": false}`;
-    console.log("--- RICHIESTA AI TERAPISTA AVVIATA ---");
-
     // Chiamata all'helper che gestisce la connessione Azure OpenAI
     const aiResponse = await chatWithAzure(lastUserMessage, history, systemPrompt);
 
@@ -60,9 +64,8 @@ Formato: {"message": "contenuto della risposta con fonti e markdown", "is_ended"
   } catch (error: any) {
     console.error("ERRORE API CHAT TERAPISTA:", error.message);
     
-    return NextResponse.json({ 
-      error: "Errore durante la comunicazione con l'assistente.",
-      details: error.message 
+    return NextResponse.json({
+      error: "Errore durante la comunicazione con l'assistente."
     }, { status: 500 });
   }
 }

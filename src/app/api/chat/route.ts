@@ -1,28 +1,17 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { chatWithAzure } from '@/utils/azureHelpers';
-import jwt from 'jsonwebtoken';
-
-const SECRET_KEY = process.env.JWT_SECRET;
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(request: Request) {
+  if (!getAuthUser(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    // LOG 1: Ricezione richiesta
-    console.log("--- CHAT DEBUG START ---");
-
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.split(' ')[1];
-    
-    if (!token || !SECRET_KEY) {
-        console.error("Token o Secret Key mancante");
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     const { message, history, exerciseId } = body;
-    console.log("Body ricevuto:", { message, exerciseId });
 
-    // LOG 2: Verifica Prisma
     const exercise = await prisma.exercise.findUnique({
       where: { id: exerciseId },
       include: { group: true }
@@ -50,12 +39,9 @@ REGOLE FONDAMENTALI DEL TUO COMPORTAMENTO:
 5. Sii brevissimo (massimo 1 o 2 frasi). Non usare mai il grassetto ( ** ).
 6. Restituisci RIGOROSAMENTE un oggetto JSON valido in questo formato: {"message": "la tua risposta testuale", "is_ended": false}`;
 
-    // LOG 3: Chiamata Azure
-    console.log("Chiamata ad Azure in corso...");
     let aiResponse;
     try {
         aiResponse = await chatWithAzure(message, history || [], systemPrompt);
-        console.log("Risposta Azure ricevuta:", aiResponse);
     } catch (apiError) {
         console.error("ERRORE BACKEND AZURE:", apiError);
         throw new Error("Azure ha fallito");

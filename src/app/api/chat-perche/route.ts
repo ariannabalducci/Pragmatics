@@ -1,18 +1,13 @@
 import { NextResponse } from 'next/server';
 import { chatWithAzure } from '@/utils/azureHelpers';
-import jwt from 'jsonwebtoken';
-
-const SECRET_KEY = process.env.JWT_SECRET;
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(request: Request) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.split(' ')[1];
-    
-    if (!token || !SECRET_KEY) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  if (!getAuthUser(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const body = await request.json();
     const { message, history, questionTitle } = body;
 

@@ -42,7 +42,10 @@ export default function AI_AssistantPage() {
     try {
       const res = await fetch("/api/chat/therapist", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify({ 
           messages: [...messages.map(m => ({ role: m.role, content: m.content })), { role: "user", content: input }] 
         }),

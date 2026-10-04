@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { createGoogleCalendarEvent } from "@/lib/google";
+import { getAuthUser, isTherapistOf } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const authUser = getAuthUser(req);
+  if (!authUser || authUser.role !== "THERAPIST") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const appointments = await prisma.appointment.findMany({
+      where: { therapistId: authUser.userId },
       include: {
         child: { include: { user: true } },
         prescribedGroups: true
@@ -31,14 +38,21 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const authUser = getAuthUser(req);
+  if (!authUser || authUser.role !== "THERAPIST") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { startTime, type, duration, note, childId, trainingExercises, testingExercises, prescribedGroups } = body;
 
-    const therapist = await prisma.therapist.findFirst();
-
-    if (!therapist || !childId) {
+    if (!childId) {
       return NextResponse.json({ error: "Dati mancanti" }, { status: 400 });
+    }
+
+    if (!(await isTherapistOf(authUser.userId, childId))) {
+      return NextResponse.json({ error: "Patient not found" }, { status: 404 });
     }
 
     const appointment = await prisma.appointment.create({
@@ -47,7 +61,7 @@ export async function POST(req: Request) {
         type: type,
         duration: `${duration} min`,
         note: note,
-        therapistId: therapist.userId,
+        therapistId: authUser.userId,
         childId: childId,
         trainingExercises: Number(trainingExercises) || 0,
         testingExercises: Number(testingExercises) || 0,
@@ -70,7 +84,7 @@ export async function POST(req: Request) {
         description += `\nEsercizi prescritti: ${appointment.prescribedGroups.map((g: any) => g.title).join(', ')}`;
       }
 
-      await createGoogleCalendarEvent(therapist.userId, {
+      await createGoogleCalendarEvent(authUser.userId, {
         summary,
         description,
         startTime: startDate,

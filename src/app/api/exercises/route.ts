@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 const GROUP_TYPE_LABELS: Record<string, string> = {
   generic: 'Storia/Chat',
@@ -9,7 +10,12 @@ const GROUP_TYPE_LABELS: Record<string, string> = {
   reazioni: 'Reazioni',
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authUser = getAuthUser(request);
+  if (!authUser || authUser.role !== 'THERAPIST') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const groups = await prisma.exerciseGroup.findMany({
       orderBy: [{ groupType: 'asc' }, { title: 'asc' }]
