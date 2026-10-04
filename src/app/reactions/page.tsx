@@ -21,7 +21,6 @@ function ReactionsContent() {
   const searchParams = useSearchParams();
 
   const exerciseId = searchParams.get("exerciseId");
-  const groupId = searchParams.get("groupId");
   const exerciseTitle = searchParams.get("title") || "Reactions exercise";
 
   const [data, setData] = useState<ReactionsData | null>(null);

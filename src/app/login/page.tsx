@@ -36,8 +36,8 @@ export default function ChildLoginPage() {
 
       router.push("/select-mode");
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }

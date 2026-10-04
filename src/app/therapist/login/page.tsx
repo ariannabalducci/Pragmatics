@@ -9,7 +9,7 @@ import { signIn, useSession } from "next-auth/react";
 function TherapistLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -39,8 +39,8 @@ function TherapistLoginContent() {
           localStorage.setItem("user", JSON.stringify(data.user));
           
           router.push("/therapist/dashboard");
-        } catch (err: any) {
-          setError(err.message);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Login failed");
           setLoading(false);
         }
       }
@@ -72,8 +72,8 @@ function TherapistLoginContent() {
 
       router.push("/therapist/dashboard");
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }

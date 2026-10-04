@@ -12,6 +12,14 @@ import { ArrowLeft } from "lucide-react";
 
 
 
+type CollectionResponseItem = {
+  parrot_id: string;
+  name: string;
+  unlocked: boolean;
+  price: number;
+  image_id: string;
+};
+
 const PathPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -19,7 +27,7 @@ const PathPage = () => {
   const [coins, setCoins] = useState(0);
   const [collectionItems, setCollectionItems] = useState<CollectionItem[]>([]);
   const [levels, setLevels] = useState<LevelNode[]>([]);
-  const [activeTasks, setActiveTasks] = useState<any[]>([]);
+  const [activeTasks, setActiveTasks] = useState<LevelNode[]>([]);
   const [mode, setMode] = useState<"training" | "testing">("training");
   const [dailyLimit, setDailyLimit] = useState<{ 
     training: number; 
@@ -94,14 +102,12 @@ const PathPage = () => {
 
         setCoins(studentData.coins || 0);
 
-        const allLevels: LevelNode[] = (studentData.all_levels || []).map((l: any) => ({
-            ...l
-        }));
+        const allLevels: LevelNode[] = studentData.all_levels || [];
 
         setLevels(allLevels);
         setActiveTasks(studentData.levels || []);
 
-        const formattedItems: CollectionItem[] = collectionData.map((item: any) => ({
+        const formattedItems: CollectionItem[] = (collectionData as CollectionResponseItem[]).map((item) => ({
             id: item.parrot_id,
             name: item.name,
             status: item.unlocked ? 'unlocked' : 'locked',
@@ -155,9 +161,9 @@ const PathPage = () => {
             i.id === itemId ? { ...i, status: 'unlocked' } : i
         ));
 
-    } catch (error: any) {
+    } catch (error) {
         console.error("Buy Item Error:", error);
-        alert(error.message || "Something went wrong");
+        alert(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
@@ -167,11 +173,7 @@ const PathPage = () => {
 
     // With a specific prescription, show only the prescribed groups.
     if (dailyLimit.prescribed.length > 0) {
-      return levels.filter((level: any) => {
-        return dailyLimit.prescribed.includes(level.groupId);
-      }).map((level: any) => {
-        return { ...level };
-      });
+      return levels.filter((level) => level.groupId !== undefined && dailyLimit.prescribed.includes(level.groupId));
     }
 
     // Otherwise fall back to the numeric daily limit.

@@ -132,7 +132,7 @@ export default function PathReactionsPage() {
             <div className="text-6xl mb-6">🤫</div>
             <h3 className="text-2xl font-black text-[#0e2a47] mb-4">No exercises for today</h3>
             <p className="text-slate-500 font-bold leading-relaxed">
-              Your therapist hasn't prescribed any Reactions exercises for this session.
+              Your therapist hasn’t prescribed any Reactions exercises for this session.
             </p>
           </div>
         </div>

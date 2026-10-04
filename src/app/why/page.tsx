@@ -21,10 +21,8 @@ const WhyContent = () => {
     const searchParams = useSearchParams();
 
     const exerciseId = searchParams.get('exerciseId');
-    const groupId = searchParams.get('groupId');
     const questionTitle = searchParams.get('title') || "Why question";
 
-    const [content, setContent] = useState<ExerciseContent | null>(null);
     const [history, setHistory] = useState<ChatHistory>([]);
     const [loading, setLoading] = useState(true);
     const [imageSrc, setImageSrc] = useState('/parrot.gif');
@@ -42,7 +40,6 @@ const WhyContent = () => {
                 if (!res.ok) throw new Error("Fetch failed");
                 const json = await res.json();
                 const c = json.content_json as ExerciseContent;
-                setContent(c);
                 setImageSrc(`/images/why/${c.imageId}.png`);
             } catch (err) {
                 console.error("Error loading the exercise:", err);

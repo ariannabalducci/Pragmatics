@@ -1,6 +1,6 @@
 "use client";
 
-import { ChildData, Appointment } from "../../../types";
+import { ChildData, Appointment, ExerciseOption } from "../../../types";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -17,7 +17,7 @@ import {
 export default function Dashboard() {
   const [children, setChildren] = useState<ChildData[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [exercises, setExercises] = useState<any[]>([]);
+  const [exercises, setExercises] = useState<ExerciseOption[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -171,7 +171,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-bold text-[#0e2a47]">Today's Appointments</h3>
+              <h3 className="text-2xl font-bold text-[#0e2a47]">Today’s Appointments</h3>
               <Link href="/therapist/calendar" className="text-[#4d8b7d] font-bold text-sm flex items-center gap-1 hover:underline">
                 See all <ChevronRight className="w-4 h-4" />
               </Link>

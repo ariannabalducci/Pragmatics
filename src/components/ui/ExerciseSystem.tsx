@@ -60,8 +60,8 @@ export default function ExerciseSystem({
             <div className="flex flex-col justify-start space-y-6 z-10">
                 
                 <div className={`relative ${colors.primary} text-white p-6 rounded-3xl rounded-br-none mb-8 w-full shadow-md`}>
-                    <p className="opacity-90 text-sm font-bold uppercase mb-1">Today's topic:</p>
-                    <p className="text-2xl font-black leading-tight">"{data.topic}"</p>
+                    <p className="opacity-90 text-sm font-bold uppercase mb-1">Today’s topic:</p>
+                    <p className="text-2xl font-black leading-tight">“{data.topic}”</p>
                     <p className="mt-4 font-bold text-sm opacity-90">Are you ready to start?</p>
                     
                     <div className={`absolute bottom-0 -right-5 w-0 h-0 

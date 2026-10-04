@@ -4,14 +4,39 @@ import Link from "next/link";
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Calendar as CalendarIcon, Clock, User, Plus, LogOut,
-  LayoutDashboard, Users, FileText, ChevronLeft, ChevronRight, Target, X,
+  LayoutDashboard, Users, FileText, ChevronLeft, ChevronRight, X,
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { ExerciseOption } from "@/types";
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths
 } from "date-fns";
+
+interface PrescribedExercise {
+  id: string;
+  title: string;
+  groupType: string;
+}
+
+interface CalendarAppointment {
+  id: string;
+  childName: string;
+  startTime: string;
+  type: string;
+  duration: string;
+  note: string | null;
+  trainingExercises: number;
+  testingExercises: number;
+  prescribedExercises: PrescribedExercise[];
+}
+
+interface PatientOption {
+  id: string;
+  name: string;
+  surname: string;
+}
 
 const BRAND = {
   primary: "#4d8b7d",
@@ -25,9 +50,9 @@ export default function CalendarPage() {
 
   const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
-  const [appointments, setAppointments] = useState<any[]>([]);
-  const [children, setChildren] = useState<any[]>([]);
-  const [allExercises, setAllExercises] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
+  const [children, setChildren] = useState<PatientOption[]>([]);
+  const [allExercises, setAllExercises] = useState<ExerciseOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,7 +134,7 @@ export default function CalendarPage() {
         setNewApp({ childId: "", time: "10:00", type: "training", note: "", duration: 45, trainingExercises: 1, testingExercises: 0, prescribedGroups: [] });
         fetchData();
       }
-    } catch (err) {
+    } catch {
       alert("Connection error.");
     }
   };
@@ -123,7 +148,7 @@ export default function CalendarPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) fetchData();
-    } catch (err) {
+    } catch {
       alert("Network error.");
     }
   };
@@ -139,7 +164,7 @@ export default function CalendarPage() {
   }, [appointments, selectedDate]);
 
   const groupedExercises = useMemo(() => {
-    const groups: Record<string, { label: string, color: string, list: any[] }> = {
+    const groups: Record<string, { label: string, color: string, list: ExerciseOption[] }> = {
       generic: { label: "Main Map", color: "bg-teal-500 text-white", list: [] },
       cloze: { label: "Cloze", color: "bg-purple-500 text-white", list: [] },
       feelings: { label: "Feelings", color: "bg-red-500 text-white", list: [] },
@@ -159,7 +184,7 @@ export default function CalendarPage() {
       }
     });
 
-    return Object.entries(groups).filter(([_, group]) => group.list.length > 0);
+    return Object.entries(groups).filter(([, group]) => group.list.length > 0);
   }, [allExercises]);
 
   return (
@@ -287,7 +312,6 @@ export default function CalendarPage() {
                 selectedDayAppointments.map((app) => (
                   <AppointmentCard
                     key={app.id}
-                    id={app.id}
                     time={format(new Date(app.startTime), "HH:mm")}
                     name={app.childName || "Patient"}
                     type={app.type}
@@ -329,9 +353,9 @@ export default function CalendarPage() {
                   onChange={(e) => setNewApp({ ...newApp, childId: e.target.value })}
                 >
                   <option value="" className="text-slate-400">Select a patient...</option>
-                  {children.map((child: any) => (
-                    <option key={child.userId || child.id} value={child.userId || child.id} className="text-slate-900">
-                      {child.user?.name || child.name} {child.user?.surname || child.surname}
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id} className="text-slate-900">
+                      {child.name} {child.surname}
                     </option>
                   ))}
                 </select>
@@ -422,10 +446,6 @@ export default function CalendarPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-4 space-y-3 hidden">
-                {/* Legacy numerical limits hidden as requested */}
-              </div>
-
               <div>
                 <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Notes</label>
                 <textarea
@@ -447,7 +467,19 @@ export default function CalendarPage() {
   );
 }
 
-function AppointmentCard({ id, time, name, type, duration, note, trainingExercises, testingExercises, prescribedExercises, onDelete }: any) {
+interface AppointmentCardProps {
+  time: string;
+  name: string;
+  type: string;
+  duration: string;
+  note: string | null;
+  trainingExercises: number;
+  testingExercises: number;
+  prescribedExercises: PrescribedExercise[];
+  onDelete: () => void;
+}
+
+function AppointmentCard({ time, name, type, duration, note, trainingExercises, testingExercises, prescribedExercises, onDelete }: AppointmentCardProps) {
   return (
     <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm relative group overflow-hidden transition-all hover:shadow-md">
       <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", type === "testing" ? "bg-purple-500" : "bg-[#4d8b7d]")} />
@@ -497,8 +529,8 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
           why: { label: "Why", color: "bg-blue-100 text-blue-700" },
           reactions: { label: "Reactions", color: "bg-orange-100 text-orange-700" },
         };
-        const grouped: Record<string, any[]> = {};
-        prescribedExercises.forEach((ex: any) => {
+        const grouped: Record<string, PrescribedExercise[]> = {};
+        prescribedExercises.forEach((ex) => {
           const t = ex.groupType || "generic";
           if (!grouped[t]) grouped[t] = [];
           grouped[t].push(ex);
@@ -514,7 +546,7 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
                     {cfg.label}
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    {exercises.map((ex: any) => (
+                    {exercises.map((ex) => (
                       <span key={ex.id} className="bg-slate-50 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded-lg border border-slate-100">
                         {ex.title}
                       </span>

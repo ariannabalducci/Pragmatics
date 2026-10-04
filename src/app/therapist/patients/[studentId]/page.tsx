@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, use, useMemo } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Calendar, FileText, Edit2, Plus, Clock,
+  ArrowLeft, Calendar, FileText, Edit2, Clock,
   CheckCircle2, XCircle, ChevronDown, ChevronUp, Target,
   TrendingUp, BookOpen, Activity, User as UserIcon, RotateCcw
 } from "lucide-react";
@@ -17,7 +17,7 @@ interface Result {
   success: boolean;
   durationSeconds: number;
   triesTillCorrect: number;
-  textAttempt: string | any[];
+  textAttempt: unknown;
   createdAt: string;
 }
 
@@ -70,26 +70,28 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
 
 
   useEffect(() => {
-    if (studentId) fetchPatient();
-  }, [studentId]);
+    if (!studentId) return;
 
-  const fetchPatient = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/therapist/student/${studentId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error("Failed to load the patient");
-      const data = await res.json();
-      setPatient(data);
-      setTempValues({
-        diagnosis: data.diagnosis,
-        objectives: data.objectives,
-        notes: data.notes
-      });
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
+    const fetchPatient = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/therapist/student/${studentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Failed to load the patient");
+        const data = await res.json();
+        setPatient(data);
+        setTempValues({
+          diagnosis: data.diagnosis,
+          objectives: data.objectives,
+          notes: data.notes
+        });
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    };
+
+    fetchPatient();
+  }, [studentId]);
 
   const handleSaveField = async (field: 'diagnosis' | 'objectives' | 'notes') => {
     try {
@@ -110,7 +112,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
         setEditingField(null);
       }
 
-    } catch (err) { alert("Error saving the changes."); }
+    } catch { alert("Error saving the changes."); }
   };
 
   const handleResetProgress = async () => {
@@ -128,7 +130,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
       } else {
         alert('Error resetting progress.');
       }
-    } catch (err) {
+    } catch {
       alert('Network error.');
     } finally {
       setResetting(false);
@@ -275,7 +277,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                   <Clock size={14} /> Upcoming Sessions ({patient?.upcomingAppointments?.length || 0})
                 </h3>
                 <div className="space-y-3">
-                  {patient?.upcomingAppointments?.map((app: any) => (
+                  {patient?.upcomingAppointments?.map((app) => (
                     <SessionItem key={app.id} app={app} isUpcoming />
                   ))}
                   {patient?.upcomingAppointments?.length === 0 && (
@@ -290,7 +292,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                   <Activity size={14} /> Past Sessions ({patient?.pastAppointments?.length || 0})
                 </h3>
                 <div className="space-y-3">
-                  {patient?.pastAppointments?.map((app: any) => (
+                  {patient?.pastAppointments?.map((app) => (
                     <SessionItem
                       key={app.id}
                       app={app}
@@ -345,7 +347,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                     {patient.pastAppointments[0].note && (
                       <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Notes</p>
-                        <p className="text-sm text-slate-500 font-medium italic">"{patient.pastAppointments[0].note}"</p>
+                        <p className="text-sm text-slate-500 font-medium italic">“{patient.pastAppointments[0].note}”</p>
                       </div>
                     )}
                   </div>
@@ -522,9 +524,9 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                 let chatHistory: { role: string, text: string }[] = [];
                 if (isChat && res.textAttempt) {
                   try {
-                    const parsed = typeof res.textAttempt === 'string' ? JSON.parse(res.textAttempt) : res.textAttempt;
+                    const parsed: unknown = typeof res.textAttempt === 'string' ? JSON.parse(res.textAttempt) : res.textAttempt;
                     if (Array.isArray(parsed)) {
-                      chatHistory = parsed.map((m: any) => ({
+                      chatHistory = parsed.map((m: { role?: string; text?: string; parts?: { text?: string }[] }) => ({
                         role: m.role || '',
                         text: m.text || m.parts?.[0]?.text || ''
                       }));
@@ -614,7 +616,7 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                 );
               })}
               {app.note && (
-                <p className="text-[11px] italic text-slate-400 mt-4 px-2 font-medium">"{app.note}"</p>
+                <p className="text-[11px] italic text-slate-400 mt-4 px-2 font-medium">“{app.note}”</p>
               )}
             </div>
           </motion.div>

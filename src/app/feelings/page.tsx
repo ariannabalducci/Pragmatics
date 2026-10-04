@@ -21,7 +21,6 @@ const FeelingsContent = () => {
     const searchParams = useSearchParams();
 
     const exerciseId = searchParams.get('exerciseId');
-    const groupId = searchParams.get('groupId');
     const exerciseTitle = searchParams.get('title') || "Feelings exercise";
 
     const [content, setContent] = useState<ExerciseContent | null>(null);

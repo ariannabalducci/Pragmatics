@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { X, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -46,14 +47,18 @@ export default function CollectionSystem({
           className="group relative flex flex-col items-center justify-end w-40 h-40 focus:outline-none"
         >
           <div className="absolute bottom-5 transition-transform duration-300 group-hover:-translate-y-2 group-hover:scale-125">
-             <img 
-                src="/path/book.png" 
+             <Image
+                src="/path/book.png"
                 alt="Collection"
+                width={189}
+                height={238}
                 className="w-40 drop-shadow-lg transition-opacity duration-300 group-hover:opacity-0 cursor-pointer" 
              />
-             <img 
-                src="/path/book-hover.png" 
+             <Image
+                src="/path/book-hover.png"
                 alt="Collection Hover"
+                width={236}
+                height={270}
                 className="absolute top-0 left-0 w-40 drop-shadow-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 cursor-pointer" 
              />
           </div>
@@ -133,9 +138,11 @@ export default function CollectionSystem({
                 </h2>
 
                 <div className="relative w-48 h-48 bg-[#E0F2F1] rounded-full flex items-center justify-center border-4 border-[#B2DFDB]">
-                    <img 
-                        src={`/collection/${selectedItem.image}.png`} 
+                    <Image
+                        src={`/collection/${selectedItem.image}.png`}
                         alt={selectedItem.name}
+                        width={608}
+                        height={852}
                         className="w-40 h-40 object-contain drop-shadow-md z-10"
                     />
                     {coins < (selectedItem.price || 0) && (
@@ -199,7 +206,7 @@ export default function CollectionSystem({
   );
 }
 
-function CollectionCard({ item, onClick }: { item: any, onClick?: () => void }) {
+function CollectionCard({ item, onClick }: { item: CollectionItem, onClick?: () => void }) {
     const isLocked = item.status === 'locked';
     return (
         <div 
@@ -215,10 +222,11 @@ function CollectionCard({ item, onClick }: { item: any, onClick?: () => void }) 
                     </div>
                 ) : (
                     <div className="w-32 h-32">
-                        <img
+                        <Image
                             src={`/collection/${item.image}.png`}
                             alt={item.name}
-                            width={"full"}
+                            width={608}
+                            height={852}
                             className="object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                     </div>

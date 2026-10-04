@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { 
-  Users, LayoutDashboard, Calendar as CalendarIcon, Sparkles, Send, HelpCircle, LogOut 
+  Users, LayoutDashboard, Calendar as CalendarIcon, Sparkles, Send, LogOut 
 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 
