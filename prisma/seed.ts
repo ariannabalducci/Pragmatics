@@ -89,7 +89,7 @@ async function main() {
     include: { child: true }
   })
 
-  await prisma.user.create({
+  const child2 = await prisma.user.create({
     data: {
       username: 'sammy_johnson',
       password: hashedPassword,
@@ -157,13 +157,14 @@ async function main() {
 
   const allGroups = [g1, g2, g3, g4, g5, g6, g7, g8];
 
-  // Main path for the first child
-  if (child1.child) {
+  // Main path for every child
+  for (const child of [child1.child, child2.child]) {
+    if (!child) continue
     for (let i = 0; i < allGroups.length; i++) {
       if (allGroups[i]) {
         await prisma.path.create({
           data: {
-            childId: child1.child.userId,
+            childId: child.userId,
             exerciseGroupId: allGroups[i]!.id,
             status: i < 3 ? 'available' : 'blocked',
             position: i + 1
