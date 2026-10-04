@@ -12,7 +12,6 @@ import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths
 } from "date-fns";
-import { it } from "date-fns/locale";
 
 const BRAND = {
   primary: "#4d8b7d",
@@ -67,7 +66,7 @@ export default function CalendarPage() {
       setChildren(Array.isArray(childData) ? childData : (childData.students || []));
       setAllExercises(Array.isArray(exData) ? exData : []);
     } catch (err) {
-      console.error("Errore caricamento:", err);
+      console.error("Error loading the calendar:", err);
     } finally {
       setLoading(false);
     }
@@ -79,7 +78,7 @@ export default function CalendarPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newApp.childId) return alert("Seleziona un paziente.");
+    if (!newApp.childId) return alert("Select a patient.");
 
     const token = localStorage.getItem('token');
     const [hours, minutes] = newApp.time.split(":");
@@ -111,12 +110,12 @@ export default function CalendarPage() {
         fetchData();
       }
     } catch (err) {
-      alert("Errore di connessione.");
+      alert("Connection error.");
     }
   };
 
   const handleDeleteAppointment = async (id: string) => {
-    if (!confirm("Sei sicuro?")) return;
+    if (!confirm("Are you sure?")) return;
     const token = localStorage.getItem('token');
     try {
       const res = await fetch(`/api/appointments/${id}`, {
@@ -125,7 +124,7 @@ export default function CalendarPage() {
       });
       if (res.ok) fetchData();
     } catch (err) {
-      alert("Errore di rete.");
+      alert("Network error.");
     }
   };
 
@@ -141,11 +140,11 @@ export default function CalendarPage() {
 
   const groupedExercises = useMemo(() => {
     const groups: Record<string, { label: string, color: string, list: any[] }> = {
-      generic: { label: "Mappa Principale", color: "bg-teal-500 text-white", list: [] },
+      generic: { label: "Main Map", color: "bg-teal-500 text-white", list: [] },
       cloze: { label: "Cloze", color: "bg-purple-500 text-white", list: [] },
-      feelings: { label: "Sentimenti", color: "bg-red-500 text-white", list: [] },
-      why: { label: "Perché", color: "bg-blue-500 text-white", list: [] },
-      reactions: { label: "Reazioni", color: "bg-orange-500 text-white", list: [] },
+      feelings: { label: "Feelings", color: "bg-red-500 text-white", list: [] },
+      why: { label: "Why", color: "bg-blue-500 text-white", list: [] },
+      reactions: { label: "Reactions", color: "bg-orange-500 text-white", list: [] },
     };
 
     allExercises.forEach(ex => {
@@ -175,7 +174,7 @@ export default function CalendarPage() {
             </div>
             <div>
               <h1 className="text-white font-bold text-lg leading-tight">Praggymatics</h1>
-              <p className="text-white/70 text-xs">Dashboard Logopedista</p>
+              <p className="text-white/70 text-xs">Therapist Dashboard</p>
             </div>
           </div>
 
@@ -186,18 +185,17 @@ export default function CalendarPage() {
             </Link>
             <Link href="/therapist/patients" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <Users className="w-5 h-5" />
-              Pazienti
+              Patients
             </Link>
             
-            {/* Voce CALENDARIO Attiva - Sfondo Bianco e Testo Verde */}
             <div className="flex items-center gap-3 bg-white text-[#4d8b7d] px-4 py-3 rounded-xl font-semibold shadow-sm">
               <CalendarIcon className="w-5 h-5" />
-              Calendario
+              Calendar
             </div>
             
             <Link href="/therapist/ai-assistant" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <Sparkles className="w-5 h-5" />
-              Assistente AI
+              AI Assistant
             </Link>
           </nav>
         </div>
@@ -219,25 +217,25 @@ export default function CalendarPage() {
       {/* MAIN CONTENT */}
       <main className="flex-1 p-10 overflow-y-auto">
         <header className="mb-10">
-          <h2 className="text-3xl font-bold text-[#0e2a47]">Calendario</h2>
-          <p className="text-slate-500 font-medium mt-1">Organizza le tue sedute</p>
+          <h2 className="text-3xl font-bold text-[#0e2a47]">Calendar</h2>
+          <p className="text-slate-500 font-medium mt-1">Plan your sessions</p>
         </header>
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-10">
               <h3 className="text-xl font-bold capitalize text-[#0e2a47]">
-                {format(currentMonth, "MMMM yyyy", { locale: it })}
+                {format(currentMonth, "MMMM yyyy")}
               </h3>
               <div className="flex items-center gap-2">
                 <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-[#eff9f8] rounded-lg transition-colors text-[#4d8b7d]"><ChevronLeft size={20} /></button>
-                <button onClick={() => { const t = new Date(); setCurrentMonth(t); setSelectedDate(t); }} className="px-4 py-1.5 bg-[#eff9f8] font-bold rounded-lg text-sm text-[#4d8b7d] hover:bg-[#e0eeed]">Oggi</button>
+                <button onClick={() => { const t = new Date(); setCurrentMonth(t); setSelectedDate(t); }} className="px-4 py-1.5 bg-[#eff9f8] font-bold rounded-lg text-sm text-[#4d8b7d] hover:bg-[#e0eeed]">Today</button>
                 <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-[#eff9f8] rounded-lg transition-colors text-[#4d8b7d]"><ChevronRight size={20} /></button>
               </div>
             </div>
 
             <div className="grid grid-cols-7 text-center">
-              {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map(d => (
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
                 <div key={d} className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">{d}</div>
               ))}
               {days.map((date, i) => {
@@ -263,14 +261,14 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* SIDE PANEL APPUNTAMENTI */}
+          {/* APPOINTMENTS SIDE PANEL */}
           <div className="w-full lg:w-80 space-y-6">
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-[#eff9f8] rounded-2xl text-[#4d8b7d]"><CalendarIcon size={24} /></div>
                 <div>
-                  <h4 className="font-bold text-lg text-[#0e2a47]">{format(selectedDate, "d MMMM", { locale: it })}</h4>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">{selectedDayAppointments.length} Appuntamenti</p>
+                  <h4 className="font-bold text-lg text-[#0e2a47]">{format(selectedDate, "MMMM d")}</h4>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase">{selectedDayAppointments.length} Appointments</p>
                 </div>
               </div>
             </div>
@@ -279,19 +277,19 @@ export default function CalendarPage() {
               onClick={() => setIsModalOpen(true)}
               className="w-full py-4 rounded-2xl bg-[#4d8b7d] text-white font-bold shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
             >
-              <Plus size={18} /> Nuovo Appuntamento
+              <Plus size={18} /> New Appointment
             </button>
 
             <div className="space-y-4">
               {loading ? (
-                <p className="text-center text-slate-400 text-xs italic">Caricamento...</p>
+                <p className="text-center text-slate-400 text-xs italic">Loading...</p>
               ) : selectedDayAppointments.length > 0 ? (
                 selectedDayAppointments.map((app) => (
                   <AppointmentCard
                     key={app.id}
                     id={app.id}
                     time={format(new Date(app.startTime), "HH:mm")}
-                    name={app.childName || "Paziente"}
+                    name={app.childName || "Patient"}
                     type={app.type}
                     duration={app.duration}
                     note={app.note}
@@ -303,7 +301,7 @@ export default function CalendarPage() {
                 ))
               ) : (
                 <div className="text-center py-10 bg-white/50 rounded-3xl border border-dashed border-slate-200">
-                  <p className="text-slate-400 text-xs italic">Nessun impegno</p>
+                  <p className="text-slate-400 text-xs italic">Nothing scheduled</p>
                 </div>
               )}
             </div>
@@ -312,25 +310,25 @@ export default function CalendarPage() {
         </div>
       </main>
 
-      {/* MODALE */}
+      {/* MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl max-h-[95vh] overflow-y-auto custom-scrollbar">
             <div className="flex justify-between items-center mb-6 shrink-0">
-              <h3 className="text-xl font-bold text-[#0e2a47]">Nuovo Appuntamento</h3>
+              <h3 className="text-xl font-bold text-[#0e2a47]">New Appointment</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Paziente</label>
+                <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Patient</label>
                 <select
                   required
                   className="w-full p-3.5 bg-slate-50 rounded-xl border-none text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#4d8b7d] appearance-none cursor-pointer"
                   value={newApp.childId}
                   onChange={(e) => setNewApp({ ...newApp, childId: e.target.value })}
                 >
-                  <option value="" className="text-slate-400">Seleziona un paziente...</option>
+                  <option value="" className="text-slate-400">Select a patient...</option>
                   {children.map((child: any) => (
                     <option key={child.userId || child.id} value={child.userId || child.id} className="text-slate-900">
                       {child.user?.name || child.name} {child.user?.surname || child.surname}
@@ -341,12 +339,11 @@ export default function CalendarPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Orario</label>
+                  <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Time</label>
                   <input type="time" value={newApp.time} onChange={(e) => setNewApp({ ...newApp, time: e.target.value })} className="w-full p-3.5 bg-slate-50 rounded-xl border-none text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#4d8b7d]" />
                 </div>
                 <div>
-                  {/* DURATA CUSTOM: Input numerico invece che select */}
-                  <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Durata (min)</label>
+                  <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Duration (min)</label>
                   <input 
                     type="number" 
                     value={isNaN(newApp.duration) ? "" : newApp.duration} 
@@ -358,17 +355,17 @@ export default function CalendarPage() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Tipo</label>
+                <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Type</label>
                 <select value={newApp.type} onChange={(e) => setNewApp({ ...newApp, type: e.target.value })} className="w-full p-3.5 bg-slate-50 rounded-xl border-none text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#4d8b7d] appearance-none cursor-pointer">
                   <option value="training">Training</option>
-                  <option value="testing">Valutazione</option>
+                  <option value="testing">Assessment</option>
                 </select>
               </div>
 
               <div className="bg-[#eff9f8] rounded-2xl p-5 space-y-4">
                 <div className="flex justify-between items-center">
-                  <p className="text-[10px] font-bold uppercase text-[#4d8b7d] tracking-wider">Esercizi Prescritti</p>
-                  <span className="text-[9px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full">{newApp.prescribedGroups.length} Selezionati</span>
+                  <p className="text-[10px] font-bold uppercase text-[#4d8b7d] tracking-wider">Prescribed Exercises</p>
+                  <span className="text-[9px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full">{newApp.prescribedGroups.length} Selected</span>
                 </div>
                 <div className="space-y-5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                   {groupedExercises.map(([key, category]) => (
@@ -430,9 +427,9 @@ export default function CalendarPage() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Note</label>
+                <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Notes</label>
                 <textarea
-                  placeholder="Note specifiche..."
+                  placeholder="Specific notes..."
                   value={newApp.note}
                   onChange={(e) => setNewApp({ ...newApp, note: e.target.value })}
                   className="w-full p-3.5 bg-slate-50 rounded-xl border-none text-sm text-slate-900 h-24 resize-none placeholder:text-slate-400 focus:ring-2 focus:ring-[#4d8b7d]"
@@ -440,7 +437,7 @@ export default function CalendarPage() {
               </div>
 
               <button type="submit" className="w-full py-4 rounded-xl bg-[#4d8b7d] text-white font-bold hover:brightness-110 shadow-md transition-all active:scale-95">
-                Salva Appuntamento
+                Save Appointment
               </button>
             </form>
           </div>
@@ -468,7 +465,7 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
       </h5>
 
       <p className="text-[11px] text-slate-600 font-semibold flex items-center gap-2 flex-wrap">
-        <span className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-700 font-bold">Durata: {duration}</span>
+        <span className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-700 font-bold">Duration: {duration}</span>
         <span className={cn(
           "px-2 py-0.5 rounded-md uppercase text-[9px]",
           type === "testing" ? "bg-purple-100 text-purple-700" : "bg-teal-100 text-teal-700"
@@ -486,20 +483,19 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
           )}
           {testingExercises > 0 && (
             <span className="bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
-              🟣 {testingExercises} valutazione
+              🟣 {testingExercises} assessment
             </span>
           )}
         </div>
       )}
 
       {prescribedExercises.length > 0 && (() => {
-        // Raggruppa per tipologia
         const typeConfig: Record<string, { label: string; color: string }> = {
-          generic:    { label: "Mappa Principale", color: "bg-teal-100 text-teal-700" },
-          cloze:      { label: "Cloze",            color: "bg-purple-100 text-purple-700" },
-          feelings: { label: "Sentimenti",       color: "bg-red-100 text-red-700" },
-          why:     { label: "Perché",           color: "bg-blue-100 text-blue-700" },
-          reactions:   { label: "Reazioni",         color: "bg-orange-100 text-orange-700" },
+          generic: { label: "Main Map", color: "bg-teal-100 text-teal-700" },
+          cloze: { label: "Cloze", color: "bg-purple-100 text-purple-700" },
+          feelings: { label: "Feelings", color: "bg-red-100 text-red-700" },
+          why: { label: "Why", color: "bg-blue-100 text-blue-700" },
+          reactions: { label: "Reactions", color: "bg-orange-100 text-orange-700" },
         };
         const grouped: Record<string, any[]> = {};
         prescribedExercises.forEach((ex: any) => {
@@ -509,7 +505,7 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
         });
         return (
           <div className="mt-4 pt-3 border-t border-slate-50 space-y-3">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Esercizi Prescritti</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Prescribed Exercises</p>
             {Object.entries(grouped).map(([type, exercises]) => {
               const cfg = typeConfig[type] || { label: type, color: "bg-slate-100 text-slate-700" };
               return (

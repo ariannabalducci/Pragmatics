@@ -14,8 +14,8 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }: AddPatie
   const [formData, setFormData] = useState({
     name: "",
     surname: "",
-    username: "", // La logopedista sceglie lo username (es: marcored)
-    password: "", // La logopedista sceglie la password
+    username: "", // chosen by the therapist
+    password: "",
     age: "",
     gender: "MALE",
     description: "",
@@ -52,7 +52,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }: AddPatie
         setFormData({ name: "", surname: "", username: "", password: "", age: "", gender: "MALE", description: "" });
       } else {
         const err = await res.json();
-        alert(err.error || "Errore durante la creazione");
+        alert(err.error || "Error creating the account");
       }
     } catch (error) {
       console.error(error);
@@ -68,22 +68,22 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }: AddPatie
           <X size={24} />
         </button>
 
-        <h3 className="text-2xl font-bold text-[#0e2a47] mb-6">Crea Account Bambino</h3>
+        <h3 className="text-2xl font-bold text-[#0e2a47] mb-6">Create Child Account</h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-bold text-black ml-1">Nome</label>
+              <label className="text-sm font-bold text-black ml-1">First name</label>
               <input 
-                placeholder="Nome del bambino" required
+                placeholder="Child's first name" required
                 className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black placeholder:text-slate-400 font-medium"
                 value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-bold text-black ml-1">Cognome</label>
+              <label className="text-sm font-bold text-black ml-1">Last name</label>
               <input 
-                placeholder="Cognome del bambino" required
+                placeholder="Child's last name" required
                 className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black placeholder:text-slate-400 font-medium"
                 value={formData.surname} onChange={(e) => setFormData({...formData, surname: e.target.value})}
               />
@@ -91,49 +91,49 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }: AddPatie
           </div>
           
           <div className="space-y-1">
-            <label className="text-sm font-bold text-black ml-1">Scegli Nome Utente</label>
+            <label className="text-sm font-bold text-black ml-1">Choose a username</label>
             <input 
-              placeholder="Username per il login del bambino" required
+              placeholder="Username the child will sign in with" required
               className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black placeholder:text-slate-400 font-medium"
               value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})}
             />
           </div>
           
           <div className="space-y-1">
-            <label className="text-sm font-bold text-black ml-1">Scegli Password</label>
+            <label className="text-sm font-bold text-black ml-1">Choose a password</label>
             <input 
-              type="text" placeholder="Password per il bambino" required
+              type="text" placeholder="Password for the child" required
               className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black placeholder:text-slate-400 font-medium"
               value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}
             />
-            <p className="text-[10px] text-slate-400 ml-1 italic">* Comunica queste credenziali ai genitori per l'accesso.</p>
+            <p className="text-[10px] text-slate-400 ml-1 italic">* Share these credentials with the parents so the child can sign in.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-bold text-black ml-1">Età</label>
+              <label className="text-sm font-bold text-black ml-1">Age</label>
               <input 
-                type="number" placeholder="Età" required
+                type="number" placeholder="Age" required
                 className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black placeholder:text-slate-400 font-medium"
                 value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-bold text-black ml-1">Genere</label>
+              <label className="text-sm font-bold text-black ml-1">Gender</label>
               <select 
                 className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black font-medium"
                 value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}
               >
-                <option value="MALE">Maschio</option>
-                <option value="FEMALE">Femmina</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-bold text-black ml-1">Diagnosi / Note Cliniche</label>
+            <label className="text-sm font-bold text-black ml-1">Diagnosis / Clinical notes</label>
             <textarea 
-              placeholder="Inserisci la diagnosi o note specifiche..." 
+              placeholder="Enter the diagnosis or specific notes..." 
               className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#4d8b7d]/20 text-black placeholder:text-slate-400 min-h-[80px] font-medium"
               value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}
             />
@@ -143,7 +143,7 @@ export default function AddPatientModal({ isOpen, onClose, onSuccess }: AddPatie
             type="submit" disabled={loading}
             className="w-full bg-[#4d8b7d] text-white py-4 rounded-2xl font-bold text-lg hover:brightness-105 transition shadow-lg disabled:opacity-50 mt-2"
           >
-            {loading ? "Salvataggio..." : "Crea Profilo e Account"}
+            {loading ? "Saving..." : "Create Profile and Account"}
           </button>
         </form>
       </div>

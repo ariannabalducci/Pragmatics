@@ -19,7 +19,7 @@ function TherapistLoginContent() {
   // Check if we came back from a NextAuth error
   useEffect(() => {
     if (searchParams?.get("error") === "not_therapist") {
-      setError("Il tuo account Google non è associato a un Logopedista.");
+      setError("Your Google account is not linked to a therapist.");
     }
   }, [searchParams]);
 
@@ -29,11 +29,11 @@ function TherapistLoginContent() {
       if (status === "authenticated" && searchParams?.get("google") === "1") {
         setLoading(true);
         try {
-          // Genera il Custom JWT dalla sessione NextAuth
+          // Exchange the NextAuth session for the app's own JWT.
           const res = await fetch("/api/auth/google-token");
           const data = await res.json();
           
-          if (!res.ok) throw new Error(data.error || "Errore sincronizzazione token");
+          if (!res.ok) throw new Error(data.error || "Error syncing the session token");
           
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
@@ -64,7 +64,7 @@ function TherapistLoginContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Accesso fallito");
+        throw new Error(data.error || "Login failed");
       }
 
       localStorage.setItem("token", data.token);
@@ -84,13 +84,13 @@ function TherapistLoginContent() {
     signIn("google", { callbackUrl: "/therapist/login?google=1" });
   };
 
-  // Se stiamo completando il login Google
+  // Finishing the Google sign-in
   if (status === "loading" || (status === "authenticated" && searchParams?.get("google") === "1")) {
     return (
       <div className="min-h-screen bg-[#f4f9f8] flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-[#4d8b7d] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[#4d8b7d] font-bold">Accesso in corso...</p>
+          <p className="text-[#4d8b7d] font-bold">Signing in...</p>
         </div>
       </div>
     );
@@ -111,7 +111,7 @@ function TherapistLoginContent() {
               </div>
               <div className="text-center">
                 <h1 className="text-2xl font-bold text-white tracking-tight">Praggymatics</h1>
-                <p className="text-white/70 text-sm font-medium mt-0.5">Area Logopedista</p>
+                <p className="text-white/70 text-sm font-medium mt-0.5">Therapist Area</p>
               </div>
             </div>
           </div>
@@ -123,7 +123,7 @@ function TherapistLoginContent() {
               </div>
             )}
 
-            {/* Pulsante Google */}
+            {/* Google button */}
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
@@ -135,19 +135,19 @@ function TherapistLoginContent() {
                 <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
                 <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
               </svg>
-              Accedi con Google
+              Sign in with Google
             </button>
 
             <div className="flex items-center gap-4 mb-6">
               <div className="flex-1 h-px bg-slate-100"></div>
-              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Oppure</span>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Or</span>
               <div className="flex-1 h-px bg-slate-100"></div>
             </div>
 
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="therapist-username" className="text-slate-600 text-sm font-semibold flex items-center gap-2">
-                  <User className="w-4 h-4 text-[#4d8b7d]" /> Nome Utente
+                  <User className="w-4 h-4 text-[#4d8b7d]" /> Username
                 </label>
                 <input
                   id="therapist-username"
@@ -178,13 +178,13 @@ function TherapistLoginContent() {
                 disabled={loading}
                 className="mt-2 w-full h-11 bg-[#4d8b7d] hover:bg-[#3d7a6c] disabled:opacity-60 text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2"
               >
-                {loading ? "Accesso..." : <><LogIn className="w-4 h-4" /> Accedi</>}
+                {loading ? "Signing in..." : <><LogIn className="w-4 h-4" /> Sign in</>}
               </button>
             </form>
 
             <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <Link href="/login" className="text-slate-400 hover:text-[#4d8b7d] text-sm font-medium transition-colors">
-                ← Sei un ragazzo? Accedi qui
+                ← Are you a kid? Sign in here
               </Link>
             </div>
           </div>

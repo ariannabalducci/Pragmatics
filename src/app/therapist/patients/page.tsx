@@ -28,7 +28,7 @@ export default function PatientsPage() {
         setPatients(data);
       }
     } catch (err) {
-      console.error("Errore fetching pazienti", err);
+      console.error("Error loading patients:", err);
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ export default function PatientsPage() {
             </div>
             <div>
               <h1 className="text-white font-bold text-lg leading-tight">Praggymatics</h1>
-              <p className="text-white/70 text-xs">Dashboard Logopedista</p>
+              <p className="text-white/70 text-xs">Therapist Dashboard</p>
             </div>
           </div>
 
@@ -65,20 +65,19 @@ export default function PatientsPage() {
               Dashboard
             </Link>
 
-            {/* Voce PAZIENTI Attiva - Sfondo Bianco e Testo Verde */}
             <div className="flex items-center gap-3 bg-white text-[#4d8b7d] px-4 py-3 rounded-xl font-semibold shadow-sm">
               <Users className="w-5 h-5" />
-              Pazienti
+              Patients
             </div>
             
             <Link href="/therapist/calendar" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <CalendarIcon className="w-5 h-5" />
-              Calendario
+              Calendar
             </Link>
             
             <Link href="/therapist/ai-assistant" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <Sparkles className="w-5 h-5" />
-              Assistente AI
+              AI Assistant
             </Link>
           </nav>
         </div>
@@ -100,19 +99,19 @@ export default function PatientsPage() {
       <main className="flex-1 p-10 overflow-y-auto">
         <header className="flex justify-between items-start mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-[#0e2a47]">Pazienti</h2>
-            <p className="text-slate-500 font-medium text-lg">Gestisci i tuoi pazienti in carico</p>
+            <h2 className="text-3xl font-bold text-[#0e2a47]">Patients</h2>
+            <p className="text-slate-500 font-medium text-lg">Manage the patients in your care</p>
           </div>
         </header>
 
         <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 min-h-full">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-[#0e2a47]">Elenco Pazienti</h3>
+            <h3 className="text-xl font-bold text-[#0e2a47]">Patient List</h3>
             <button 
               onClick={() => setIsModalOpen(true)}
               className="bg-[#4d8b7d] text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition shadow-sm"
             >
-              <Plus size={18} /> Aggiungi Paziente
+              <Plus size={18} /> Add Patient
             </button>
           </div>
 
@@ -120,7 +119,7 @@ export default function PatientsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input 
               type="text"
-              placeholder="Cerca per nome o cognome..."
+              placeholder="Search by first or last name..."
               className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#4d8b7d] font-medium text-slate-700 outline-none"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -129,7 +128,7 @@ export default function PatientsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {loading ? (
-              <p className="text-slate-400 animate-pulse">Caricamento...</p>
+              <p className="text-slate-400 animate-pulse">Loading...</p>
             ) : filteredPatients.map((patient) => (
               <PatientCard key={patient.id} patient={patient} />
             ))}
@@ -148,7 +147,7 @@ export default function PatientsPage() {
 
 function PatientCard({ patient }: { patient: PatientListItem }) {
   const formattedDate = patient.lastSessionDate 
-    ? new Date(patient.lastSessionDate).toLocaleDateString('it-IT', {
+    ? new Date(patient.lastSessionDate).toLocaleDateString('en-US', {
         day: 'numeric', month: 'short', year: 'numeric'
       })
     : "---";
@@ -161,24 +160,24 @@ function PatientCard({ patient }: { patient: PatientListItem }) {
         </div>
         <div>
           <h4 className="text-xl font-bold text-slate-800">{patient.name} {patient.surname}</h4>
-          <p className="text-slate-500 font-medium">{patient.age} anni</p>
+          <p className="text-slate-500 font-medium">{patient.age} years old</p>
         </div>
       </div>
 
       <div className="space-y-3 mb-6">
         <div className="flex items-center gap-3 text-slate-600">
           <Calendar size={18} className="text-slate-400" />
-          <span className="text-sm font-medium">Ultima seduta: <span className="font-bold">{formattedDate}</span></span>
+          <span className="text-sm font-medium">Last session: <span className="font-bold">{formattedDate}</span></span>
         </div>
         <div className="flex items-center gap-3 text-slate-600">
           <Activity size={18} className="text-slate-400" />
-          <span className="text-sm font-medium"><span className="font-bold">{patient.totalSessions}</span> sedute totali</span>
+          <span className="text-sm font-medium"><span className="font-bold">{patient.totalSessions}</span> total sessions</span>
         </div>
       </div>
 
       <div className="pt-5 border-t border-slate-100 flex items-center gap-3 text-slate-500">
         <FileText size={18} className="text-slate-400" />
-        <span className="text-sm italic">{patient.diagnosis || "Nessuna diagnosi"}</span>
+        <span className="text-sm italic">{patient.diagnosis || "No diagnosis"}</span>
       </div>
     </Link>
   );

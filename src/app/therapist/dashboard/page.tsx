@@ -17,7 +17,7 @@ import {
 export default function Dashboard() {
   const [children, setChildren] = useState<ChildData[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [exercises, setExercises] = useState<any[]>([]); // Stato per la libreria esercizi
+  const [exercises, setExercises] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +47,7 @@ export default function Dashboard() {
         setAppointments(Array.isArray(appointmentsData) ? appointmentsData : []);
         setExercises(Array.isArray(exercisesData) ? exercisesData : []);
       } catch (err) {
-        console.error("Errore caricamento", err);
+        console.error("Error loading the dashboard:", err);
       } finally {
         setLoading(false);
       }
@@ -55,10 +55,10 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  // Filtro e formattazione appuntamenti di oggi
+  // Today's appointments, formatted for display
   const appointmentsToday = useMemo(() => {
     const today = new Date();
-    const todayStr = today.toDateString(); // Per un confronto date più semplice
+    const todayStr = today.toDateString();
 
     return appointments
       .filter((apt) => {
@@ -67,9 +67,8 @@ export default function Dashboard() {
       })
       .map((apt) => ({
         ...apt,
-        // Usiamo childName che arriva dalla tua API aggiornata
-        displayChildName: apt.childName || "Paziente non specificato",
-        displayTime: new Date(apt.startTime).toLocaleTimeString("it-IT", {
+        displayChildName: apt.childName || "Unknown patient",
+        displayTime: new Date(apt.startTime).toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
         }),
@@ -100,7 +99,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="text-white font-bold text-lg leading-tight">Praggymatics</h1>
-              <p className="text-white/70 text-xs">Dashboard Logopedista</p>
+              <p className="text-white/70 text-xs">Therapist Dashboard</p>
             </div>
           </div>
 
@@ -111,15 +110,15 @@ export default function Dashboard() {
             </Link>
             <Link href="/therapist/patients" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <Users className="w-5 h-5" />
-              Pazienti
+              Patients
             </Link>
             <Link href="/therapist/calendar" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <CalendarIcon className="w-5 h-5" />
-              Calendario
+              Calendar
             </Link>
             <Link href="/therapist/ai-assistant" className="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl transition font-medium">
               <Sparkles className="w-5 h-5" />
-              Assistente AI
+              AI Assistant
             </Link>
           </nav>
         </div>
@@ -142,14 +141,14 @@ export default function Dashboard() {
       <main className="flex-1 overflow-y-auto p-10">
         <header className="mb-10">
           <h2 className="text-3xl font-bold text-[#0e2a47]">Dashboard</h2>
-          <p className="text-slate-500 font-medium mt-1">Benvenuto nella tua area di lavoro</p>
+          <p className="text-slate-500 font-medium mt-1">Welcome to your workspace</p>
         </header>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
             <div>
-              <p className="text-slate-400 text-sm font-semibold mb-2">Pazienti Seguiti</p>
+              <p className="text-slate-400 text-sm font-semibold mb-2">Patients in Care</p>
               <span className="text-5xl font-bold text-[#4d8b7d]">{children.length}</span>
             </div>
             <div className="bg-[#eff9f8] p-3 rounded-xl text-[#4d8b7d]">
@@ -159,7 +158,7 @@ export default function Dashboard() {
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
             <div>
-              <p className="text-slate-400 text-sm font-semibold mb-2">Appuntamenti Oggi</p>
+              <p className="text-slate-400 text-sm font-semibold mb-2">Appointments Today</p>
               <span className="text-5xl font-bold text-[#7d5ba6]">{appointmentsToday.length}</span>
             </div>
             <div className="bg-[#f6f2fa] p-3 rounded-xl text-[#7d5ba6]">
@@ -172,15 +171,15 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-bold text-[#0e2a47]">Appuntamenti di Oggi</h3>
+              <h3 className="text-2xl font-bold text-[#0e2a47]">Today's Appointments</h3>
               <Link href="/therapist/calendar" className="text-[#4d8b7d] font-bold text-sm flex items-center gap-1 hover:underline">
-                Vedi tutti <ChevronRight className="w-4 h-4" />
+                See all <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
 
             <div className="space-y-4">
               {loading ? (
-                <p className="text-slate-400">Caricamento...</p>
+                <p className="text-slate-400">Loading...</p>
               ) : appointmentsToday.length > 0 ? (
                 appointmentsToday.map((apt) => (
                   <div key={apt.id} className="flex items-center justify-between p-5 bg-[#f0f7f6] rounded-2xl border border-transparent hover:border-[#4d8b7d]/20 transition">
@@ -198,16 +197,16 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <p className="text-slate-400 py-4 text-center">Nessun appuntamento previsto per oggi.</p>
+                <p className="text-slate-400 py-4 text-center">No appointments scheduled for today.</p>
               )}
             </div>
           </section>
 
-          {/* Nuova Sezione Libreria Esercizi */}
+          {/* Exercise Library */}
           <section className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 h-fit">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-bold text-[#0e2a47]">Libreria Esercizi</h3>
-              <span className="bg-[#eff9f8] text-[#4d8b7d] px-3 py-1 rounded-full text-xs font-bold uppercase">{exercises.length} Disponibili</span>
+              <h3 className="text-2xl font-bold text-[#0e2a47]">Exercise Library</h3>
+              <span className="bg-[#eff9f8] text-[#4d8b7d] px-3 py-1 rounded-full text-xs font-bold uppercase">{exercises.length} Available</span>
             </div>
 
             <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">

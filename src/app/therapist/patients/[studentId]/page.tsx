@@ -79,7 +79,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
       const res = await fetch(`/api/therapist/student/${studentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Errore");
+      if (!res.ok) throw new Error("Failed to load the patient");
       const data = await res.json();
       setPatient(data);
       setTempValues({
@@ -110,11 +110,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
         setEditingField(null);
       }
 
-    } catch (err) { alert("Errore"); }
+    } catch (err) { alert("Error saving the changes."); }
   };
 
   const handleResetProgress = async () => {
-    if (!window.confirm(`Vuoi resettare tutti i progressi delle sezioni (Sentimenti, Reazioni, Perché, Cloze) per ${patient?.name}? Il bambino ripartirà dall'inizio al prossimo accesso.`)) return;
+    if (!window.confirm(`Reset all section progress (Feelings, Reactions, Why, Cloze) for ${patient?.name}? The child will start over at their next login.`)) return;
     setResetting(true);
     try {
       const token = localStorage.getItem('token');
@@ -126,10 +126,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
         setResetDone(true);
         setTimeout(() => setResetDone(false), 3000);
       } else {
-        alert('Errore durante il reset dei progressi.');
+        alert('Error resetting progress.');
       }
     } catch (err) {
-      alert('Errore di rete.');
+      alert('Network error.');
     } finally {
       setResetting(false);
     }
@@ -139,7 +139,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
     <div className="h-screen w-full flex items-center justify-center bg-[#F8FAFB]">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-[#67A495] border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Caricamento Paziente...</p>
+        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Loading patient...</p>
       </div>
     </div>
   );
@@ -148,7 +148,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
     <div className="min-h-screen bg-[#F8FAFB] font-sans text-slate-700 antialiased p-8 pb-20">
       <div className="max-w-7xl mx-auto">
         <Link href="/therapist/patients" className="inline-flex items-center gap-2 text-[#4D8B7D] mb-8 text-sm font-bold hover:translate-x-[-4px] transition-transform">
-          <ArrowLeft size={16} /> Torna ai pazienti
+          <ArrowLeft size={16} /> Back to patients
         </Link>
 
         {/* Header (Figma style) */}
@@ -159,14 +159,14 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
           <div>
             <h1 className="text-4xl font-black text-[#0E2A47] tracking-tight">{patient?.name} {patient?.surname}</h1>
             <div className="flex items-center gap-4 text-slate-400 text-sm font-bold mt-2">
-              <span className="flex items-center gap-1.5"><UserIcon size={14} className="text-[#67A495]" /> {patient?.age} anni</span>
+              <span className="flex items-center gap-1.5"><UserIcon size={14} className="text-[#67A495]" /> {patient?.age} years old</span>
               <span>•</span>
-              <span className="flex items-center gap-1.5"><Calendar size={14} className="text-[#67A495]" /> {patient?.totalSessions} sedute totali</span>
+              <span className="flex items-center gap-1.5"><Calendar size={14} className="text-[#67A495]" /> {patient?.totalSessions} total sessions</span>
               <span>•</span>
-              <span className="flex items-center gap-1.5"><Clock size={14} className="text-[#67A495]" /> Ultima seduta: {patient?.lastSessionDate ? new Date(patient.lastSessionDate).toLocaleDateString('it-IT') : 'N/D'}</span>
+              <span className="flex items-center gap-1.5"><Clock size={14} className="text-[#67A495]" /> Last session: {patient?.lastSessionDate ? new Date(patient.lastSessionDate).toLocaleDateString('en-US') : 'N/A'}</span>
             </div>
           </div>
-          {/* Pulsante Reset Progressi */}
+          {/* Reset progress button */}
           <div className="ml-auto">
             <button
               id="reset-progress-btn"
@@ -181,7 +181,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               )}
             >
               <RotateCcw size={15} className={resetting ? "animate-spin" : ""} />
-              {resetDone ? "Progressi resettati ✓" : resetting ? "Reset in corso..." : "Reset Progressi Sezioni"}
+              {resetDone ? "Progress reset ✓" : resetting ? "Resetting..." : "Reset Section Progress"}
             </button>
           </div>
         </header>
@@ -191,9 +191,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
           {/* LEFT COLUMN: Info Cards */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
 
-            {/* DIAGNOSI */}
+            {/* DIAGNOSIS */}
             <InfoCard
-              title="Diagnosi"
+              title="Diagnosis"
               icon={<FileText size={18} className="text-purple-400" />}
               value={patient?.diagnosis}
               field="diagnosis"
@@ -206,9 +206,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               renderList
             />
 
-            {/* OBIETTIVI */}
+            {/* GOALS */}
             <InfoCard
-              title="Obiettivi"
+              title="Goals"
               icon={<Target size={18} className="text-[#67A495]" />}
               value={patient?.objectives}
               field="objectives"
@@ -222,9 +222,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               bulletIcon={<CheckCircle2 size={16} className="text-[#67A495]" />}
             />
 
-            {/* NOTE */}
+            {/* NOTES */}
             <InfoCard
-              title="Note"
+              title="Notes"
               icon={<Edit2 size={18} className="text-blue-400" />}
               value={patient?.notes}
               field="notes"
@@ -245,14 +245,14 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-teal-50 rounded-xl text-[#67A495]"><TrendingUp size={20} /></div>
-                  <h2 className="text-xl font-black text-[#0E2A47]">Progressi nel Tempo</h2>
+                  <h2 className="text-xl font-black text-[#0E2A47]">Progress Over Time</h2>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase text-slate-400">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#67A495]" /> Pragmatica
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#67A495]" /> Pragmatics
                   </div>
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase text-slate-400">
-                    <div className="w-2.5 h-2.5 rounded-full bg-purple-400" /> Narrazione
+                    <div className="w-2.5 h-2.5 rounded-full bg-purple-400" /> Narrative
                   </div>
                 </div>
               </div>
@@ -266,20 +266,20 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
             <section className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-2.5 bg-teal-50 rounded-xl text-[#67A495]"><Calendar size={20} /></div>
-                <h2 className="text-xl font-black text-[#0E2A47]">Sedute e Percorso Personalizzato</h2>
+                <h2 className="text-xl font-black text-[#0E2A47]">Sessions and Personalized Plan</h2>
               </div>
 
               {/* Scheduled Sessions */}
               <div className="mb-10">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Clock size={14} /> Sedute Programmate ({patient?.upcomingAppointments?.length || 0})
+                  <Clock size={14} /> Upcoming Sessions ({patient?.upcomingAppointments?.length || 0})
                 </h3>
                 <div className="space-y-3">
                   {patient?.upcomingAppointments?.map((app: any) => (
                     <SessionItem key={app.id} app={app} isUpcoming />
                   ))}
                   {patient?.upcomingAppointments?.length === 0 && (
-                    <p className="text-sm text-slate-300 italic py-4">Nessuna seduta programmata</p>
+                    <p className="text-sm text-slate-300 italic py-4">No upcoming sessions</p>
                   )}
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               {/* Past Sessions */}
               <div>
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Activity size={14} /> Sedute Passate ({patient?.pastAppointments?.length || 0})
+                  <Activity size={14} /> Past Sessions ({patient?.pastAppointments?.length || 0})
                 </h3>
                 <div className="space-y-3">
                   {patient?.pastAppointments?.map((app: any) => (
@@ -304,19 +304,19 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
               </div>
             </section>
 
-            {/* LAST SEED DETAILS (Bottom detail card like Figma) */}
+            {/* LAST SESSION DETAILS */}
             {patient?.pastAppointments?.[0] && (
               <section className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="p-2.5 bg-purple-50 rounded-xl text-purple-400"><TrendingUp size={20} /></div>
-                  <h2 className="text-xl font-black text-[#0E2A47]">Ultime Sedute</h2>
+                  <h2 className="text-xl font-black text-[#0E2A47]">Last Session</h2>
                 </div>
 
                 <div className="bg-slate-50/50 rounded-3xl p-8 border border-slate-100">
                   <div className="flex items-center gap-4 mb-6">
                     <Calendar className="text-slate-400" size={18} />
                     <span className="text-lg font-black text-[#0E2A47]">
-                      {new Date(patient.pastAppointments[0].date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(patient.pastAppointments[0].date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                     <span className="text-slate-300 mx-2">•</span>
                     <span className="text-sm font-bold text-slate-400">{patient.pastAppointments[0].duration}</span>
@@ -324,7 +324,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
 
                   <div className="space-y-6">
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Attività</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Activities</p>
                       <div className="flex flex-wrap gap-2">
                         {patient.pastAppointments[0].results.map((res, idx) => (
                           <span key={idx} className="px-4 py-2 bg-white rounded-xl text-xs font-bold text-[#0E2A47] border border-slate-100 shadow-sm">
@@ -336,15 +336,15 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Risultati</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Results</p>
                       <p className="text-sm font-bold text-[#0E2A47] leading-relaxed">
-                        Ottima performance nelle attività di pragmatica. Qualche difficoltà residua nella narrazione spontanea.
+                        Great performance in pragmatics activities. Some remaining difficulty with spontaneous narrative.
                       </p>
                     </div>
 
                     {patient.pastAppointments[0].note && (
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Note</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Notes</p>
                         <p className="text-sm text-slate-500 font-medium italic">"{patient.pastAppointments[0].note}"</p>
                       </div>
                     )}
@@ -406,11 +406,11 @@ function InfoCard({
             className="w-full p-4 text-sm text-slate-600 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-[#67A495]/20 min-h-[120px] resize-none font-medium"
             value={tempValue}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={`Inserisci ${title.toLowerCase()}...`}
+            placeholder={`Enter ${title.toLowerCase()}...`}
           />
           <div className="flex gap-2 justify-end">
-            <button onClick={onCancel} className="px-4 py-2 text-[11px] font-black text-slate-400 hover:text-slate-600">Annulla</button>
-            <button onClick={onSave} className="px-5 py-2 text-[11px] font-black bg-[#67A495] text-white rounded-xl shadow-lg shadow-[#67A495]/20">Salva</button>
+            <button onClick={onCancel} className="px-4 py-2 text-[11px] font-black text-slate-400 hover:text-slate-600">Cancel</button>
+            <button onClick={onSave} className="px-5 py-2 text-[11px] font-black bg-[#67A495] text-white rounded-xl shadow-lg shadow-[#67A495]/20">Save</button>
           </div>
         </div>
       ) : (
@@ -426,7 +426,7 @@ function InfoCard({
             </ul>
           ) : (
             <p className="text-sm text-slate-500 font-bold leading-relaxed whitespace-pre-wrap">
-              {value || `Aggiungi ${title.toLowerCase()}...`}
+              {value || `Add ${title.toLowerCase()}...`}
             </p>
           )}
         </div>
@@ -464,9 +464,9 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
           </div>
           <div>
             <p className="font-black text-[#0E2A47] text-sm">
-              {new Date(app.date).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {new Date(app.date).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
               <span className="text-slate-300 mx-2">•</span>
-              {new Date(app.date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+              {new Date(app.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className={cn(
@@ -480,7 +480,7 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
               </span>
               {!isUpcoming && app.results?.length > 0 && (
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-2">
-                  <BookOpen size={10} className="inline mr-1" /> {app.results.length} esercizi
+                  <BookOpen size={10} className="inline mr-1" /> {app.results.length} exercises
                 </span>
               )}
             </div>
@@ -523,7 +523,7 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                       }));
                     }
                   } catch (e) {
-                    console.error("Errore parsing chatHistory", e);
+                    console.error("Error parsing the chat history:", e);
                   }
                 }
 
@@ -550,11 +550,11 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-[#EFF8F8] text-[#67A495] hover:bg-[#DCEFEF] rounded-xl text-[11px] font-black transition-colors"
                           >
                             <FileText size={12} />
-                            {chatExpanded ? "Nascondi Chat" : "Vedi Chat"}
+                            {chatExpanded ? "Hide Chat" : "View Chat"}
                           </button>
                         ) : (
                           <div className="text-right">
-                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Errori</p>
+                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Errors</p>
                             <p className={cn("text-xs font-black", res.triesTillCorrect > 0 ? "text-orange-400" : "text-[#67A495]")}>
                               {res.triesTillCorrect || 0}
                             </p>
@@ -562,7 +562,7 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                         )}
 
                         <div className="text-right min-w-[60px]">
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Tempo</p>
+                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Time</p>
                           <p className="text-xs font-black text-[#0E2A47]">{res.durationSeconds}s</p>
                         </div>
                       </div>
@@ -577,9 +577,9 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                           className="bg-slate-50/50 border-t border-slate-100 p-4"
                         >
                           <div className="max-w-2xl mx-auto space-y-3">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Trascrizione Chatbot</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Chatbot Transcript</p>
                             {chatHistory.length === 0 ? (
-                              <p className="text-xs text-slate-400 italic">Nessun messaggio scambiato.</p>
+                              <p className="text-xs text-slate-400 italic">No messages exchanged.</p>
                             ) : (
                               chatHistory.map((msg, mIdx) => {
                                 const isUser = msg.role === 'user';
@@ -591,7 +591,7 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
                                         : "bg-[#67A495] text-white rounded-bl-none shadow-sm"
                                     }`}>
                                       <p className="font-bold text-[9px] uppercase tracking-wider opacity-60 mb-1">
-                                        {isUser ? "Bambino" : "Praggy"}
+                                        {isUser ? "Child" : "Praggy"}
                                       </p>
                                       <p className="whitespace-pre-wrap">{msg.text}</p>
                                     </div>
@@ -621,7 +621,7 @@ function ProgressChart({ data }: { data: ProgressPoint[] }) {
 
   if (!data || data.length === 0) return (
     <div className="h-full w-full flex items-center justify-center text-slate-300 text-xs font-bold uppercase tracking-widest bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
-      Dati non sufficienti per il grafico
+      Not enough data for the chart
     </div>
   );
 
