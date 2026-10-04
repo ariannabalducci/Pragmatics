@@ -1,141 +1,124 @@
-# Documentazione Tecnica e Logica di Praggymatics
+# Technical Documentation
 
-Benvenuto nella documentazione ufficiale di **Praggymatics**, una piattaforma web premium e interattiva progettata per la logopedia e lo sviluppo delle abilità pragmatiche del linguaggio nei bambini.
+This document explains how Praggymatics works under the hood: the data model, authentication, how exercises are unlocked, and how therapy sessions affect a child's progress. For setup instructions see the [README](README.md).
 
-Questo documento illustra nel dettaglio il funzionamento del sistema, la struttura del codice, l'architettura dei dati e le logiche di business che regolano il funzionamento della mappa, delle sessioni di terapia e della dashboard del terapista.
+## Contents
 
----
+1. [Architecture](#1-architecture)
+2. [Data model](#2-data-model)
+3. [Authentication and authorization](#3-authentication-and-authorization)
+4. [Exercises and maps](#4-exercises-and-maps)
+5. [Training and assessment modes](#5-training-and-assessment-modes)
+6. [Therapy sessions and home progress](#6-therapy-sessions-and-home-progress)
+7. [Therapist area](#7-therapist-area)
+8. [AI integration](#8-ai-integration)
+9. [API reference](#9-api-reference)
 
-## Indice
-1. [Architettura di Riferimento e Database](#1-architettura-di-riferimento-e-database)
-2. [Esercizi Speciali (Sotto-Mappe)](#2-esercizi-speciali-sotto-mappe)
-3. [Isolamento dei Progressi: Allenamento vs Valutazione](#3-isolamento-dei-progressi-allenamento-vs-valutazione)
-4. [Separazione dei Contesti: Seduta Terapista vs Progresso a Casa](#4-separazione-dei-contesti-seduta-terapista-vs-progresso-a-casa)
-5. [Dashboard del Terapista e Visualizzatore Chatbot AI](#5-dashboard-del-terapista-e-visualizzatore-chatbot-ai)
-6. [Flusso di Esecuzione e API Principali](#6-flusso-di-esecuzione-e-api-principali)
+## 1. Architecture
 
----
+Praggymatics is a single Next.js application (App Router) written in TypeScript:
 
-## 1. Architettura di Riferimento e Database
+- **Pages** (`src/app/**/page.tsx`) are client components. Child pages live at the root (`/path`, `/why`, `/cloze`, …) and therapist pages under `/therapist`.
+- **API routes** (`src/app/api/**/route.ts`) implement the backend and talk to PostgreSQL through Prisma.
+- **Shared code** lives in `src/lib` (Prisma client, auth helpers, Google Calendar, hooks), `src/utils` (Azure OpenAI client) and `src/components/ui`.
+- **Exercise content** is stored as JSON in the database. The story exercises are seeded from `src/lib/exercises/*.json`, the special exercises from `prisma/seed-special-exercises.ts`.
 
-La piattaforma è costruita con **Next.js (App Router)**, **TypeScript**, **Prisma ORM**, ed un database relazionale **PostgreSQL**.
+## 2. Data model
 
-### Modello dei Dati Principale (`prisma/schema.prisma`)
-Tutte le informazioni relative a utenti, mappe, progressi ed esercitazioni sono salvate nel database. I modelli cardine sono:
+The schema is defined in [`prisma/schema.prisma`](prisma/schema.prisma):
 
-*   **`User` & `Child`**: Rappresentano l'utente base e le informazioni specifiche del bambino (es. età, terapista assegnato, tentativi ed appuntamenti).
-*   **`ExerciseGroup`**: Rappresenta un nodo della mappa (es. *"Perché bisogna lavarsi i denti?"*). Possiede un `groupType` che identifica la categoria (`cloze`, `sentimenti`, `perche`, `reazioni` o `generic` per il percorso principale).
-*   **`Exercise`**: L'esercizio vero e proprio contenuto in un gruppo. Contiene il campo `contentJson` con le frasi o le domande dell'esercizio.
-*   **`Path`**: Tabella legacy utilizzata originariamente per mappare lo stato statico (`blocked`, `available`, `completed`) del percorso principale.
-*   **`ExerciseAttempt`**: **La tabella chiave dei progressi**. Ogni volta che un bambino completa un esercizio con successo, viene inserito un record in questa tabella.
+| Model | Purpose |
+|---|---|
+| `User` | Login credentials and role (`CHILD`, `THERAPIST`, `ADMIN`). Also stores the therapist's Google OAuth tokens. |
+| `Therapist` / `Child` | Role-specific profiles. Each child belongs to one therapist and has coins, an avatar and clinical notes. |
+| `ExerciseGroup` | A node on a map, with a `groupType`: `generic`, `cloze`, `feelings`, `why` or `reactions`. |
+| `Exercise` | A single exercise inside a group. Its content is stored in `contentJson`. |
+| `Path` | The child's status (`available`, `blocked`, `completed`) for each generic group. |
+| `ExerciseAttempt` | One record per completed exercise, with duration, mistakes, the chat transcript and the mode (`training` or `testing`). |
+| `Appointment` | A therapy session: start time, duration, type and the exercise groups prescribed for it. |
+| `Feedback`, `CollectionItem` | Therapist feedback, and the parrots a child can unlock with coins. |
 
-Per vedere i dettagli completi dello schema, puoi consultare direttamente il file [prisma/schema.prisma](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/prisma/schema.prisma).
+## 3. Authentication and authorization
 
----
+- **Password login.** `POST /api/auth/login` checks the bcrypt hash and returns a JWT signed with `JWT_SECRET`, valid for 12 hours. The client stores it in `localStorage` and sends it as `Authorization: Bearer <token>`.
+- **Google sign-in (therapists only).** NextAuth handles the OAuth flow and saves the Google tokens. Sign-in is refused if the Google email does not belong to a therapist. The client then calls `GET /api/auth/google-token` to exchange the NextAuth session for the same kind of JWT, so the rest of the app has a single auth model.
+- **Checks on every route.** All API routes go through `getAuthUser()` in [`src/lib/auth.ts`](src/lib/auth.ts), which verifies the token. Each route then checks the role. Therapist routes also check, with `isTherapistOf()`, that the patient belongs to the logged-in therapist, so a therapist can only read or change their own patients and appointments.
 
-## 2. Esercizi Speciali (Sotto-Mappe)
+## 4. Exercises and maps
 
-A differenza del percorso generico (che sfrutta una tabella di stato statica `Path`), le quattro sotto-mappe speciali:
-1.  **Cloze (Completamento Frasi)** - [cloze/page.tsx](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/cloze/page.tsx)
-2.  **Sentimenti (Conversazione Emozioni)** - [sentimenti/page.tsx](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/sentimenti/page.tsx)
-3.  **Perché (Ragionamento Causale AI)** - [perche/page.tsx](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/perche/page.tsx)
-4.  **Reazioni (Scenari Sociali)** - [reazioni/page.tsx](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/reazioni/page.tsx)
+The child chooses a category from `/select-mode`. Each category has its own map:
 
-...calcolano lo stato dei nodi **in tempo reale e al 100% dinamicamente** partendo dallo storico dei tentativi (`ExerciseAttempt`).
+| Category | Map | Exercise | How it works |
+|---|---|---|---|
+| General | `/path` | `/story`, `/chat` | Illustrated stories with a multiple-choice question, followed by an open chat with Praggy about the story. |
+| Why | `/path-why` | `/why` | Cause-and-effect questions (“Why do we wash our hands?”) discussed with Praggy, who gives hints instead of answers. |
+| Feelings | `/path-feelings` | `/feelings` | A picture of a social situation, analyzed in three guided steps with Praggy. |
+| Reactions | `/path-reactions` | `/reactions` | Pick the right reaction (A or B) to a social situation. |
+| Cloze | `/path-cloze` | `/cloze` | Complete a short story by dragging words into the blanks. |
 
-### Algoritmo di Sblocco Dinamico delle Mappe
-Quando un bambino apre ad esempio la mappa "Perché", la rotta API [api/exercises/by-type/[groupType]/route.ts](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/api/exercises/by-type/%5BgroupType%5D/route.ts) esegue i seguenti passaggi per ciascun gruppo di esercizi, ordinati per titolo in ordine alfabetico:
-1.  **Verifica Completamento**: Il gruppo è considerato `completed` se tutti i suoi esercizi hanno almeno un tentativo con successo (`success: true`) registrato nel database per la modalità selezionata.
-2.  **Verifica Disponibilità**: Un gruppo non ancora completato è considerato `available` (quindi giocabile, rappresentato dall'icona di Play verde) **solo se** è il **primo gruppo non completato** all'interno dell'ordine sequenziale, ovvero se tutti i gruppi che lo precedono sono nello stato `completed`.
-3.  **Bloccato**: Tutti gli altri gruppi successivi rimangono nello stato `blocked` (icona con il lucchetto).
+**Unlocking.** The general map uses the stored `Path` statuses: completing a group unlocks the next blocked one. The special categories compute their status from the attempt history instead. Groups are ordered by title. A group is `completed` when all of its exercises have an attempt, and `available` when it is the first group not yet completed. All later groups stay `blocked`.
 
-Questo garantisce un percorso ad albero guidato ed immune da bug di sincronizzazione degli stati nel DB.
+Every completed exercise also earns 20 coins, which the child can spend on the parrot collection.
 
----
+## 5. Training and assessment modes
 
-## 3. Isolamento dei Progressi: Allenamento vs Valutazione
+From `/select-mode` the child picks one of two modes:
 
-Il sistema offre due modalità di gioco indipendenti:
-*   **Allenamento (Training)**: Dove il bambino si esercita e può ricevere suggerimenti o aiuti dall'assistente AI (il pappagallino).
-*   **Valutazione (Testing)**: Una fase di verifica pura in cui i progressi devono essere tracciati separatamente per dare al terapista un quadro chiaro dei progressi autonomi del bambino.
+- **Training:** hints, feedback and positive reinforcement.
+- **Assessment** (`testing` in the code): a silent run with no feedback, which gives the therapist an unbiased picture.
 
-### Implementazione a Livello di Codice
-*   **Database**: È stato aggiunto il campo `mode` (String, default `'training'`) nella tabella `ExerciseAttempt`.
-*   **Frontend**: All'accesso, il bambino seleziona la modalità, che viene memorizzata nel client:
-    `localStorage.setItem("pragmatics_mode", mode);` (vedi [select-mode/page.tsx](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/select-mode/page.tsx)).
-*   **API di Stato**: Sia le API di caricamento della mappa sia quelle del dettaglio dell'esercizio filtrano i tentativi validi escludendo quelli della modalità opposta:
-    ```typescript
-    const homeAttempts = child.attempts.filter(a => a.mode === mode);
-    ```
-*   **Invio dei Dati**: Quando l'esercizio viene completato, la rotta di salvataggio del tentativo registra il valore corretto della modalità corrente passata dal client.
+The mode is kept in `localStorage` (`pragmatics_mode`) and saved on every `ExerciseAttempt`. Map statuses only count attempts made in the current mode, so the two progressions are independent.
 
----
+## 6. Therapy sessions and home progress
 
-## 4. Separazione dei Contesti: Seduta Terapista vs Progresso a Casa
+A therapist can schedule an `Appointment` and prescribe specific exercise groups for it. A session is **active** from its start time until start time + duration.
 
-Questa è una delle logiche più complesse e affascinanti del progetto.
+During an active session:
 
-> [!IMPORTANT]
-> Un bambino deve poter svolgere tutti gli esercizi prescritti dal terapista durante una seduta clinica, ma una volta tornato a casa, la sua mappa normale deve mostrare **esclusivamente il suo progresso domestico autonomo**, senza risultare alterata dalle attività svolte in studio.
+- the child's maps show only the prescribed groups, all unlocked;
+- the session type (training or assessment) decides the mode;
+- attempts are saved normally but don't advance the home path.
 
-### Logica Temporale basata sugli Appuntamenti
-1.  **Definizione di Seduta Attiva**: Un appuntamento (`Appointment`) è considerato attivo se la data odierna corrisponde a quella dell'appuntamento ed il tempo corrente del server si trova nell'intervallo:
-    `[startTime - 5 minuti, startTime + durata + 5 minuti]`
-2.  **Comportamento in Seduta**:
-    *   Tutti gli esercizi prescritti dal terapista (`prescribedGroups`) per l'appuntamento corrente vengono **sbloccati forzatamente** e resi immediatamente disponibili (`available` o `completed` se già svolti oggi) sulla mappa del bambino.
-    *   Gli tentativi eseguiti vengono salvati normalmente nel database con timestamp corrente.
-3.  **Comportamento a Casa (Fuori Seduta)**:
-    *   Le API calcolano il progresso domestico **filtrando ed escludendo** tutti i tentativi eseguiti all'interno delle finestre temporali di qualsiasi seduta clinica passata:
-        ```typescript
-        const isAttemptInSession = (createdAt: Date) => {
-            const attTime = new Date(createdAt).getTime();
-            return appointments.some(app => {
-                const start = new Date(app.startTime).getTime();
-                const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
-                const end = start + durationMinutes * 60000;
-                return attTime >= start - buffer && attTime <= end;
-            });
-        };
+Outside sessions, **home progress ignores attempts made during today's sessions**. As soon as a session ends, the child's maps go back to exactly where their home progress was.
 
-        const homeAttempts = child.attempts.filter(a => !isAttemptInSession(a.createdAt) && a.mode === mode);
-        ```
-    *   Grazie a questo filtro temporale dinamico, non appena la seduta scade, la mappa del bambino ritorna istantaneamente allo stato esatto in cui si trovava prima dell'inizio dell'appuntamento!
+## 7. Therapist area
 
----
+- **Dashboard:** patient count, today's appointments and the exercise library.
+- **Patients:** create child accounts, edit diagnosis, goals and private notes, and reset a child's progress.
+- **Patient detail:** upcoming and past sessions with the results of every exercise, the full transcript of each chatbot conversation, and a progress chart (pragmatics vs narrative topics).
+- **Calendar:** schedule sessions with prescribed exercises. If the therapist signed in with Google, each new appointment is also added to their Google Calendar (`src/lib/google.ts`).
+- **AI assistant:** a chat with an evidence-based clinical assistant for speech therapists.
 
-## 5. Dashboard del Terapista e Visualizzatore Chatbot AI
+## 8. AI integration
 
-La dashboard del terapista ([therapist/patients/[studentId]/page.tsx](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/therapist/patients/%5BstudentId%5D/page.tsx)) consente di monitorare lo storico delle sedute dei pazienti, vedere le risposte fornite ed analizzare l'andamento del linguaggio.
+All chats go through `chatWithAzure()` in [`src/utils/azureHelpers.ts`](src/utils/azureHelpers.ts), which calls an Azure OpenAI deployment (GPT-4o) in JSON mode. Each route has its own system prompt:
 
-### Visualizzatore delle Conversazioni con il Chatbot
-Per gli esercizi basati su chatbot AI (come "Perché" e "Sentimenti"), le risposte e le interazioni del bambino non sono semplici crocette, ma vere e proprie conversazioni interattive generate con l'ausilio di Azure OpenAI (GPT-4o).
+| Route | Role of the model | JSON returned |
+|---|---|---|
+| `/api/chat` | Keeps an open conversation about the current story | `message`, `is_ended` (always `false`) |
+| `/api/chat-why` | Evaluates the child's explanation and gives hints | `message`, `is_ended` |
+| `/api/chat-feelings` | Checks the answer to the current step | `message`, `step_completed` |
+| `/api/chat/therapist` | Clinical assistant for therapists | `message` |
 
-*   **Salvataggio**: Lo storico della chat viene strutturato come JSON e salvato all'interno del campo `notes` del record `ExerciseAttempt` al momento del completamento.
-*   **Interfaccia del Terapista**: Nella scheda dei risultati delle sedute precedenti del paziente:
-    *   Se l'esercizio svolto è di tipo "Perché" o "Sentimenti", compare una riga cliccabile con un badge distintivo *"Vedi Chatbot"*.
-    *   Cliccando sul badge, si apre un **modal interattivo premium** che simula graficamente lo schermo del chatbot originale.
-    *   Il terapista può scorrere e leggere l'intera conversazione parola per parola, visualizzando i messaggi del pappagallino (a sinistra, in verde/blu) e le risposte del bambino (a destra, in bianco), analizzando le sfumature linguistiche ed i tempi di risposta.
+If the Azure credentials are missing, the chat answers with a configuration warning instead of failing.
 
----
+## 9. API reference
 
-## 6. Flusso di Esecuzione e API Principali
-
-Di seguito sono elencate le rotte API che governano il flusso di gioco e come interagiscono con la logica descritta:
-
-### 1. Caricamento Mappa
-*   **Rotta**: `GET /api/exercises/by-type/[groupType]?mode=training|testing`
-*   **File**: [route.ts (by-type)](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/api/exercises/by-type/%5BgroupType%5D/route.ts)
-*   **Azione**: Calcola gli stati dei nodi della mappa specifica escludendo i tentativi in seduta clinica (se calcolati per il progresso di casa) e filtrando per la modalità selezionata.
-
-### 2. Caricamento Dettaglio Singolo Esercizio
-*   **Rotta**: `GET /api/exercise/[exerciseId]?mode=training|testing`
-*   **File**: [route.ts (single-exercise)](file:///Users/gretaseveri/Desktop/AUI-Pragmatics/src/app/api/exercise/%5BexerciseId%5D/route.ts)
-*   **Azione**: Esegue un controllo di sicurezza per verificare se il bambino ha effettivamente diritto ad accedere a quell'esercizio in quel momento (flusso di sblocco sequenziale o prescrizione attiva oggi). Previene accessi malevoli o diretti tramite URL a nodi bloccati.
-
-### 3. Salvataggio Tentativo
-*   **Rotta**: `POST /api/exercise/[exerciseId]/attempt`
-*   **Azione**: Registra il completamento dell'esercizio inserendo un record in `ExerciseAttempt` con il tempo di esecuzione, il successo, lo storico chat (se applicabile) e la modalità attiva (`mode`).
-
----
-
-Questa architettura rende **Praggymatics** uno strumento estremamente flessibile, sicuro e clinicamente accurato, capace di offrire un'esperienza di gioco fluida per il bambino ed un pannello di controllo ricco e dettagliato per il professionista della salute.
+| Method and route | Role | Description |
+|---|---|---|
+| `POST /api/auth/login` | public | Password login, returns a JWT |
+| `GET /api/auth/google-token` | therapist (NextAuth session) | Exchanges a Google session for a JWT |
+| `GET /api/student/[userId]` | child (self) | General map, coins and session state |
+| `GET, POST /api/student/[userId]/collection` | child (self) | Parrot collection and purchases |
+| `GET /api/exercises/by-type/[groupType]` | child | Map of a special category |
+| `GET /api/exercise/[exerciseId]` | child | Exercise content, after checking that it is unlocked |
+| `POST /api/exercise/[exerciseId]/attempt` | child | Saves an attempt and updates progress |
+| `GET /api/appointments/today` | child | Today's active or upcoming session |
+| `POST /api/chat`, `/api/chat-why`, `/api/chat-feelings` | logged in | Praggy chats |
+| `GET, POST /api/therapist/student` | therapist | List and create patients |
+| `GET, PATCH /api/therapist/student/[studentId]` | therapist (owner) | Patient detail and notes |
+| `POST /api/therapist/student/[studentId]/feedback` | therapist (owner) | Adds feedback |
+| `POST /api/therapist/student/[studentId]/reset-progress` | therapist (owner) | Resets the child's progress |
+| `GET, POST /api/appointments`, `DELETE /api/appointments/[id]` | therapist (owner) | Manages appointments |
+| `GET /api/exercises` | therapist | Exercise library |
+| `POST /api/chat/therapist` | therapist | AI assistant |
