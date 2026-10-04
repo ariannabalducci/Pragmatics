@@ -14,7 +14,6 @@ export async function GET(req: Request) {
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
-    const GRACE_FUTURE_MS = 15 * 60000; // 15-minute margin in the future
 
     const appointments = await prisma.appointment.findMany({
       where: {
@@ -31,32 +30,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ hasAppointment: false });
     }
 
-    // Pick the appointment in progress, otherwise one still to come today.
-    let appointment = appointments[0];
-    let isActive = false;
-    let appointmentStart = new Date(appointment.startTime);
-    let durationMinutes = parseInt(appointment.duration?.split(" ")[0] || "45");
-    let appointmentEnd = new Date(appointmentStart.getTime() + durationMinutes * 60000);
+    const endOf = (app: (typeof appointments)[number]) =>
+      new Date(new Date(app.startTime).getTime() + parseInt(app.duration?.split(" ")[0] || "45") * 60000);
 
-    for (const app of appointments) {
-      const start = new Date(app.startTime);
-      const dur = parseInt(app.duration?.split(" ")[0] || "45");
-      const end = new Date(start.getTime() + dur * 60000);
-
-      if (now >= start && now <= end) {
-        appointment = app;
-        isActive = true;
-        appointmentStart = start;
-        durationMinutes = dur;
-        appointmentEnd = end;
-        break;
-      } else if (now < start && !isActive) {
-        appointment = app;
-        appointmentStart = start;
-        durationMinutes = dur;
-        appointmentEnd = end;
-      }
-    }
+    // The appointment in progress, otherwise the next one today, otherwise the first of the day.
+    const active = appointments.find((app) => now >= new Date(app.startTime) && now <= endOf(app));
+    const next = appointments.find((app) => now < new Date(app.startTime));
+    const appointment = active ?? next ?? appointments[0];
+    const isActive = Boolean(active);
+    const appointmentEnd = endOf(appointment);
 
     const sessionMode = isActive
       ? (appointment.type === "testing" ? "testing" : "training")
