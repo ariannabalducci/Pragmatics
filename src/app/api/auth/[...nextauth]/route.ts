@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
+import type { Role } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -75,9 +76,8 @@ export const authOptions: NextAuthOptions = {
       // Expose userId and role to the client session
       session.user = {
         ...session.user,
-        // @ts-ignore – custom fields
         id: token.userId as string,
-        role: token.role as string,
+        role: token.role as Role,
         username: token.username as string,
       };
       return session;
