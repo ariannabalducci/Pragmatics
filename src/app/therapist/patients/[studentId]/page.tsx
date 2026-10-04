@@ -338,7 +338,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Results</p>
                       <p className="text-sm font-bold text-[#0E2A47] leading-relaxed">
-                        Great performance in pragmatics activities. Some remaining difficulty with spontaneous narrative.
+                        {summarizeResults(patient.pastAppointments[0].results)}
                       </p>
                     </div>
 
@@ -357,6 +357,13 @@ export default function PatientDetailPage({ params }: { params: Promise<{ studen
       </div>
     </div>
   );
+}
+
+function summarizeResults(results: Result[]) {
+  if (results.length === 0) return "No exercises recorded in this session.";
+  const withErrors = results.filter((r) => r.triesTillCorrect > 0).length;
+  const exercises = results.length === 1 ? "1 exercise" : `${results.length} exercises`;
+  return `${exercises} completed, ${withErrors} with errors.`;
 }
 
 // SUB-COMPONENTS
