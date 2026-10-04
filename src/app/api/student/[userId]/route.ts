@@ -4,6 +4,17 @@ import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+type LevelData = {
+  id: string;
+  groupId: string;
+  status: string;
+  group_title: string;
+  group_topic: string;
+  progress: number;
+  activeExerciseId?: string;
+  firstExerciseId?: string;
+};
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
@@ -73,7 +84,7 @@ export async function GET(
       }
     }
 
-    const prescribedGroupIds = new Set(isSessionActive && appointment ? ((appointment as any)?.prescribedGroups?.map((g: any) => g.id) || []) : []);
+    const prescribedGroupIds = new Set<string>(isSessionActive && appointment ? appointment.prescribedGroups.map((g) => g.id) : []);
 
     let sessionCompletedExerciseIds = new Set<string>();
     if (isSessionActive && appointment) {
@@ -105,7 +116,7 @@ export async function GET(
     const homeAttempts = child.attempts.filter(a => !isAttemptInAnySession(a.createdAt) && a.mode === mode);
     const homeCompletedExerciseIds = new Set(homeAttempts.map(a => a.exerciseId));
 
-    const activeLevels: any[] = [];
+    const activeLevels: LevelData[] = [];
     // The main path only shows the generic story/chat groups.
     const genericPaths = child.paths.filter((p) => p.exerciseGroup.groupType === 'generic');
 

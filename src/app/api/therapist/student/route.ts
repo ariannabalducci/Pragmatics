@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { getAuthUser } from '@/lib/auth';
@@ -44,6 +45,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(formatted);
   } catch (error) {
+    console.error('Error loading patients:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -118,9 +120,9 @@ export async function POST(request: Request) {
       student_id: result.id
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Create student error:', error);
-    if (error.code === 'P2002') return NextResponse.json({ error: 'Username already exists' }, { status: 409 });
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return NextResponse.json({ error: 'Username already exists' }, { status: 409 });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

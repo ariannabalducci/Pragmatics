@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient, type ExerciseType } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
@@ -11,6 +11,8 @@ import story5 from '../src/lib/exercises/missing_hat.json'
 import story6 from '../src/lib/exercises/happy_tears.json'
 import story7 from '../src/lib/exercises/the_new_cook.json'
 import story8 from '../src/lib/exercises/ugly_sweater.json'
+
+type StoryFile = { name: string; topic: string; order: string[] } & Record<string, unknown>
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter });
@@ -46,7 +48,7 @@ async function main() {
     include: { therapist: true }
   })
 
-  const therapist2User = await prisma.user.create({
+  await prisma.user.create({
     data: {
       username: 'mark_smith',
       password: hashedPassword,
@@ -87,7 +89,7 @@ async function main() {
     include: { child: true }
   })
 
-  const child2 = await prisma.user.create({
+  await prisma.user.create({
     data: {
       username: 'sammy_johnson',
       password: hashedPassword,
@@ -117,7 +119,7 @@ async function main() {
   console.log('Users created. Creating exercises...');
 
   // Each story JSON file becomes an exercise group.
-  const createGroup = async (storyData: any) => {
+  const createGroup = async (storyData: StoryFile) => {
     if (!storyData || !storyData.order) {
       console.error(`Error: missing data for group ${storyData?.name}`);
       return null;
@@ -128,15 +130,15 @@ async function main() {
         title: storyData.name || "Untitled exercise",
         topic: storyData.topic || "General",
         exercises: {
-          create: storyData.order.map((key: string, index: number) => {
-            const exData = storyData[key];
+          create: storyData.order.map((key, index) => {
+            const exData = storyData[key] as { type: ExerciseType } | undefined;
             if (!exData) {
               throw new Error(`Error in "${storyData.name}": missing key "${key}".`);
             }
             return {
               position: index + 1,
               exerciseType: exData.type,
-              contentJson: exData
+              contentJson: exData as Prisma.InputJsonValue
             }
           })
         }

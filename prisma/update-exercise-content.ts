@@ -5,7 +5,7 @@
  * Run with: npx tsx prisma/update-exercise-content.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import messyBedroom from '../src/lib/exercises/messy_bedroom.json';
 import missingHat from '../src/lib/exercises/missing_hat.json';
 import happyTears from '../src/lib/exercises/happy_tears.json';
@@ -14,7 +14,9 @@ import uglySweater from '../src/lib/exercises/ugly_sweater.json';
 
 const prisma = new PrismaClient();
 
-const exercisesToUpdate = [
+type StoryFile = { name: string; order: string[] } & Record<string, unknown>;
+
+const exercisesToUpdate: StoryFile[] = [
   messyBedroom,
   missingHat,
   happyTears,
@@ -25,7 +27,7 @@ const exercisesToUpdate = [
 async function updateExerciseContent() {
   console.log('🔄 Updating exercise content...\n');
 
-  for (const storyData of exercisesToUpdate as any[]) {
+  for (const storyData of exercisesToUpdate) {
     const group = await prisma.exerciseGroup.findFirst({
       where: { title: storyData.name },
       include: { exercises: { orderBy: { position: 'asc' } } }
@@ -40,7 +42,7 @@ async function updateExerciseContent() {
 
     for (let i = 0; i < storyData.order.length; i++) {
       const key = storyData.order[i];
-      const exData = storyData[key];
+      const exData = storyData[key] as Prisma.InputJsonValue | undefined;
       const dbExercise = group.exercises[i];
 
       if (!dbExercise) {

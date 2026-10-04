@@ -41,8 +41,8 @@ CORE RULES FOR YOUR BEHAVIOR:
       step_completed: isCompleted
     });
 
-  } catch (error: any) {
-    console.error("Feelings chat route error:", error.message);
+  } catch (error) {
+    console.error("Feelings chat route error:", error);
 
     return new Response(JSON.stringify({
         response: "Squawk! I had a little short circuit. Try again!",

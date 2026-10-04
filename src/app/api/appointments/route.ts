@@ -33,6 +33,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(formatted);
   } catch (error) {
+    console.error("Error loading appointments:", error);
     return NextResponse.json({ error: "Error loading appointments" }, { status: 500 });
   }
 }
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
       const summary = `Therapy session (${type}) - ${appointment.child.user.name} ${appointment.child.user.surname}`;
       let description = note || "";
       if (prescribedGroups && prescribedGroups.length > 0) {
-        description += `\nPrescribed exercises: ${appointment.prescribedGroups.map((g: any) => g.title).join(', ')}`;
+        description += `\nPrescribed exercises: ${appointment.prescribedGroups.map((g) => g.title).join(', ')}`;
       }
 
       await createGoogleCalendarEvent(authUser.userId, {

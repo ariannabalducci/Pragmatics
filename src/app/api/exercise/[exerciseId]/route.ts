@@ -42,7 +42,7 @@ export async function GET(
         if (isSpecialCategory) {
             // Special categories derive the status from the attempt history.
             const groups = await prisma.exerciseGroup.findMany({
-                where: { groupType: groupType as any },
+                where: { groupType },
                 orderBy: { title: 'asc' },
                 include: {
                     exercises: {
@@ -75,7 +75,7 @@ export async function GET(
 
                 let isSessionActive = false;
                 let prescribedGroupIds = new Set<string>();
-                let activeAppointment: any = null;
+                let activeAppointment: (typeof appointments)[number] | null = null;
 
                 for (const app of appointments) {
                     const appStart = new Date(app.startTime);
@@ -85,7 +85,7 @@ export async function GET(
                         if (now >= appStart && now <= appEnd) {
                             isSessionActive = true;
                             activeAppointment = app;
-                            prescribedGroupIds = new Set(app.prescribedGroups?.map((g: any) => g.id) || []);
+                            prescribedGroupIds = new Set(app.prescribedGroups.map((g) => g.id));
                             break;
                         }
                     }
@@ -120,15 +120,15 @@ export async function GET(
                     sessionCompletedExerciseIds = new Set(sessionAttempts.map(a => a.exerciseId));
                 }
 
-                const getGroupStatus = (group: any, index: number, totalGroups: any[]) => {
-                    const completedCount = group.exercises.filter((ex: any) => homeCompletedExerciseIds.has(ex.id)).length;
+                const getGroupStatus = (group: (typeof groups)[number], index: number, totalGroups: typeof groups) => {
+                    const completedCount = group.exercises.filter((ex) => homeCompletedExerciseIds.has(ex.id)).length;
                     const isCompleted = group.exercises.length > 0 && completedCount === group.exercises.length;
 
                     let isFirstUncompleted = false;
                     if (!isCompleted) {
                         const previousGroups = totalGroups.slice(0, index);
                         const allPreviousCompleted = previousGroups.every((prev) => {
-                            const prevCompletedCount = prev.exercises.filter((ex: any) => homeCompletedExerciseIds.has(ex.id)).length;
+                            const prevCompletedCount = prev.exercises.filter((ex) => homeCompletedExerciseIds.has(ex.id)).length;
                             return prev.exercises.length > 0 && prevCompletedCount === prev.exercises.length;
                         });
                         isFirstUncompleted = allPreviousCompleted;
@@ -142,7 +142,7 @@ export async function GET(
                     }
 
                     if (isSessionActive && prescribedGroupIds.has(group.id)) {
-                        const completedInSession = group.exercises.every((ex: any) => sessionCompletedExerciseIds.has(ex.id));
+                        const completedInSession = group.exercises.every((ex) => sessionCompletedExerciseIds.has(ex.id));
                         status = completedInSession ? 'completed' : 'available';
                     }
 
@@ -173,7 +173,7 @@ export async function GET(
                 const dur = parseInt(app.duration?.split(' ')[0] || '45');
                 const end = new Date(start.getTime() + dur * 60000);
                 if (now >= start && now <= end) {
-                    sessionPrescribedIds = new Set(app.prescribedGroups.map((g: any) => g.id));
+                    sessionPrescribedIds = new Set(app.prescribedGroups.map((g) => g.id));
                     break;
                 }
             }
@@ -219,7 +219,7 @@ export async function GET(
             const d = parseInt(activeApp.duration?.split(' ')[0] || '45');
             const e = new Date(s.getTime() + d * 60000);
             return now2 >= s && now2 <= e;
-        })() && activeApp.prescribedGroups.some((g: any) => g.id === exercise.groupId);
+        })() && activeApp.prescribedGroups.some((g) => g.id === exercise.groupId);
 
         if (!isInActiveSession && exercise.position > completedCount + 1) {
              return NextResponse.json({ 

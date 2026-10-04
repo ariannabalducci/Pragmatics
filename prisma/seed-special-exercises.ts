@@ -6,7 +6,7 @@
  * Run with: npx tsx prisma/seed-special-exercises.ts
  */
 
-import { PrismaClient, ExerciseGroupType } from "@prisma/client";
+import { PrismaClient, ExerciseGroupType, ExerciseType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -20,7 +20,7 @@ const CLOZE_EXERCISES = [
     exercises: [
       {
         position: 1,
-        exerciseType: "cloze" as any,
+        exerciseType: "cloze" as ExerciseType,
         contentJson: {
           id: "dolly",
           segments: [
@@ -49,7 +49,7 @@ const CLOZE_EXERCISES = [
     exercises: [
       {
         position: 1,
-        exerciseType: "cloze" as any,
+        exerciseType: "cloze" as ExerciseType,
         contentJson: {
           id: "pippi",
           segments: [
@@ -82,7 +82,7 @@ const FEELINGS_EXERCISES = [
     exercises: [
       {
         position: 1,
-        exerciseType: "feelings" as any,
+        exerciseType: "feelings" as ExerciseType,
         contentJson: {
           id: "thief",
           imageId: "thief",
@@ -102,7 +102,7 @@ const FEELINGS_EXERCISES = [
     exercises: [
       {
         position: 1,
-        exerciseType: "feelings" as any,
+        exerciseType: "feelings" as ExerciseType,
         contentJson: {
           id: "airport",
           imageId: "airport",
@@ -144,7 +144,7 @@ const WHY_EXERCISES = WHY_QUESTIONS.map((title, i) => ({
   exercises: [
     {
       position: 1,
-      exerciseType: "why" as any,
+      exerciseType: "why" as ExerciseType,
       contentJson: {
         id: `why_${i + 1}`,
         questionTitle: title,
@@ -164,7 +164,7 @@ const REACTIONS_EXERCISES = [
     exercises: [
       {
         position: 1,
-        exerciseType: "reactions" as any,
+        exerciseType: "reactions" as ExerciseType,
         contentJson: {
           id: "fall",
           situationDesc: "A child falls during a game while another one blows a whistle.",
@@ -182,7 +182,7 @@ const REACTIONS_EXERCISES = [
     exercises: [
       {
         position: 1,
-        exerciseType: "reactions" as any,
+        exerciseType: "reactions" as ExerciseType,
         contentJson: {
           id: "kitchen",
           situationDesc: "A child is helping mom cook but spills the flour.",

@@ -99,9 +99,10 @@ export async function POST(
 
     return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Buy Item Error:', error);
-    const status = error.message.includes('coins') || error.message.includes('unlocked') ? 400 : 500;
-    return NextResponse.json({ error: error.message }, { status });
+    const message = error instanceof Error ? error.message : '';
+    const status = message.includes('coins') || message.includes('unlocked') ? 400 : 500;
+    return NextResponse.json({ error: status === 400 ? message : 'Internal Server Error' }, { status });
   }
 }

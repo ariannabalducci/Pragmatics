@@ -89,12 +89,12 @@ export async function GET(
       "Sequences": "narrative"
     };
 
-    const progressData: any[] = [];
-    const dateGroups: Record<string, any> = {};
+    const progressData: { date: string; pragmatics: number | null; narrative: number | null }[] = [];
+    const dateGroups: Record<string, { date: string; pragmatic: number; narration: number; countP: number; countN: number }> = {};
 
     student.attempts.forEach(att => {
         const dateStr = new Date(att.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-        if (!dateGroups[dateStr]) dateGroups[dateStr] = { date: dateStr, projects: 0, narration: 0, pragmatic: 0, countP: 0, countN: 0 };
+        if (!dateGroups[dateStr]) dateGroups[dateStr] = { date: dateStr, narration: 0, pragmatic: 0, countP: 0, countN: 0 };
         
         const topic = att.exercise.group.topic;
         const category = categoriesMapping[topic] || (topic.toLowerCase().includes('narrative') ? 'narrative' : 'pragmatics');
@@ -110,7 +110,7 @@ export async function GET(
         }
     });
 
-    Object.values(dateGroups).forEach((g: any) => {
+    Object.values(dateGroups).forEach((g) => {
         progressData.push({
             date: g.date,
             pragmatics: g.countP > 0 ? Math.round(g.pragmatic / g.countP) : null,
@@ -177,6 +177,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error updating the patient:', error);
     return NextResponse.json({ error: 'Error updating the patient' }, { status: 500 });
   }
 }

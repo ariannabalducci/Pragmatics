@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
+import type { ExerciseGroupType } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,7 @@ export async function GET(
 
   try {
     const groups = await prisma.exerciseGroup.findMany({
-      where: { groupType: groupType as any },
+      where: { groupType: groupType as ExerciseGroupType },
       orderBy: { title: 'asc' },
       include: {
         exercises: {
@@ -67,7 +68,7 @@ export async function GET(
     const appointments = child?.appointments || [];
 
     if (child) {
-      let activeAppointment: any = null;
+      let activeAppointment: (typeof appointments)[number] | null = null;
 
       for (const app of appointments) {
         const appStart = new Date(app.startTime);
@@ -83,7 +84,7 @@ export async function GET(
       }
 
       if (isSessionActive && activeAppointment) {
-        prescribedGroupIds = new Set((activeAppointment as any).prescribedGroups?.map((g: any) => g.id) || []);
+        prescribedGroupIds = new Set(activeAppointment.prescribedGroups.map((g) => g.id));
         
         const start = new Date(activeAppointment.startTime).getTime();
         const durationMinutes = parseInt(activeAppointment.duration?.split(" ")[0] || "45");
@@ -116,12 +117,12 @@ export async function GET(
     const homeAttempts = child?.attempts.filter(a => !isAttemptInAnySession(a.createdAt) && a.mode === mode) || [];
     const homeCompletedExerciseIds = new Set(homeAttempts.map(a => a.exerciseId));
 
-    const formatGroup = (group: any, index: number, totalGroups: any[]) => {
+    const formatGroup = (group: (typeof groups)[number], index: number, totalGroups: typeof groups) => {
       const exercise = group.exercises[0];
       
       if (isSessionActive) {
         if (prescribedGroupIds.has(group.id)) {
-          const completedInSession = group.exercises.every((ex: any) => sessionCompletedExerciseIds.has(ex.id));
+          const completedInSession = group.exercises.every((ex) => sessionCompletedExerciseIds.has(ex.id));
           return {
             exerciseGroupId: group.id,
             exerciseId: exercise?.id ?? null,
@@ -144,14 +145,14 @@ export async function GET(
         }
       }
 
-      const completedCount = group.exercises.filter((ex: any) => homeCompletedExerciseIds.has(ex.id)).length;
+      const completedCount = group.exercises.filter((ex) => homeCompletedExerciseIds.has(ex.id)).length;
       const isCompleted = group.exercises.length > 0 && completedCount === group.exercises.length;
 
       let isFirstUncompleted = false;
       if (!isCompleted) {
         const previousGroups = totalGroups.slice(0, index);
         const allPreviousCompleted = previousGroups.every((prev) => {
-          const prevCompletedCount = prev.exercises.filter((ex: any) => homeCompletedExerciseIds.has(ex.id)).length;
+          const prevCompletedCount = prev.exercises.filter((ex) => homeCompletedExerciseIds.has(ex.id)).length;
           return prev.exercises.length > 0 && prevCompletedCount === prev.exercises.length;
         });
         isFirstUncompleted = allPreviousCompleted;
@@ -195,7 +196,7 @@ export async function GET(
       );
 
       const refreshed = await prisma.exerciseGroup.findMany({
-        where: { groupType: groupType as any },
+        where: { groupType: groupType as ExerciseGroupType },
         orderBy: { title: 'asc' },
         include: {
           exercises: { orderBy: { position: 'asc' }, take: 1 },

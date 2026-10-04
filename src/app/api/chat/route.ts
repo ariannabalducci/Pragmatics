@@ -52,8 +52,8 @@ CORE RULES FOR YOUR BEHAVIOR:
       is_ended: !!aiResponse.is_ended
     });
 
-  } catch (error: any) {
-    console.error("Chat route error:", error.message);
+  } catch (error) {
+    console.error("Chat route error:", error);
 
     return new Response(JSON.stringify({
         response: "Squawk! I had a little short circuit. Try again!",

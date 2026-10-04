@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
     const lastUserMessage = messages[messages.length - 1].content;
 
-    const history = messages.slice(0, -1).map((m: any) => ({
+    const history = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     }));
@@ -54,8 +54,8 @@ Format: {"message": "answer content with sources and markdown", "is_ended": fals
       message: aiResponse.message
     });
 
-  } catch (error: any) {
-    console.error("Therapist chat error:", error.message);
+  } catch (error) {
+    console.error("Therapist chat error:", error);
 
     return NextResponse.json({
       error: "Error while contacting the assistant."

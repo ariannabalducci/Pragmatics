@@ -1,4 +1,7 @@
 import { AzureOpenAI } from "openai";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+
+type HistoryMessage = { role: string; parts?: { text?: string }[]; content?: string };
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT || "";
 const apiKey = process.env.AZURE_OPENAI_API_KEY || "";
@@ -12,7 +15,7 @@ const client = endpoint && apiKey ? new AzureOpenAI({
   deployment,
 }) : null;
 
-export async function chatWithAzure(userMessage: string, history: any[], systemInstruction: string) {
+export async function chatWithAzure(userMessage: string, history: HistoryMessage[], systemInstruction: string) {
   if (!client) {
     return {
       message: "⚠️ Azure OpenAI is not configured. Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY and AZURE_OPENAI_DEPLOYMENT in .env.",
@@ -22,19 +25,19 @@ export async function chatWithAzure(userMessage: string, history: any[], systemI
 
   try {
     // History arrives in the Gemini format ({ role: 'model', parts }) used by the client.
-    const formattedHistory = history.map((msg: any) => ({
+    const formattedHistory = history.map((msg): ChatCompletionMessageParam => ({
       role: msg.role === 'model' ? 'assistant' : 'user',
       content: msg.parts?.[0]?.text || msg.content || ""
     }));
 
-    const messages = [
+    const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: systemInstruction },
       ...formattedHistory,
       { role: "user", content: userMessage }
     ];
 
     const response = await client.chat.completions.create({
-      messages: messages as any,
+      messages,
       model: deployment,
       response_format: { type: "json_object" }
     });
@@ -42,8 +45,8 @@ export async function chatWithAzure(userMessage: string, history: any[], systemI
     const text = response.choices[0]?.message?.content || "{}";
     return JSON.parse(text);
 
-  } catch (error: any) {
-    console.error("Azure OpenAI error:", error.message);
+  } catch (error) {
+    console.error("Azure OpenAI error:", error);
     return {
       message: "Sorry, I'm a little tired right now. Try again! 🦜",
       is_ended: false
