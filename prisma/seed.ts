@@ -42,7 +42,7 @@ async function main() {
       name: 'Sarah',
       surname: 'Connor',
       role: 'THERAPIST',
-      email: 'greta.jeun@gmail.com',
+      email: process.env.SEED_THERAPIST_EMAIL || 'sarah.connor@example.com',
       therapist: { create: {} }
     },
     include: { therapist: true }
@@ -55,7 +55,7 @@ async function main() {
       name: 'Mark',
       surname: 'Smith',
       role: 'THERAPIST',
-      email: 'ariannabalduccii@gmail.com',
+      email: 'mark.smith@example.com',
       therapist: { create: {} }
     },
     include: { therapist: true }
