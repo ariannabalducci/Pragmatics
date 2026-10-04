@@ -33,8 +33,8 @@ interface Appointment {
 
 interface ProgressPoint {
   date: string;
-  pragmatica: number | null;
-  narrazione: number | null;
+  pragmatics: number | null;
+  narrative: number | null;
 }
 
 interface Patient {
@@ -632,20 +632,20 @@ function ProgressChart({ data }: { data: ProgressPoint[] }) {
   const chartHeight = height - padding * 2;
 
   const pointsPragmatic = data.map((d, i) => {
-    if (d.pragmatica === null) return null;
+    if (d.pragmatics === null) return null;
     const x = data.length > 1
       ? padding + (i / (data.length - 1)) * chartWidth
       : padding + chartWidth / 2;
-    const y = height - padding - (d.pragmatica / 100) * chartHeight;
+    const y = height - padding - (d.pragmatics / 100) * chartHeight;
     return { x, y };
   }).filter(Boolean) as { x: number, y: number }[];
 
   const pointsNarration = data.map((d, i) => {
-    if (d.narrazione === null) return null;
+    if (d.narrative === null) return null;
     const x = data.length > 1
       ? padding + (i / (data.length - 1)) * chartWidth
       : padding + chartWidth / 2;
-    const y = height - padding - (d.narrazione / 100) * chartHeight;
+    const y = height - padding - (d.narrative / 100) * chartHeight;
     return { x, y };
   }).filter(Boolean) as { x: number, y: number }[];
 

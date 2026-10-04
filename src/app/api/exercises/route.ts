@@ -3,11 +3,11 @@ import prisma from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 
 const GROUP_TYPE_LABELS: Record<string, string> = {
-  generic: 'Storia/Chat',
-  cloze: 'Completamento',
-  feelings: 'Sentimenti',
-  why: 'Perché',
-  reactions: 'Reazioni',
+  generic: 'Story/Chat',
+  cloze: 'Cloze',
+  feelings: 'Feelings',
+  why: 'Why',
+  reactions: 'Reactions',
 };
 
 export async function GET(request: Request) {

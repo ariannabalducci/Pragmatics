@@ -7,19 +7,9 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/exercises/by-type/[groupType]
  *
- * Restituisce tutti i ExerciseGroup di un dato tipo (cloze, sentimenti, perche, reazioni)
- * con lo stato del Path del bambino autenticato.
- *
- * Response item shape:
- * {
- *   exerciseGroupId: string   // ID del ExerciseGroup
- *   exerciseId: string        // ID del singolo Exercise (uno per gruppo)
- *   title: string
- *   topic: string
- *   groupType: string
- *   status: "available" | "blocked" | "completed"
- *   contentJson: object       // Dati specifici dell'esercizio (dal DB)
- * }
+ * Returns every ExerciseGroup of the given type (cloze, feelings, why, reactions)
+ * with its status for the authenticated child:
+ * { exerciseGroupId, exerciseId, title, topic, groupType, status, contentJson }
  */
 export async function GET(
   request: Request,
@@ -32,24 +22,19 @@ export async function GET(
 
   const { groupType } = await params;
 
-  // Valida il groupType
   const validTypes = ['cloze', 'feelings', 'why', 'reactions', 'generic'];
   if (!validTypes.includes(groupType)) {
     return NextResponse.json({ error: 'Invalid groupType' }, { status: 400 });
   }
 
   try {
-    // Carica tutti i gruppi del tipo richiesto con i Path del bambino
     const groups = await prisma.exerciseGroup.findMany({
       where: { groupType: groupType as any },
-      orderBy: [
-        // Per perche, mantieni l'ordine originale
-        { title: 'asc' }
-      ],
+      orderBy: { title: 'asc' },
       include: {
         exercises: {
           orderBy: { position: 'asc' },
-          take: 1 // Ogni gruppo speciale ha un solo esercizio
+          take: 1 // special groups have a single exercise
         },
         paths: {
           where: { childId: authUser.userId }
@@ -57,7 +42,7 @@ export async function GET(
       }
     });
 
-    // Rilevamento seduta attiva — STRETTO: attiva solo nell'esatto intervallo [startTime, end].
+    // A session is active only between its start time and start time + duration.
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -190,9 +175,8 @@ export async function GET(
       };
     };
 
-    // Se il bambino non ha ancora Path per questo tipo, creali automaticamente
+    // Create the child's paths for this type on first access.
     if (groups.length > 0 && groups.every(g => g.paths.length === 0)) {
-      // Conta le posizioni esistenti per calcolare offset
       const existingPathCount = await prisma.path.count({
         where: { childId: authUser.userId }
       });
@@ -210,7 +194,6 @@ export async function GET(
         )
       );
 
-      // Ricarica dopo la creazione
       const refreshed = await prisma.exerciseGroup.findMany({
         where: { groupType: groupType as any },
         orderBy: { title: 'asc' },

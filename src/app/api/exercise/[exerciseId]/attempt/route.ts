@@ -17,12 +17,7 @@ export async function POST(
     const body = await request.json();
     const { duration_seconds, tries_till_correct, text_attempt, mode } = body;
 
-    // Permettiamo salvataggi multipli dello stesso esercizio per supportare il "redo" clinico
-    // const existingAttempt = await prisma.exerciseAttempt.findFirst({
-    //   where: { childId: authUser.userId, exerciseId: exerciseId, success: true }
-    // });
-    // if (existingAttempt) return NextResponse.json({ error: 'Already completed' }, { status: 409 });
-
+    // Repeated attempts are allowed so an exercise can be redone in therapy.
     const result = await prisma.$transaction(async (tx) => {
       await tx.exerciseAttempt.create({
         data: {
@@ -72,7 +67,6 @@ export async function POST(
         });
 
         if (currentPath) {
-          // CONTROLLO SE C'È UNA SEDUTA ATTIVA IN QUESTO MOMENTO
           const now = new Date();
           const startOfDay = new Date(now);
           startOfDay.setHours(0, 0, 0, 0);
@@ -100,14 +94,14 @@ export async function POST(
             }
           }
 
-          // SE LA SEDUTA È ATTIVA, NON AGGIORNIAMO LA PATH (MAPPA A CASA)
+          // Attempts made during a session don't change the home path.
           if (!isSessionActive) {
             await tx.path.update({
                 where: { id: currentPath.id },
                 data: { status: 'completed' }
             });
 
-            // CONTROLLO LIMITE GIORNALIERO PRIMA DI SBLOCCARE IL PROSSIMO
+            // Respect the session's exercise limit before unlocking the next group.
             const appointment = appointments[0];
             let shouldUnlockNext = true;
 

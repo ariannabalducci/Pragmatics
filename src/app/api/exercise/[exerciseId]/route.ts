@@ -40,7 +40,7 @@ export async function GET(
         let isAvailable = false;
 
         if (isSpecialCategory) {
-            // Calcolo dinamico dello stato per le categorie speciali
+            // Special categories derive the status from the attempt history.
             const groups = await prisma.exerciseGroup.findMany({
                 where: { groupType: groupType as any },
                 orderBy: { title: 'asc' },
@@ -82,7 +82,6 @@ export async function GET(
                     if (appStart >= startOfDay && appStart <= endOfDay) {
                         const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
                         const appEnd = new Date(appStart.getTime() + durationMinutes * 60000);
-                        // Stretto: attivo solo nell'esatto intervallo [startTime, endTime]
                         if (now >= appStart && now <= appEnd) {
                             isSessionActive = true;
                             activeAppointment = app;
@@ -154,7 +153,7 @@ export async function GET(
                 isAvailable = currentGroupStatus === 'available' || currentGroupStatus === 'completed';
             }
         } else {
-            // Esercizi generici: controlla prima sessione attiva, poi progressione casa
+            // Generic exercises: check the active session first, then home progress.
             const now = new Date();
             const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -179,11 +178,10 @@ export async function GET(
                 }
             }
 
-            // Sessione attiva + esercizio prescritto → sempre disponibile
             if (sessionPrescribedIds.has(exercise.groupId)) {
                 isAvailable = true;
             } else {
-                // Fuori sessione: usa status dal DB come approssimazione
+                // Outside a session, rely on the stored path status.
                 const studentPath = exercise.group.paths[0];
                 if (studentPath) {
                     isAvailable = studentPath.status === 'available' || studentPath.status === 'completed';
@@ -207,7 +205,7 @@ export async function GET(
 
         const completedCount = successfulAttempts.length;
 
-        // Skip check sequenziale se l'esercizio è prescritto in una sessione attiva
+        // Exercises prescribed in the active session skip the sequential check.
         const now2 = new Date();
         const sod2 = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate());
         const eod2 = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate(), 23, 59, 59);

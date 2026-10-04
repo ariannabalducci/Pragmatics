@@ -28,9 +28,9 @@ export async function POST(request: Request) {
 
     // Validate role if expectedRole is provided
     if (expectedRole && user.role !== expectedRole) {
-      const roleLabel = expectedRole === 'THERAPIST' ? 'un logopedista' : 'un ragazzo';
+      const roleLabel = expectedRole === 'THERAPIST' ? 'a therapist' : 'a child';
       return NextResponse.json(
-        { error: `Queste credenziali non appartengono a ${roleLabel}` },
+        { error: `These credentials do not belong to ${roleLabel}` },
         { status: 403 }
       );
     }

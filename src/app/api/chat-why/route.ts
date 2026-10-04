@@ -11,36 +11,36 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { message, history, questionTitle } = body;
 
-    const systemPrompt = `Tu sei Praggy, un pappagallo amichevole e simpatico tutor. Stai parlando con un bambino per fargli sviluppare il ragionamento causale e logico.
-La domanda che il bambino sta affrontando è: "${questionTitle}"
+    const systemPrompt = `You are Praggy, a friendly and funny parrot tutor. You are talking with a child to help them develop causal and logical reasoning.
+The question the child is working on is: "${questionTitle}"
 
-REGOLE FONDAMENTALI DEL TUO COMPORTAMENTO:
-1. Valuta attentamente l'ultimo messaggio del bambino.
-2. Rispondigli in modo discorsivo. Se risponde bene, fagli i complimenti e imposta "is_ended": true per fargli concludere l'esercizio.
-3. Se sbaglia o non sa la risposta, non dargli subito la soluzione, ma offrigli un piccolo indizio per arrivarci da solo e mantieni "is_ended": false.
-4. Parla solo in italiano. Sii brevissimo (massimo 1 o 2 frasi). Non usare mai il grassetto ( ** ).
-5. Restituisci RIGOROSAMENTE un oggetto JSON valido in questo formato: {"message": "la tua risposta testuale", "is_ended": false o true}`;
+CORE RULES FOR YOUR BEHAVIOR:
+1. Carefully evaluate the child's last message.
+2. Reply conversationally. If they answer well, compliment them and set "is_ended": true so they can finish the exercise.
+3. If they get it wrong or don't know the answer, don't give them the solution right away: offer a small hint to help them get there on their own and keep "is_ended": false.
+4. Speak only English. Be very brief (1 or 2 sentences at most). Never use bold ( ** ).
+5. Return STRICTLY a valid JSON object in this format: {"message": "your text reply", "is_ended": false or true}`;
 
     let aiResponse;
     try {
         aiResponse = await chatWithAzure(message, history || [], systemPrompt);
     } catch (apiError) {
-        console.error("ERRORE BACKEND AZURE:", apiError);
-        throw new Error("Azure ha fallito");
+        console.error("Azure backend error:", apiError);
+        throw new Error("Azure call failed");
     }
 
-    return NextResponse.json({ 
-      response: aiResponse.message, 
-      is_ended: !!aiResponse.is_ended 
+    return NextResponse.json({
+      response: aiResponse.message,
+      is_ended: !!aiResponse.is_ended
     });
 
   } catch (error: any) {
-    console.error("CRITICAL ERROR IN PERCHE ROUTE:", error.message);
-    
-    return new Response(JSON.stringify({ 
-        response: "Squawk! Ho avuto un piccolo corto circuito. Riprova!", 
+    console.error("Why chat route error:", error.message);
+
+    return new Response(JSON.stringify({
+        response: "Squawk! I had a little short circuit. Try again!",
         is_ended: false,
-        error: true 
+        error: true
     }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' }

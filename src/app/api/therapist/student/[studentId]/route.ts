@@ -35,12 +35,11 @@ export async function GET(
     });
 
     if (!student || student.therapistId !== authUser.userId) {
-      return NextResponse.json({ error: 'Paziente non trovato' }, { status: 404 });
+      return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
     }
 
     const now = new Date();
 
-    // Raggruppamento appuntamenti
     const allApps = student.appointments.map(app => {
       const prescribedIds = app.prescribedGroups.map(g => g.id);
       const relatedAttempts = student.attempts.filter(attempt => {
@@ -49,7 +48,7 @@ export async function GET(
         const end = start + durationMinutes * 60000;
         
         const attTime = new Date(attempt.createdAt).getTime();
-        const buffer = 5 * 60000; // 5 minuti di tolleranza
+        const buffer = 5 * 60000; // 5-minute tolerance
         
         const isInSessionTime = attTime >= start - buffer && attTime <= end + buffer;
         const isPrescribed = prescribedIds.includes(attempt.exercise.groupId);
@@ -79,31 +78,30 @@ export async function GET(
     const upcoming = allApps.filter(a => !a.isPast).reverse();
     const past = allApps.filter(a => a.isPast);
 
-    // Dati per il grafico (Progressi nel tempo)
-    // Mappa i topic a categorie fisse
+    // Progress chart: daily success rate, split into pragmatics and narrative topics.
     const categoriesMapping: Record<string, string> = {
-      "Inferenze": "Pragmatica",
-      "Ironia": "Pragmatica",
-      "Conversazione": "Pragmatica",
-      "Emozioni": "Pragmatica",
-      "Narrazione": "Narrazione",
-      "Storie": "Narrazione",
-      "Sequenze": "Narrazione"
+      "Inferences": "pragmatics",
+      "Irony": "pragmatics",
+      "Conversation": "pragmatics",
+      "Emotions": "pragmatics",
+      "Narrative": "narrative",
+      "Stories": "narrative",
+      "Sequences": "narrative"
     };
 
     const progressData: any[] = [];
     const dateGroups: Record<string, any> = {};
 
     student.attempts.forEach(att => {
-        const dateStr = new Date(att.createdAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+        const dateStr = new Date(att.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
         if (!dateGroups[dateStr]) dateGroups[dateStr] = { date: dateStr, projects: 0, narration: 0, pragmatic: 0, countP: 0, countN: 0 };
         
         const topic = att.exercise.group.topic;
-        const category = categoriesMapping[topic] || (topic.toLowerCase().includes('narrazione') ? 'Narrazione' : 'Pragmatica');
-        
-        const score = att.success ? 100 : 0; // Semplificato, o 100 - (tries * 10)
-        
-        if (category === 'Pragmatica') {
+        const category = categoriesMapping[topic] || (topic.toLowerCase().includes('narrative') ? 'narrative' : 'pragmatics');
+
+        const score = att.success ? 100 : 0;
+
+        if (category === 'pragmatics') {
             dateGroups[dateStr].pragmatic += score;
             dateGroups[dateStr].countP++;
         } else {
@@ -115,8 +113,8 @@ export async function GET(
     Object.values(dateGroups).forEach((g: any) => {
         progressData.push({
             date: g.date,
-            pragmatica: g.countP > 0 ? Math.round(g.pragmatic / g.countP) : null,
-            narrazione: g.countN > 0 ? Math.round(g.narration / g.countN) : null
+            pragmatics: g.countP > 0 ? Math.round(g.pragmatic / g.countP) : null,
+            narrative: g.countN > 0 ? Math.round(g.narration / g.countN) : null
         });
     });
 
@@ -133,7 +131,7 @@ export async function GET(
       lastSessionDate: past[0]?.date || null,
       upcomingAppointments: upcoming,
       pastAppointments: past,
-      progressData: progressData.slice(-10), // Ultime 10 rilevazioni
+      progressData: progressData.slice(-10),
       progressResetAt: student.progressResetAt ?? null,
     });
   } catch (error) {
@@ -153,7 +151,7 @@ export async function PATCH(
 
   try {
     if (!(await isTherapistOf(authUser.userId, studentId))) {
-      return NextResponse.json({ error: 'Paziente non trovato' }, { status: 404 });
+      return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -179,6 +177,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Errore' }, { status: 500 });
+    return NextResponse.json({ error: 'Error updating the patient' }, { status: 500 });
   }
 }

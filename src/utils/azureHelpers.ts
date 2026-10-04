@@ -4,26 +4,24 @@ const endpoint = process.env.AZURE_OPENAI_ENDPOINT || "";
 const apiKey = process.env.AZURE_OPENAI_API_KEY || "";
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT || "";
 
-// Se mancano le chiavi Azure nel .env, non proviamo neanche ad avviare il client vero per evitare crash
+// Without credentials the chat replies with a warning instead of crashing.
 const client = endpoint && apiKey ? new AzureOpenAI({
   endpoint,
   apiKey,
-  apiVersion: "2024-02-15-preview", // API version standard stabile
+  apiVersion: "2024-02-15-preview",
   deployment,
 }) : null;
 
 export async function chatWithAzure(userMessage: string, history: any[], systemInstruction: string) {
   if (!client) {
     return {
-      message: "⚠️ ATTENZIONE: Mancano le credenziali di Azure nel file .env! Inserisci AZURE_OPENAI_API_KEY e gli altri parametri.",
+      message: "⚠️ Azure OpenAI is not configured. Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY and AZURE_OPENAI_DEPLOYMENT in .env.",
       is_ended: false
     };
   }
 
   try {
-    console.log(`--- CHIAMATA AZURE OPENAI (${deployment}) ---`);
-
-    // Mappatura della history (Il frontend usava il formato Gemini, noi lo traduciamo per OpenAI)
+    // History arrives in the Gemini format ({ role: 'model', parts }) used by the client.
     const formattedHistory = history.map((msg: any) => ({
       role: msg.role === 'model' ? 'assistant' : 'user',
       content: msg.parts?.[0]?.text || msg.content || ""
@@ -38,16 +36,16 @@ export async function chatWithAzure(userMessage: string, history: any[], systemI
     const response = await client.chat.completions.create({
       messages: messages as any,
       model: deployment,
-      response_format: { type: "json_object" } // Forza la risposta in JSON nativamente
+      response_format: { type: "json_object" }
     });
 
     const text = response.choices[0]?.message?.content || "{}";
     return JSON.parse(text);
 
   } catch (error: any) {
-    console.error("LOG ERRORE AZURE:", error.message);
+    console.error("Azure OpenAI error:", error.message);
     return {
-      message: "Scusa, anche Azure Microsoft in questo momento si sente stanco. Riprova! 🦜",
+      message: "Sorry, I'm a little tired right now. Try again! 🦜",
       is_ended: false
     };
   }

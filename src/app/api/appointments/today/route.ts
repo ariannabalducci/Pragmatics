@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
-    const GRACE_FUTURE_MS = 15 * 60000; // 15 minuti di margine nel futuro
+    const GRACE_FUTURE_MS = 15 * 60000; // 15-minute margin in the future
 
     const appointments = await prisma.appointment.findMany({
       where: {
@@ -31,8 +31,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ hasAppointment: false });
     }
 
-    // Approccio robusto: un appuntamento è "attivo" se il suo orario è già passato
-    // (con un margine di 15 minuti nel futuro per gestire piccoli disallineamenti)
+    // Pick the appointment in progress, otherwise one still to come today.
     let appointment = appointments[0];
     let isActive = false;
     let appointmentStart = new Date(appointment.startTime);
@@ -44,7 +43,6 @@ export async function GET(req: Request) {
       const dur = parseInt(app.duration?.split(" ")[0] || "45");
       const end = new Date(start.getTime() + dur * 60000);
 
-      // Attivo SOLO nell'esatto intervallo [startTime, endTime]
       if (now >= start && now <= end) {
         appointment = app;
         isActive = true;
@@ -53,7 +51,6 @@ export async function GET(req: Request) {
         appointmentEnd = end;
         break;
       } else if (now < start && !isActive) {
-        // Prossimo futuro come fallback visivo
         appointment = app;
         appointmentStart = start;
         durationMinutes = dur;
@@ -61,7 +58,6 @@ export async function GET(req: Request) {
       }
     }
 
-    // sessionMode: mappa il tipo DB al valore atteso dal frontend, solo se attivo
     const sessionMode = isActive
       ? (appointment.type === "testing" ? "testing" : "training")
       : null;
@@ -78,7 +74,7 @@ export async function GET(req: Request) {
       endTime: appointmentEnd.toISOString(),
     });
   } catch (error) {
-    console.error("Errore appointments/today:", error);
+    console.error("Error loading today's appointment:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

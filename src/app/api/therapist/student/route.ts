@@ -14,10 +14,10 @@ export async function GET(request: Request) {
         user: true,
         appointments: {
           orderBy: { startTime: 'desc' },
-          take: 1 // Prendiamo solo il più recente
+          take: 1 // most recent only
         },
         _count: {
-          select: { appointments: true } // Conteggio per "Sedute totali"
+          select: { appointments: true }
         }
       }
     });
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       surname: child.user.surname,
       age: child.age,
       gender: child.gender,
-      diagnosis: child.description, // Mappato su child.description
+      diagnosis: child.description,
       totalSessions: child._count.appointments,
       lastSessionDate: child.appointments[0]?.startTime || null,
       initials: `${child.user.name[0]}${child.user.surname[0]}`.toUpperCase(),

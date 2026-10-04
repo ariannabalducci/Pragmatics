@@ -24,7 +24,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Errore API Delete:", error);
-    return NextResponse.json({ error: "Errore durante la cancellazione" }, { status: 500 });
+    console.error("Error deleting appointment:", error);
+    return NextResponse.json({ error: "Error deleting the appointment" }, { status: 500 });
   }
 }

@@ -50,7 +50,7 @@ export async function GET(
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    // Rilevamento seduta attiva — STRETTO: attiva solo nell'esatto intervallo [startTime, end].
+    // A session is active only between its start time and start time + duration.
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -60,7 +60,6 @@ export async function GET(
     let isSessionActive = false;
     let appointment: (typeof appointments)[0] | null = null;
 
-    // Trova l'appuntamento odierno attivo nell'esatto orario [start, end]
     for (const app of appointments) {
       const appStart = new Date(app.startTime);
       if (appStart >= startOfDay && appStart <= endOfDay) {
@@ -76,7 +75,6 @@ export async function GET(
 
     const prescribedGroupIds = new Set(isSessionActive && appointment ? ((appointment as any)?.prescribedGroups?.map((g: any) => g.id) || []) : []);
 
-    // Tentativi effettuati durante la seduta: finestra generosa di 30 min prima e dopo la seduta
     let sessionCompletedExerciseIds = new Set<string>();
     if (isSessionActive && appointment) {
       const start = new Date(appointment.startTime).getTime();
@@ -91,12 +89,12 @@ export async function GET(
       sessionCompletedExerciseIds = new Set(sessionAttempts.map(a => a.exerciseId));
     }
 
-    // Tentativi a casa: tutto ciò che NON è dentro nessuna finestra di seduta
+    // Home progress ignores attempts made during today's sessions.
     const isAttemptInAnySession = (createdAt: Date) => {
       const attTime = new Date(createdAt).getTime();
       return appointments.some(app => {
         const appStart = new Date(app.startTime);
-        if (appStart < startOfDay || appStart > endOfDay) return false; // solo appuntamenti odierni
+        if (appStart < startOfDay || appStart > endOfDay) return false;
         const start = new Date(app.startTime).getTime();
         const durationMinutes = parseInt(app.duration?.split(" ")[0] || "45");
         const end = start + durationMinutes * 60000;
@@ -108,7 +106,7 @@ export async function GET(
     const homeCompletedExerciseIds = new Set(homeAttempts.map(a => a.exerciseId));
 
     const activeLevels: any[] = [];
-    // Filtra solo i gruppi di tipo "generic" per la path principale
+    // The main path only shows the generic story/chat groups.
     const genericPaths = child.paths.filter((p) => p.exerciseGroup.groupType === 'generic');
 
     const groupCompletedAtHome = genericPaths.map((path) => {

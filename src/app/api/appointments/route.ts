@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(formatted);
   } catch (error) {
-    return NextResponse.json({ error: "Errore nel caricamento" }, { status: 500 });
+    return NextResponse.json({ error: "Error loading appointments" }, { status: 500 });
   }
 }
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     const { startTime, type, duration, note, childId, trainingExercises, testingExercises, prescribedGroups } = body;
 
     if (!childId) {
-      return NextResponse.json({ error: "Dati mancanti" }, { status: 400 });
+      return NextResponse.json({ error: "Missing data" }, { status: 400 });
     }
 
     if (!(await isTherapistOf(authUser.userId, childId))) {
@@ -78,10 +78,10 @@ export async function POST(req: Request) {
     try {
       const startDate = new Date(startTime);
       const endDate = new Date(startDate.getTime() + duration * 60000);
-      const summary = `Seduta ${type} - ${appointment.child.user.name} ${appointment.child.user.surname}`;
+      const summary = `Therapy session (${type}) - ${appointment.child.user.name} ${appointment.child.user.surname}`;
       let description = note || "";
       if (prescribedGroups && prescribedGroups.length > 0) {
-        description += `\nEsercizi prescritti: ${appointment.prescribedGroups.map((g: any) => g.title).join(', ')}`;
+        description += `\nPrescribed exercises: ${appointment.prescribedGroups.map((g: any) => g.title).join(', ')}`;
       }
 
       await createGoogleCalendarEvent(authUser.userId, {
@@ -91,13 +91,13 @@ export async function POST(req: Request) {
         endTime: endDate
       });
     } catch (gcalError) {
-      console.error("Errore sincronizzazione Google Calendar:", gcalError);
-      // Non blocchiamo il flusso se gcal fallisce
+      console.error("Google Calendar sync error:", gcalError);
+      // A calendar failure must not block the appointment.
     }
 
     return NextResponse.json(appointment);
   } catch (error) {
-    console.error("Errore Prisma dettagliato:", error);
-    return NextResponse.json({ error: "Errore salvataggio DB" }, { status: 500 });
+    console.error("Error saving appointment:", error);
+    return NextResponse.json({ error: "Error saving the appointment" }, { status: 500 });
   }
 }
