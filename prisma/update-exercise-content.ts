@@ -1,8 +1,8 @@
 /**
- * Script per aggiornare il contentJson degli esercizi nel DB
- * senza fare un seed completo (che resetterebbe i progressi).
+ * Updates the contentJson of existing exercises from the JSON files,
+ * without a full seed (which would reset the children's progress).
  *
- * Eseguire con: npx tsx prisma/update-exercise-content.ts
+ * Run with: npx tsx prisma/update-exercise-content.ts
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -23,7 +23,7 @@ const exercisesToUpdate = [
 ];
 
 async function updateExerciseContent() {
-  console.log('🔄 Aggiornamento contentJson esercizi...\n');
+  console.log('🔄 Updating exercise content...\n');
 
   for (const storyData of exercisesToUpdate as any[]) {
     const group = await prisma.exerciseGroup.findFirst({
@@ -32,11 +32,11 @@ async function updateExerciseContent() {
     });
 
     if (!group) {
-      console.warn(`⚠️  Gruppo non trovato: "${storyData.name}" — skip`);
+      console.warn(`⚠️  Group not found: "${storyData.name}" — skipped`);
       continue;
     }
 
-    console.log(`📚 Aggiornamento: "${storyData.name}" (${group.exercises.length} esercizi)`);
+    console.log(`📚 Updating "${storyData.name}" (${group.exercises.length} exercises)`);
 
     for (let i = 0; i < storyData.order.length; i++) {
       const key = storyData.order[i];
@@ -44,12 +44,12 @@ async function updateExerciseContent() {
       const dbExercise = group.exercises[i];
 
       if (!dbExercise) {
-        console.warn(`  ⚠️  Esercizio ${i + 1} non trovato nel DB — skip`);
+        console.warn(`  ⚠️  Exercise ${i + 1} not found in the DB — skipped`);
         continue;
       }
 
       if (!exData) {
-        console.warn(`  ⚠️  Chiave "${key}" mancante nel JSON — skip`);
+        console.warn(`  ⚠️  Key "${key}" missing from the JSON — skipped`);
         continue;
       }
 
@@ -58,16 +58,16 @@ async function updateExerciseContent() {
         data: { contentJson: exData }
       });
 
-      console.log(`  ✅ ${key} (posizione ${i + 1}) aggiornato`);
+      console.log(`  ✅ ${key} (position ${i + 1}) updated`);
     }
   }
 
-  console.log('\n✨ Aggiornamento completato!');
+  console.log('\n✨ Update completed!');
   await prisma.$disconnect();
 }
 
 updateExerciseContent().catch(async (e) => {
-  console.error('❌ Errore:', e);
+  console.error('❌ Error:', e);
   await prisma.$disconnect();
   process.exit(1);
 });

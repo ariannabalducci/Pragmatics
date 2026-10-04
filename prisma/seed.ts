@@ -3,7 +3,6 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
 
-// IMPORTA I FILE JSON DEGLI ESERCIZI
 import story1 from '../src/lib/exercises/decorating_a_cake.json'
 import story2 from '../src/lib/exercises/mountain_of_homework.json'
 import story3 from '../src/lib/exercises/throwing_an_apple.json'
@@ -17,10 +16,10 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('Svuotamento database e inizio Seed...')
+  console.log('Clearing the database and seeding...')
 
-  // 1. PULIZIA TOTALE (In ordine per evitare errori di chiavi esterne)
-  await prisma.appointment.deleteMany({}) // <--- NUOVO
+  // Delete in dependency order to respect foreign keys.
+  await prisma.appointment.deleteMany({})
   await prisma.exerciseAttempt.deleteMany({})
   await prisma.path.deleteMany({})
   await prisma.collectionItem.deleteMany({})
@@ -33,7 +32,7 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('123456', 10)
 
-  // 2. CREAZIONE TERAPISTA
+  // Therapists
   const therapist1User = await prisma.user.create({
     data: {
       username: 'sarah_connor',
@@ -60,7 +59,7 @@ async function main() {
     include: { therapist: true }
   })
 
-  // 3. CREAZIONE BAMBINO
+  // Children
   const child1 = await prisma.user.create({
     data: {
       username: 'timmy_turner',
@@ -74,7 +73,7 @@ async function main() {
           gender: 'boy',
           ethnicity: 'caucasian',
           coins: 100,
-          description: 'Ama i videogiochi',
+          description: 'Loves video games',
           avatarSkinColor: '#ffffff',
           avatarHairStyle: 'boy_hair_1',
           avatarHairColor: '#ffffff',
@@ -101,7 +100,7 @@ async function main() {
           gender: 'boy',
           ethnicity: 'caucasian',
           coins: 100,
-          description: 'Ama i dinosauri',
+          description: 'Loves dinosaurs',
           avatarSkinColor: '#ffffff',
           avatarHairStyle: 'boy_hair_1',
           avatarHairColor: '#ffffff',
@@ -115,24 +114,24 @@ async function main() {
     include: { child: true }
   })
 
-  console.log('Utenti creati. Inizio creazione esercizi...');
+  console.log('Users created. Creating exercises...');
 
-  // 4. HELPER CREAZIONE GRUPPI ESERCIZI
+  // Each story JSON file becomes an exercise group.
   const createGroup = async (storyData: any) => {
     if (!storyData || !storyData.order) {
-      console.error(`Errore: Dati mancanti per il gruppo ${storyData?.name}`);
+      console.error(`Error: missing data for group ${storyData?.name}`);
       return null;
     }
 
     return await prisma.exerciseGroup.create({
       data: {
-        title: storyData.name || "Esercizio senza titolo",
-        topic: storyData.topic || "Generale",
+        title: storyData.name || "Untitled exercise",
+        topic: storyData.topic || "General",
         exercises: {
           create: storyData.order.map((key: string, index: number) => {
             const exData = storyData[key];
             if (!exData) {
-              throw new Error(`Errore nel file "${storyData.name}": chiave "${key}" mancante.`);
+              throw new Error(`Error in "${storyData.name}": missing key "${key}".`);
             }
             return {
               position: index + 1,
@@ -156,7 +155,7 @@ async function main() {
 
   const allGroups = [g1, g2, g3, g4, g5, g6, g7, g8];
 
-  // 5. CREAZIONE PERCORSO (PATH)
+  // Main path for the first child
   if (child1.child) {
     for (let i = 0; i < allGroups.length; i++) {
       if (allGroups[i]) {
@@ -172,8 +171,8 @@ async function main() {
     }
   }
 
-  // 6. COLLEZIONE PAPPAGALLI
-  const parrotNames = ["Polly", "Kiwi", "Coco", "Amico", "Charlie", "Sole", "Mango", "Pinolo", "Skittles", "Rio", "Tiki", "Zazu"];
+  // Parrot collection
+  const parrotNames = ["Polly", "Kiwi", "Coco", "Buddy", "Charlie", "Sunny", "Mango", "Peanut", "Skittles", "Rio", "Tiki", "Zazu"];
   const parrotImages = ["parrot1", "parrot2", "parrot3", "parrot4"];
   for (let i = 0; i < 12; i++) {
     await prisma.collectionItem.create({

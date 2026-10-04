@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -78,11 +72,11 @@ model Child {
   ethnicity   String
   description String?
   diagnosis   String?  
-  internalNotes String? // Note private del terapista
+  internalNotes String? // visible to the therapist only
 
   coins Int @default(0)
 
-  progressResetAt DateTime? // Impostato dal terapista per resettare i progressi localStorage del bambino
+  progressResetAt DateTime? // set when the therapist resets the child's progress
 
   avatarSkinColor String @default("#ffffff")
   avatarHairStyle String @default("man_1")
@@ -164,7 +158,7 @@ model ExerciseAttempt {
   durationSeconds  Int
   triesTillCorrect Int?
   textAttempt      Json?
-  mode             String   @default("training") // "training" o "testing"
+  mode             String   @default("training") // "training" or "testing"
   
   createdAt DateTime @default(now())
 }
@@ -184,21 +178,18 @@ model Appointment {
   id          String   @id @default(uuid())
   startTime   DateTime
   type        String   // "training" or "testing"
-  duration    String   // es: "45 min"
+  duration    String   // e.g. "45 min"
   note        String?
 
-  // Numero di gruppi esercizi da completare nella seduta
+  // Number of exercise groups to complete in the session
   trainingExercises Int @default(0)
   testingExercises  Int @default(0)
 
-  // Prescrizione specifica degli esercizi
   prescribedGroups ExerciseGroup[]
 
-  // Relazione con il Terapista (Logopedista)
   therapistId String
   therapist   Therapist @relation(fields: [therapistId], references: [userId])
 
-  // Relazione con il Bambino (Paziente)
   childId     String
   child       Child     @relation(fields: [childId], references: [userId])
 
