@@ -51,6 +51,6 @@
     "typescript": "5.9.3"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts && tsx prisma/seed-special-exercises.ts"
   }
 }
