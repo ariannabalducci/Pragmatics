@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/ui/LogoutButton";
 import Image from "next/image";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import ChatInput from "@/components/ui/ChatInput";
 import MessageWindow from "@/components/ui/MessageWindow";
 import { ChatHistory, Message, MessageRole } from "../../types";
@@ -11,7 +11,7 @@ import { ArrowLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import ChatWindow from "@/components/ui/ChatWindow";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ChatPage = () => {
+const ChatContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const exerciseId = searchParams.get('id');
@@ -263,5 +263,11 @@ const ChatPage = () => {
         </main>
     );
 };
+
+const ChatPage = () => (
+    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center">Loading...</div>}>
+        <ChatContent />
+    </Suspense>
+);
 
 export default ChatPage;

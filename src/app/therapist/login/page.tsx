@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { UserCog, Lock, User, LogIn } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 
-export default function TherapistLoginPage() {
+function TherapistLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -191,5 +191,13 @@ export default function TherapistLoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function TherapistLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <TherapistLoginContent />
+    </Suspense>
   );
 }

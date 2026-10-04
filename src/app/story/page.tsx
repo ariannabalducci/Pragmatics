@@ -3,12 +3,12 @@
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/ui/LogoutButton";
 import Image from "next/image";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import StoryWindow from "@/components/ui/StoryWindow";
 import { ArrowLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const StoryPage = () => {
+const StoryContent = () => {
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -204,5 +204,11 @@ const StoryPage = () => {
         </main>
     );
 };
+
+const StoryPage = () => (
+    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center">Loading...</div>}>
+        <StoryContent />
+    </Suspense>
+);
 
 export default StoryPage;
