@@ -80,18 +80,18 @@ const CLOZE_EXERCISES = [
 
 // ─── DATI SENTIMENTI ───────────────────────────────────────────────────────────
 
-const SENTIMENTI_EXERCISES = [
+const FEELINGS_EXERCISES = [
   {
     title: "IL LADRO",
     topic: "Sentimenti - Comprensione emotiva",
-    groupType: "sentimenti" as ExerciseGroupType,
+    groupType: "feelings" as ExerciseGroupType,
     exercises: [
       {
         position: 1,
-        exerciseType: "sentimenti" as any,
+        exerciseType: "feelings" as any,
         contentJson: {
-          id: "ladro",
-          imageId: "ladro",
+          id: "thief",
+          imageId: "thief",
           questions: [
             "Cosa sta succedendo? Cosa prova il ladro? Come può reagire?",
             "E il commesso e la signora? Cosa provano e come si devono comportare?",
@@ -104,14 +104,14 @@ const SENTIMENTI_EXERCISES = [
   {
     title: "L'AEROPORTO",
     topic: "Sentimenti - Comprensione emotiva",
-    groupType: "sentimenti" as ExerciseGroupType,
+    groupType: "feelings" as ExerciseGroupType,
     exercises: [
       {
         position: 1,
-        exerciseType: "sentimenti" as any,
+        exerciseType: "feelings" as any,
         contentJson: {
-          id: "aeroporto",
-          imageId: "aeroporto",
+          id: "airport",
+          imageId: "airport",
           questions: [
             "Cosa provano i protagonisti? Come si devono comportare?",
             "E la gente che cosa pensa?",
@@ -125,7 +125,7 @@ const SENTIMENTI_EXERCISES = [
 
 // ─── DATI PERCHÉ ───────────────────────────────────────────────────────────────
 
-const PERCHE_TITLES = [
+const WHY_QUESTIONS = [
   "Perché si devono indossare i vestiti?",
   "Perché si deve andare a scuola?",
   "Perché bisogna andare a lavorare?",
@@ -143,18 +143,18 @@ const PERCHE_TITLES = [
   "Perché mettiamo benzina nelle automobili, nei camion e nei motorini?"
 ];
 
-const PERCHE_EXERCISES = PERCHE_TITLES.map((title, i) => ({
+const WHY_EXERCISES = WHY_QUESTIONS.map((title, i) => ({
   title,
   topic: "Perché - Ragionamento causale",
-  groupType: "perche" as ExerciseGroupType,
+  groupType: "why" as ExerciseGroupType,
   exercises: [
     {
       position: 1,
-      exerciseType: "perche" as any,
+      exerciseType: "why" as any,
       contentJson: {
-        id: `perche_${i + 1}`,
+        id: `why_${i + 1}`,
         questionTitle: title,
-        imageId: `perche_${i + 1}`
+        imageId: `why_${i + 1}`
       }
     }
   ]
@@ -162,20 +162,20 @@ const PERCHE_EXERCISES = PERCHE_TITLES.map((title, i) => ({
 
 // ─── DATI REAZIONI ─────────────────────────────────────────────────────────────
 
-const REAZIONI_EXERCISES = [
+const REACTIONS_EXERCISES = [
   {
     title: "LA CADUTA NEL GIOCO",
     topic: "Reazioni - Scelta comportamentale",
-    groupType: "reazioni" as ExerciseGroupType,
+    groupType: "reactions" as ExerciseGroupType,
     exercises: [
       {
         position: 1,
-        exerciseType: "reazioni" as any,
+        exerciseType: "reactions" as any,
         contentJson: {
-          id: "caduta",
-          situazioneDesc: "Bambino che cade durante un gioco mentre un altro fischia.",
-          opzioneADesc: "Bambino che si avvicina e aiuta il compagno caduto.",
-          opzioneBDesc: "Bambino che urla contro il compagno a terra.",
+          id: "fall",
+          situationDesc: "Bambino che cade durante un gioco mentre un altro fischia.",
+          optionADesc: "Bambino che si avvicina e aiuta il compagno caduto.",
+          optionBDesc: "Bambino che urla contro il compagno a terra.",
           correctOption: "A"
         }
       }
@@ -184,16 +184,16 @@ const REAZIONI_EXERCISES = [
   {
     title: "L'INCIDENTE IN CUCINA",
     topic: "Reazioni - Scelta comportamentale",
-    groupType: "reazioni" as ExerciseGroupType,
+    groupType: "reactions" as ExerciseGroupType,
     exercises: [
       {
         position: 1,
-        exerciseType: "reazioni" as any,
+        exerciseType: "reactions" as any,
         contentJson: {
-          id: "cucina",
-          situazioneDesc: "Bambino che aiuta la mamma a cucinare ma rovescia la farina.",
-          opzioneADesc: "Mamma che pulisce con faccia triste e manda il bambino in dispensa.",
-          opzioneBDesc: "Mamma che consola il bambino e puliscono la farina insieme.",
+          id: "kitchen",
+          situationDesc: "Bambino che aiuta la mamma a cucinare ma rovescia la farina.",
+          optionADesc: "Mamma che pulisce con faccia triste e manda il bambino in dispensa.",
+          optionBDesc: "Mamma che consola il bambino e puliscono la farina insieme.",
           correctOption: "B"
         }
       }
@@ -208,9 +208,9 @@ async function main() {
 
   const allGroups = [
     ...CLOZE_EXERCISES,
-    ...SENTIMENTI_EXERCISES,
-    ...PERCHE_EXERCISES,
-    ...REAZIONI_EXERCISES,
+    ...FEELINGS_EXERCISES,
+    ...WHY_EXERCISES,
+    ...REACTIONS_EXERCISES,
   ];
 
   const createdGroupIds: string[] = [];

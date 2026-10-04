@@ -7,31 +7,28 @@ import { useState, useEffect, Suspense } from 'react';
 import ChatInput from "@/components/ui/ChatInput";
 import MessageWindow from "@/components/ui/MessageWindow";
 import { ChatHistory, Message, MessageRole } from "../../types";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type ExerciseContent = {
   id: string;
+  questionTitle: string;
   imageId: string;
-  questions: string[];
 };
 
-const SentimentiContent = () => {
+const WhyContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const exerciseId = searchParams.get('exerciseId'); // UUID dal DB
     const groupId = searchParams.get('groupId');
-    const exerciseTitle = searchParams.get('title') || "Esercizio Sentimenti";
+    const questionTitle = searchParams.get('title') || "Domanda Causale";
 
     const [content, setContent] = useState<ExerciseContent | null>(null);
     const [history, setHistory] = useState<ChatHistory>([]);
     const [loading, setLoading] = useState(true);
     const [imageSrc, setImageSrc] = useState('/parrot.gif');
     const [startTime] = useState(Date.now());
-
-    const [currentStep, setCurrentStep] = useState(1);
-    const [userHasAnswered, setUserHasAnswered] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -46,37 +43,15 @@ const SentimentiContent = () => {
                 const json = await res.json();
                 const c = json.content_json as ExerciseContent;
                 setContent(c);
-                setImageSrc(`/images/sentimenti/${c.imageId}.png`);
-                setHistory([
-                    {
-                        role: "model" as MessageRole,
-                        parts: [{ text: c.questions[0] }],
-                    }
-                ]);
+                setImageSrc(`/images/why/${c.imageId}.png`);
             } catch (err) {
-                console.error("Errore caricamento sentimenti:", err);
+                console.error("Errore caricamento why:", err);
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
     }, [exerciseId]);
-
-    const handleNextStep = () => {
-        if (!content) return;
-        if (currentStep < content.questions.length) {
-            const nextStep = currentStep + 1;
-            setCurrentStep(nextStep);
-            setUserHasAnswered(false);
-            setHistory(prev => [
-                ...prev,
-                {
-                    role: "model" as MessageRole,
-                    parts: [{ text: content.questions[nextStep - 1] }],
-                }
-            ]);
-        }
-    };
 
     const handleFinish = async () => {
         const mode = localStorage.getItem("pragmatics_mode") || "training";
@@ -101,14 +76,14 @@ const SentimentiContent = () => {
             }
         }
         if (mode === "testing") {
-            router.push('/path-sentimenti');
+            router.push('/path-why');
         } else {
-            router.push('/congratulations?returnTo=/path-sentimenti');
+            router.push('/congratulations?returnTo=/path-why');
         }
     };
 
     const handleSend = async (message: string) => {
-        if (!exerciseId || !content) return;
+        if (!exerciseId) return;
 
         const newUserMessage: Message = {
             role: "user" as MessageRole,
@@ -117,23 +92,18 @@ const SentimentiContent = () => {
 
         const currentHistory = [...history];
         setHistory([...currentHistory, newUserMessage]);
-        setUserHasAnswered(true);
 
         try {
             const token = localStorage.getItem("token");
-            const currentQuestion = content.questions[currentStep - 1];
 
-            const response = await fetch("/api/chat-sentimenti", {
+            const response = await fetch("/api/chat-why", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    exerciseId: content.id,
-                    exerciseTitle: exerciseTitle,
-                    currentStep: currentStep,
-                    currentQuestion: currentQuestion,
+                    questionTitle: questionTitle,
                     message: message,
                     history: currentHistory
                 }),
@@ -158,42 +128,36 @@ const SentimentiContent = () => {
         }
     };
 
-    const totalSteps = content?.questions.length ?? 3;
-
-    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#E74C3C]">Caricamento...</div>;
+    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Caricamento...</div>;
 
     return (
-        <main className="bg-[#FDEDEC] grid grid-rows-[min-content_min-content_1fr] grid-cols-1 md:grid-cols-[1fr_1fr] gap-2 md:gap-4 w-screen h-screen pb-6 px-6 overflow-hidden">
+        <main className="bg-[#E5F2FC] grid grid-rows-[min-content_1fr] grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 w-screen h-screen pb-6 px-6 overflow-hidden">
 
             {/* TOP BAR */}
             <div className="col-span-1 md:col-span-2 flex items-center justify-between pt-5">
-                <a href="/path-sentimenti">
+                <a href="/path-why">
                     <Button variant="back" size="icon-sm" title="Back">
                         <ArrowLeft className="size-6" />
                     </Button>
                 </a>
-                <div className="flex-1 text-center">
-                    <h2 className="text-xl md:text-2xl font-black text-[#E74C3C] bg-white inline-block px-6 py-2 rounded-3xl shadow-sm border-2 border-red-200">
-                        {exerciseTitle}
+                <div className="flex-1 flex items-center justify-center gap-4">
+                    <h2 className="text-xl md:text-2xl lg:text-3xl font-black text-[#2C82C9] bg-white inline-block px-6 py-2 rounded-3xl shadow-sm border-2 border-blue-200 text-center">
+                        {questionTitle}
                     </h2>
+                    <Button onClick={handleFinish} className="bg-[#FFE53B] text-[#8B7D00] hover:bg-[#F2D822] shadow-md border-2 border-[#D4BF32] font-black rounded-2xl px-6 py-6 text-lg shrink-0">
+                        Termina Esercizio
+                    </Button>
                 </div>
                 <LogoutButton />
             </div>
 
-            {/* HEADER */}
-            <div className="col-span-1 md:col-span-2 text-center bg-white/80 backdrop-blur-md border-2 border-[#F5B7B1] rounded-2xl p-2 md:p-3 shadow-sm z-10 mx-auto w-full max-w-3xl">
-                <h3 className="font-bold text-[#E74C3C] text-sm md:text-base">
-                    Guarda attentamente l'immagine e cerca di capire le reazioni dei personaggi, decidi se la situazione è positiva o negativa.
-                </h3>
-            </div>
-
             {/* IMAGE */}
-            <div className="flex flex-col items-center justify-center p-2 lg:p-4 h-full">
-                <div className="w-full h-full max-h-[600px] bg-white rounded-[3rem] shadow-xl border-4 border-red-200 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="flex flex-col items-center justify-center p-4 lg:p-8 min-h-0">
+                <div className="w-full h-full max-h-[600px] bg-white rounded-[3rem] shadow-xl border-4 border-blue-200 flex flex-col items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
                         <Image
                             src={imageSrc}
-                            alt="Illustrazione Esercizio Sentimenti"
+                            alt="Illustrazione Esercizio"
                             fill
                             className={`object-contain ${imageSrc === '/parrot.gif' ? 'opacity-50 grayscale scale-50' : 'p-4'}`}
                             onError={() => setImageSrc("/parrot.gif")}
@@ -204,31 +168,27 @@ const SentimentiContent = () => {
             </div>
 
             {/* CHAT */}
-            <div className="flex flex-col min-h-0 py-2 lg:py-4 pr-0 lg:pr-4 overflow-hidden">
-                <div className="flex-1 bg-white rounded-[3rem] shadow-xl border-4 border-[#E74C3C] flex flex-col p-4 lg:p-6 min-h-0 overflow-hidden">
+            <div className="flex flex-col min-h-0 py-4 lg:py-8 pr-0 lg:pr-4 overflow-hidden">
+                <div className="flex-1 bg-white rounded-[3rem] shadow-xl border-4 border-[#62B4A5] flex flex-col p-4 lg:p-6 min-h-0 overflow-hidden relative">
                     <div className="shrink-0 mb-4 flex items-center gap-4 border-b-2 border-slate-100 pb-4">
-                        <div className="w-14 h-14 bg-[#FDEDEC] rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-inner border-2 border-[#E74C3C]">
+                        <div className="w-14 h-14 bg-[#EFF8F8] rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-inner border-2 border-[#62B4A5]">
                             <Image src="/parrot.gif" width={50} height={50} alt="Praggy" unoptimized />
                         </div>
-                        <div className="flex-1">
+                        <div>
                             <h3 className="font-black text-xl text-[#0e2a47]">Praggy</h3>
-                            <p className="text-sm font-bold text-slate-400">Tutor delle Emozioni - Step {currentStep} di {totalSteps}</p>
+                            <p className="text-sm font-bold text-slate-400">Tutor di Logica</p>
                         </div>
-
-                        {userHasAnswered && currentStep < totalSteps && (
-                            <Button onClick={handleNextStep} className="bg-[#FFE53B] text-[#8B7D00] hover:bg-[#F2D822] shadow-md border-2 border-[#D4BF32] font-black rounded-2xl shrink-0">
-                                Avanti <ArrowRight className="ml-2 size-5" />
-                            </Button>
-                        )}
-                        {userHasAnswered && currentStep === totalSteps && (
-                            <Button onClick={handleFinish} className="bg-[#4CAF50] text-white hover:bg-[#45a049] shadow-md border-2 border-[#388E3C] font-black rounded-2xl shrink-0">
-                                Termina
-                            </Button>
-                        )}
                     </div>
 
-                    <div className="flex-1 min-h-0 overflow-hidden relative">
-                        <MessageWindow history={history} />
+                    <div className="flex-1 min-h-0 relative">
+                        {history.length === 0 ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-60">
+                                <span className="text-5xl mb-4">🦜</span>
+                                <p className="font-bold text-slate-500 max-w-[200px]">Cosa ne pensi? Scrivi qui la tua risposta!</p>
+                            </div>
+                        ) : (
+                            <MessageWindow history={history} />
+                        )}
                     </div>
 
                     <div className="shrink-0 pt-4 mt-2">
@@ -241,12 +201,12 @@ const SentimentiContent = () => {
     );
 };
 
-const SentimentiPage = () => {
+const WhyPage = () => {
     return (
-        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#E74C3C]">Caricamento...</div>}>
-            <SentimentiContent />
+        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Caricamento...</div>}>
+            <WhyContent />
         </Suspense>
     );
 };
 
-export default SentimentiPage;
+export default WhyPage;

@@ -33,7 +33,7 @@ export async function GET(
   const { groupType } = await params;
 
   // Valida il groupType
-  const validTypes = ['cloze', 'sentimenti', 'perche', 'reazioni', 'generic'];
+  const validTypes = ['cloze', 'feelings', 'why', 'reactions', 'generic'];
   if (!validTypes.includes(groupType)) {
     return NextResponse.json({ error: 'Invalid groupType' }, { status: 400 });
   }

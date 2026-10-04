@@ -10,9 +10,9 @@
 import { useEffect } from "react";
 
 const PROGRESS_KEYS = [
-  "completed_sentimenti",
-  "completed_reazioni",
-  "completed_perche",
+  "completed_feelings",
+  "completed_reactions",
+  "completed_why",
   "completed_cloze",
   "testedExercises",
 ];

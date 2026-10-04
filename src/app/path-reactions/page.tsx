@@ -8,7 +8,7 @@ import LogoutButton from "@/components/ui/LogoutButton";
 import { Button } from "@/components/ui/button";
 import { useProgressReset } from "@/lib/hooks/useProgressReset";
 
-type ReazioniNode = {
+type ReactionsNode = {
   exerciseGroupId: string;
   exerciseId: string;
   title: string;
@@ -41,9 +41,9 @@ function ProgressRing({ progress }: { progress: number }) {
   );
 }
 
-export default function PathReazioniPage() {
+export default function PathReactionsPage() {
   const router = useRouter();
-  const [nodes, setNodes] = useState<ReazioniNode[]>([]);
+  const [nodes, setNodes] = useState<ReactionsNode[]>([]);
   const [dailyLimit, setDailyLimit] = useState<DailyLimit | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +57,7 @@ export default function PathReazioniPage() {
         const mode = localStorage.getItem("pragmatics_mode") || "training";
 
         const [nodesRes, todayRes] = await Promise.all([
-          fetch(`/api/exercises/by-type/reazioni?mode=${mode}`, { headers }),
+          fetch(`/api/exercises/by-type/reactions?mode=${mode}`, { headers }),
           fetch("/api/appointments/today", { headers }),
         ]);
 
@@ -73,7 +73,7 @@ export default function PathReazioniPage() {
           }
         }
       } catch (err) {
-        console.error("Errore caricamento reazioni:", err);
+        console.error("Errore caricamento reactions:", err);
       } finally {
         setLoading(false);
       }
@@ -156,7 +156,7 @@ export default function PathReazioniPage() {
                   onClick={() => {
                     if (level.status === "available" || level.status === "completed") {
                       router.push(
-                        `/reazioni?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`
+                        `/reactions?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`
                       );
                     }
                   }}

@@ -112,7 +112,7 @@ export async function POST(
             let shouldUnlockNext = true;
 
             if (appointment) {
-              const currentMode = mode || (appointment.type === 'valutazione' ? 'testing' : 'training');
+              const currentMode = mode || (appointment.type === 'testing' ? 'testing' : 'training');
               const limit = currentMode === 'testing' ? appointment.testingExercises : appointment.trainingExercises;
 
               if (limit > 0) {

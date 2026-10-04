@@ -24,17 +24,17 @@ enum ExerciseType {
   story
   chat
   cloze
-  sentimenti
-  perche
-  reazioni
+  feelings
+  why
+  reactions
 }
 
 enum ExerciseGroupType {
   generic
   cloze
-  sentimenti
-  perche
-  reazioni
+  feelings
+  why
+  reactions
 }
 
 enum ExerciseGroupStatus {
@@ -183,7 +183,7 @@ model CollectionItem {
 model Appointment {
   id          String   @id @default(uuid())
   startTime   DateTime
-  type        String   // "training" o "valutazione"
+  type        String   // "training" or "testing"
   duration    String   // es: "45 min"
   note        String?
 

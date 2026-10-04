@@ -63,7 +63,7 @@ export async function GET(req: Request) {
 
     // sessionMode: mappa il tipo DB al valore atteso dal frontend, solo se attivo
     const sessionMode = isActive
-      ? (appointment.type === "valutazione" ? "testing" : "training")
+      ? (appointment.type === "testing" ? "testing" : "training")
       : null;
 
     return NextResponse.json({

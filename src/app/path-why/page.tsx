@@ -8,7 +8,7 @@ import LogoutButton from "@/components/ui/LogoutButton";
 import { Button } from "@/components/ui/button";
 import { useProgressReset } from "@/lib/hooks/useProgressReset";
 
-type PercheNode = {
+type WhyNode = {
   exerciseGroupId: string;
   exerciseId: string;
   title: string;
@@ -49,13 +49,13 @@ function ProgressRing({ progress }: { progress: number }) {
   );
 }
 
-export default function PathPerchePage() {
+export default function PathWhyPage() {
   const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [nodes, setNodes] = useState<PercheNode[]>([]);
+  const [nodes, setNodes] = useState<WhyNode[]>([]);
   const [dailyLimit, setDailyLimit] = useState<DailyLimit | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +69,7 @@ export default function PathPerchePage() {
         const mode = localStorage.getItem("pragmatics_mode") || "training";
 
         const [nodesRes, todayRes] = await Promise.all([
-          fetch(`/api/exercises/by-type/perche?mode=${mode}`, { headers }),
+          fetch(`/api/exercises/by-type/why?mode=${mode}`, { headers }),
           fetch("/api/appointments/today", { headers }),
         ]);
 
@@ -85,7 +85,7 @@ export default function PathPerchePage() {
           }
         }
       } catch (err) {
-        console.error("Errore caricamento perche:", err);
+        console.error("Errore caricamento why:", err);
       } finally {
         setLoading(false);
       }
@@ -211,7 +211,7 @@ export default function PathPerchePage() {
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => {
                           if (level.status === 'available' || level.status === 'completed') {
-                            router.push(`/perche?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`);
+                            router.push(`/why?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`);
                           }
                         }}
                         variant={level.status === 'blocked' ? "locked" : level.status === 'completed' ? "completed" : "play"}

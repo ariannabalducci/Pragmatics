@@ -8,7 +8,7 @@ import LogoutButton from "@/components/ui/LogoutButton";
 import { Button } from "@/components/ui/button";
 import { useProgressReset } from "@/lib/hooks/useProgressReset";
 
-type SentimentiNode = {
+type FeelingsNode = {
   exerciseGroupId: string;
   exerciseId: string;
   title: string;
@@ -41,9 +41,9 @@ function ProgressRing({ progress }: { progress: number }) {
   );
 }
 
-export default function PathSentimentiPage() {
+export default function PathFeelingsPage() {
   const router = useRouter();
-  const [nodes, setNodes] = useState<SentimentiNode[]>([]);
+  const [nodes, setNodes] = useState<FeelingsNode[]>([]);
   const [dailyLimit, setDailyLimit] = useState<DailyLimit | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +57,7 @@ export default function PathSentimentiPage() {
         const mode = localStorage.getItem("pragmatics_mode") || "training";
 
         const [nodesRes, todayRes] = await Promise.all([
-          fetch(`/api/exercises/by-type/sentimenti?mode=${mode}`, { headers }),
+          fetch(`/api/exercises/by-type/feelings?mode=${mode}`, { headers }),
           fetch("/api/appointments/today", { headers }),
         ]);
 
@@ -73,7 +73,7 @@ export default function PathSentimentiPage() {
           }
         }
       } catch (err) {
-        console.error("Errore caricamento sentimenti:", err);
+        console.error("Errore caricamento feelings:", err);
       } finally {
         setLoading(false);
       }
@@ -150,7 +150,7 @@ export default function PathSentimentiPage() {
                 <Button
                   onClick={() => {
                     if (level.status === 'available' || level.status === 'completed') {
-                      router.push(`/sentimenti?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`);
+                      router.push(`/feelings?exerciseId=${level.exerciseId}&groupId=${level.exerciseGroupId}&title=${encodeURIComponent(level.title)}`);
                     }
                   }}
                   variant={level.status === 'blocked' ? "locked" : level.status === 'completed' ? "completed" : "play"}

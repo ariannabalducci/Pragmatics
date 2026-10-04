@@ -8,15 +8,15 @@ import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/ui/LogoutButton";
 import { motion, AnimatePresence } from "framer-motion";
 
-type ReazioniContent = {
+type ReactionsData = {
   id: string;
-  situazioneDesc: string;
-  opzioneADesc: string;
-  opzioneBDesc: string;
+  situationDesc: string;
+  optionADesc: string;
+  optionBDesc: string;
   correctOption: "A" | "B";
 };
 
-function ReazioniContent() {
+function ReactionsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -24,11 +24,11 @@ function ReazioniContent() {
   const groupId = searchParams.get("groupId");
   const exerciseTitle = searchParams.get("title") || "Esercizio Reazioni";
 
-  const [data, setData] = useState<ReazioniContent | null>(null);
+  const [data, setData] = useState<ReactionsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [startTime] = useState(Date.now());
 
-  const [situazioneSrc, setSituazioneSrc] = useState("/parrot.gif");
+  const [situationSrc, setSituationSrc] = useState("/parrot.gif");
   const [optionASrc, setOptionASrc] = useState("/parrot.gif");
   const [optionBSrc, setOptionBSrc] = useState("/parrot.gif");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -44,14 +44,14 @@ function ReazioniContent() {
         });
         if (!res.ok) throw new Error("Fetch failed");
         const json = await res.json();
-        const c = json.content_json as ReazioniContent;
+        const c = json.content_json as ReactionsData;
         setData(c);
-        setSituazioneSrc(`/images/reazioni/${c.id}_situazione.png`);
-        setOptionASrc(`/images/reazioni/${c.id}_a.png`);
-        setOptionBSrc(`/images/reazioni/${c.id}_b.png`);
+        setSituationSrc(`/images/reactions/${c.id}_situation.png`);
+        setOptionASrc(`/images/reactions/${c.id}_a.png`);
+        setOptionBSrc(`/images/reactions/${c.id}_b.png`);
         setFeedback(null);
       } catch (err) {
-        console.error("Errore caricamento reazioni:", err);
+        console.error("Errore caricamento reactions:", err);
       } finally {
         setLoading(false);
       }
@@ -85,7 +85,7 @@ function ReazioniContent() {
       } catch (err) {
         console.error("Errore salvataggio attempt:", err);
       }
-      router.push("/path-reazioni");
+      router.push("/path-reactions");
       return;
     }
 
@@ -109,7 +109,7 @@ function ReazioniContent() {
       } catch (err) {
         console.error("Errore salvataggio attempt:", err);
       }
-      router.push("/congratulations?returnTo=/path-reazioni");
+      router.push("/congratulations?returnTo=/path-reactions");
     } else {
       setFeedback("wrong");
       // Salva comunque il completamento nel DB in modo da riempire la stella
@@ -132,7 +132,7 @@ function ReazioniContent() {
         console.error("Errore salvataggio attempt:", err);
       }
       setTimeout(() => {
-        router.push("/congratulations?returnTo=/path-reazioni");
+        router.push("/congratulations?returnTo=/path-reactions");
       }, 1500);
     }
   };
@@ -144,7 +144,7 @@ function ReazioniContent() {
     <main className="bg-[#FEF5E7] flex flex-col w-screen h-screen overflow-hidden">
       {/* TOP BAR */}
       <div className="shrink-0 flex items-center justify-between pt-5 px-6">
-        <a href="/path-reazioni">
+        <a href="/path-reactions">
           <Button variant="back" size="icon-sm" title="Back">
             <ArrowLeft className="size-6" />
           </Button>
@@ -181,11 +181,11 @@ function ReazioniContent() {
         {/* SITUAZIONE */}
         <div className="w-full max-w-2xl h-[35vh] bg-white rounded-3xl shadow-xl border-4 border-orange-200 relative overflow-hidden shrink-0">
           <Image
-            src={situazioneSrc}
-            alt={data.situazioneDesc}
+            src={situationSrc}
+            alt={data.situationDesc}
             fill
-            className={`object-contain ${situazioneSrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
-            onError={() => setSituazioneSrc("/parrot.gif")}
+            className={`object-contain ${situationSrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
+            onError={() => setSituationSrc("/parrot.gif")}
             unoptimized
           />
         </div>
@@ -213,7 +213,7 @@ function ReazioniContent() {
           >
             <Image
               src={optionASrc}
-              alt={data.opzioneADesc}
+              alt={data.optionADesc}
               fill
               className={`object-contain ${optionASrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
               onError={() => setOptionASrc("/parrot.gif")}
@@ -241,7 +241,7 @@ function ReazioniContent() {
           >
             <Image
               src={optionBSrc}
-              alt={data.opzioneBDesc}
+              alt={data.optionBDesc}
               fill
               className={`object-contain ${optionBSrc === "/parrot.gif" ? "opacity-50 grayscale scale-50" : "p-3"}`}
               onError={() => setOptionBSrc("/parrot.gif")}
@@ -257,10 +257,10 @@ function ReazioniContent() {
   );
 }
 
-export default function ReazioniPage() {
+export default function ReactionsPage() {
   return (
     <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Caricamento...</div>}>
-      <ReazioniContent />
+      <ReactionsContent />
     </Suspense>
   );
 }

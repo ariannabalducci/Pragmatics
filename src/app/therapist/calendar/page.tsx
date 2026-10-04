@@ -143,9 +143,9 @@ export default function CalendarPage() {
     const groups: Record<string, { label: string, color: string, list: any[] }> = {
       generic: { label: "Mappa Principale", color: "bg-teal-500 text-white", list: [] },
       cloze: { label: "Cloze", color: "bg-purple-500 text-white", list: [] },
-      sentimenti: { label: "Sentimenti", color: "bg-red-500 text-white", list: [] },
-      perche: { label: "Perché", color: "bg-blue-500 text-white", list: [] },
-      reazioni: { label: "Reazioni", color: "bg-orange-500 text-white", list: [] },
+      feelings: { label: "Sentimenti", color: "bg-red-500 text-white", list: [] },
+      why: { label: "Perché", color: "bg-blue-500 text-white", list: [] },
+      reactions: { label: "Reazioni", color: "bg-orange-500 text-white", list: [] },
     };
 
     allExercises.forEach(ex => {
@@ -361,7 +361,7 @@ export default function CalendarPage() {
                 <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Tipo</label>
                 <select value={newApp.type} onChange={(e) => setNewApp({ ...newApp, type: e.target.value })} className="w-full p-3.5 bg-slate-50 rounded-xl border-none text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#4d8b7d] appearance-none cursor-pointer">
                   <option value="training">Training</option>
-                  <option value="valutazione">Valutazione</option>
+                  <option value="testing">Valutazione</option>
                 </select>
               </div>
 
@@ -377,8 +377,8 @@ export default function CalendarPage() {
                         <div className={cn("w-1.5 h-1.5 rounded-full", 
                           key === 'generic' ? "bg-teal-500" :
                           key === 'cloze' ? "bg-purple-500" :
-                          key === 'sentimenti' ? "bg-red-500" :
-                          key === 'perche' ? "bg-blue-500" : "bg-orange-500"
+                          key === 'feelings' ? "bg-red-500" :
+                          key === 'why' ? "bg-blue-500" : "bg-orange-500"
                         )} />
                         <h4 className="text-[9px] font-black text-[#0e2a47] uppercase tracking-wider">
                           {category.label}
@@ -453,7 +453,7 @@ export default function CalendarPage() {
 function AppointmentCard({ id, time, name, type, duration, note, trainingExercises, testingExercises, prescribedExercises, onDelete }: any) {
   return (
     <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm relative group overflow-hidden transition-all hover:shadow-md">
-      <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", type === "valutazione" ? "bg-purple-500" : "bg-[#4d8b7d]")} />
+      <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", type === "testing" ? "bg-purple-500" : "bg-[#4d8b7d]")} />
 
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-2 text-xs font-extrabold text-[#4d8b7d] uppercase tracking-wider">
@@ -471,7 +471,7 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
         <span className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-700 font-bold">Durata: {duration}</span>
         <span className={cn(
           "px-2 py-0.5 rounded-md uppercase text-[9px]",
-          type === "valutazione" ? "bg-purple-100 text-purple-700" : "bg-teal-100 text-teal-700"
+          type === "testing" ? "bg-purple-100 text-purple-700" : "bg-teal-100 text-teal-700"
         )}>
           {type}
         </span>
@@ -497,9 +497,9 @@ function AppointmentCard({ id, time, name, type, duration, note, trainingExercis
         const typeConfig: Record<string, { label: string; color: string }> = {
           generic:    { label: "Mappa Principale", color: "bg-teal-100 text-teal-700" },
           cloze:      { label: "Cloze",            color: "bg-purple-100 text-purple-700" },
-          sentimenti: { label: "Sentimenti",       color: "bg-red-100 text-red-700" },
-          perche:     { label: "Perché",           color: "bg-blue-100 text-blue-700" },
-          reazioni:   { label: "Reazioni",         color: "bg-orange-100 text-orange-700" },
+          feelings: { label: "Sentimenti",       color: "bg-red-100 text-red-700" },
+          why:     { label: "Perché",           color: "bg-blue-100 text-blue-700" },
+          reactions:   { label: "Reazioni",         color: "bg-orange-100 text-orange-700" },
         };
         const grouped: Record<string, any[]> = {};
         prescribedExercises.forEach((ex: any) => {

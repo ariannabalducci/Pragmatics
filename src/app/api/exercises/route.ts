@@ -5,9 +5,9 @@ import { getAuthUser } from '@/lib/auth';
 const GROUP_TYPE_LABELS: Record<string, string> = {
   generic: 'Storia/Chat',
   cloze: 'Completamento',
-  sentimenti: 'Sentimenti',
-  perche: 'Perché',
-  reazioni: 'Reazioni',
+  feelings: 'Sentimenti',
+  why: 'Perché',
+  reactions: 'Reazioni',
 };
 
 export async function GET(request: Request) {

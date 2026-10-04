@@ -86,7 +86,7 @@ export default function SelectModePage() {
       </button>
 
       <button
-        onClick={() => handleSelectCategory(mode, "/path-perche")}
+        onClick={() => handleSelectCategory(mode, "/path-why")}
         className="w-full flex-1 bg-white rounded-3xl p-6 flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-[#2C82C9] hover:bg-[#E5F2FC] transition-all group"
       >
         <div className="w-14 h-14 bg-[#2C82C9] rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
@@ -99,7 +99,7 @@ export default function SelectModePage() {
       </button>
 
       <button
-        onClick={() => handleSelectCategory(mode, "/path-sentimenti")}
+        onClick={() => handleSelectCategory(mode, "/path-feelings")}
         className="w-full flex-1 bg-white rounded-3xl p-6 flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-[#E74C3C] hover:bg-[#FDEDEC] transition-all group"
       >
         <div className="w-14 h-14 bg-[#E74C3C] rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
@@ -112,7 +112,7 @@ export default function SelectModePage() {
       </button>
 
       <button
-        onClick={() => handleSelectCategory(mode, "/path-reazioni")}
+        onClick={() => handleSelectCategory(mode, "/path-reactions")}
         className="w-full flex-1 bg-white rounded-3xl p-6 flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-[#F39C12] hover:bg-[#FEF5E7] transition-all group"
       >
         <div className="w-14 h-14 bg-[#F39C12] rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">

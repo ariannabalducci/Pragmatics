@@ -509,7 +509,7 @@ function SessionItem({ app, isUpcoming, isExpanded, onToggle }: SessionItemProps
           >
             <div className="mt-5 pt-5 border-t border-slate-50 space-y-3">
               {app.results.map((res, idx) => {
-                const isChat = res.exerciseType === 'perche' || res.exerciseType === 'sentimenti';
+                const isChat = res.exerciseType === 'why' || res.exerciseType === 'feelings';
                 const chatExpanded = expandedChats.includes(res.id);
 
                 let chatHistory: { role: string, text: string }[] = [];
