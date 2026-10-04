@@ -1,66 +1,66 @@
 {
-    "name": "Una Montagna di Compiti",
-    "topic": "Linguaggio Figurato",
+    "name": "A Mountain of Homework",
+    "topic": "Figurative Language",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 8,
         "interactions": [
             {
-                "parrot_msg": "È venerdì pomeriggio, la scuola è finita. Vuoi invitare il tuo amico Marcus a casa tua per cena.",
+                "parrot_msg": "It's Friday afternoon, the school is over. You want to invite your friend Marcus to your home to have dinner.",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png"
             },
             {
-                "parrot_msg": "È venerdì pomeriggio, la scuola è finita. Vuoi invitare il tuo amico Marcus a casa tua per cena.",
+                "parrot_msg": "It's Friday afternoon, the school is over. You want to invite your friend Marcus to your home to have dinner.",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus.png"
             },
             {
-                "parrot_msg": "Chiedi a Marcus se può venire con te:",
+                "parrot_msg": "You ask Marcus if he could go with you:",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus.png"
             },
             {
-                "parrot_msg": "Chiedi a Marcus se può venire con te:",
+                "parrot_msg": "You ask Marcus if he could go with you:",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus.png",
                 "character1_msg": "exercises/speech/baloon2.png"
             },
             {
-                "parrot_msg": "Marcus sembra triste e dice:",
+                "parrot_msg": "Then, Marcus looks sad and says:",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus-sad.png"
             },
             {
-                "parrot_msg": "Marcus sembra triste e dice:",
+                "parrot_msg": "Then, Marcus looks sad and says:",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus-sad.png",
                 "character2_msg": "exercises/speech/baloon3.png"
             },
             {
-                "parrot_msg": "Cosa sta cercando di dire Marcus?",
+                "parrot_msg": "What is Marcus trying to say?",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus-sad.png",
                 "character2_msg": "exercises/speech/baloon3.png"
             },
             {
-                "parrot_msg": "Cosa sta cercando di dire Marcus?",
+                "parrot_msg": "What is Marcus trying to say?",
                 "background_img": "exercises/backgrounds/night.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus-sad.png",
                 "character2_msg": "exercises/speech/baloon3.png",
                 "correct_option": 2,
                 "options": [
-                    "Non può venire perché deve scalare una montagna",
-                    "Dice che verrà a cena con te",
-                    "Non può venire perché ha tantissimo lavoro da fare"
+                    "He cannot go because he has to climb a mountain",
+                    "He says he will have dinner with you",
+                    "He cannot go because he has a lot of work to do"
                 ]
             }
         ]
@@ -70,27 +70,27 @@
         "num_interactions": 4,
         "interactions": [
             {
-                "parrot_msg": "L'ultima volta hai chiesto a Marcus di venire a cena da te. La sua risposta è stata:",
+                "parrot_msg": "Last time, you asked Marcus to come and have dinner at your place. His answer was:",
                 "background_img": "exercises/backgrounds/night-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus.png"
             },
             {
-                "parrot_msg": "L'ultima volta hai chiesto a Marcus di venire a cena da te. La sua risposta è stata:",
+                "parrot_msg": "Last time, you asked Marcus to come and have dinner at your place. His answer was:",
                 "background_img": "exercises/backgrounds/night-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus.png",
                 "character2_msg": "exercises/speech/baloon3.png"
             },
             {
-                "parrot_msg": "Cosa intende davvero Marcus con 'una montagna di compiti'? Raccontamelo a parole tue!",
+                "parrot_msg": "What does Marcus really mean by ‘a mountain of homework’?Tell me what you think in your own words!",
                 "background_img": "exercises/backgrounds/night-blur.svg",
                 "character1_img": "exercises/characters/alex.png",
                 "character2_img": "exercises/characters/marcus.png",
                 "character2_msg": "exercises/speech/baloon3.png"
             },
             {
-                "parrot_msg": "Cosa intende davvero Marcus con 'una montagna di compiti'? Raccontamelo a parole tue!"
+                "parrot_msg": "What does Marcus really mean by ‘a mountain of homework’?Tell me what you think in your own words!"
             }
         ]
     }

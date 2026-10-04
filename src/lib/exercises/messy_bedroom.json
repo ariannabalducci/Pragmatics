@@ -1,26 +1,26 @@
 {
-    "name": "Camera Disordinata",
-    "topic": "Sarcasmo",
+    "name": "Messy Bedroom",
+    "topic": "Sarcasm",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 4,
         "interactions": [
             {
-                "parrot_msg": "La camera da letto del tuo amico è un vero disastro. Ci sono giocattoli sparsi ovunque sul pavimento.",
+                "parrot_msg": "Your friend's bedroom is a complete disaster. Toys are thrown all over the floor.",
                 "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "object_img": "exercises/objects/toys.png"
             },
             {
-                "parrot_msg": "Il papà del tuo amico entra nella stanza e inciampa su un cubetto di legno.",
+                "parrot_msg": "Your friend's dad walks into the room and trips over a toy block.",
                 "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "character2_img": "exercises/characters/dad.png",
                 "object_img": "exercises/objects/toys.png"
             },
             {
-                "parrot_msg": "Il papà si guarda intorno e dice: 'Vedo che oggi ti sei impegnato tantissimo a pulire la tua stanza!'",
+                "parrot_msg": "The dad looks around and says: 'I see you worked really hard cleaning your room today!'",
                 "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "character2_img": "exercises/characters/dad.png",
@@ -28,16 +28,16 @@
                 "object_img": "exercises/objects/toys.png"
             },
             {
-                "parrot_msg": "Perché il papà ha detto questo?",
+                "parrot_msg": "Why did the dad say this?",
                 "background_img": "exercises/backgrounds/messy_room.svg",
                 "character1_img": "exercises/characters/monkey.png",
                 "character2_img": "exercises/characters/dad.png",
                 "object_img": "exercises/objects/toys.png",
                 "correct_option": 2,
                 "options": [
-                    "Ha bisogno degli occhiali perché non vede il disordine sul pavimento.",
-                    "È orgoglioso che suo figlio abbia trovato un nuovo modo di organizzare i giochi.",
-                    "Sta usando l'ironia per far notare che la stanza è incredibilmente disordinata."
+                    "He needs glasses because he can't see the mess on the floor.",
+                    "He is proud that his son found a new way to organize his toys.",
+                    "He is using irony to point out that the room is incredibly messy."
                 ]
             }
         ]
@@ -47,10 +47,10 @@
         "num_interactions": 2,
         "interactions": [
             {
-                "parrot_msg": "Ti ricordi del papà di Marcus? Era davvero sarcastico!"
+                "parrot_msg": "Do you remember Marcus's dad? He was being really sarcastic!"
             },
             {
-                "parrot_msg": "Secondo te, come si sentiva il papà in quel momento? Era davvero felice o era un po' arrabbiato?"
+                "parrot_msg": "How do you think the dad was feeling at that moment? Was he really happy, or a little angry?"
             }
         ]
     }

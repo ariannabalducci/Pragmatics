@@ -1,26 +1,26 @@
 {
-    "name": "Il Cappello Smarrito",
-    "topic": "Bugie Bianche, Sarcasmo ed Emozioni",
+    "name": "Missing Hat",
+    "topic": "White Lies, Sarcasm, and Emotions",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 4,
         "interactions": [
             {
-                "parrot_msg": "L'orso sta cercando in tutta la casa il suo cappello preferito da venti minuti.",
+                "parrot_msg": "The bear has been searching his house for twenty minutes looking for his favorite hat.",
                 "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "object_img": "exercises/objects/hat.png"
             },
             {
-                "parrot_msg": "Si avvicina all'asino e gli chiede: 'Hai visto il mio cappello da qualche parte? L'ho perso!'",
+                "parrot_msg": "He walks up to the donkey and asks: 'Have you seen my hat anywhere? I lost it!'",
                 "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "character2_img": "exercises/characters/donkey.png",
                 "object_img": "exercises/objects/hat.png"
             },
             {
-                "parrot_msg": "L'asino ride, lo indica e dice: 'Ma se ce l'hai proprio sulla testa!'",
+                "parrot_msg": "The donkey laughs and points, saying: 'It is right on your head!'",
                 "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "character2_img": "exercises/characters/donkey.png",
@@ -28,16 +28,16 @@
                 "object_img": "exercises/objects/hat.png"
             },
             {
-                "parrot_msg": "Perché l'orso non riusciva a trovare il suo cappello?",
+                "parrot_msg": "Why couldn't the bear find his hat?",
                 "background_img": "exercises/backgrounds/hallway.svg",
                 "character1_img": "exercises/characters/bear.png",
                 "character2_img": "exercises/characters/donkey.png",
                 "object_img": "exercises/objects/hat.png",
                 "correct_option": 1,
                 "options": [
-                    "Perché l'asino l'aveva rubato e rimesso a posto per magia.",
-                    "Perché era distratto e aveva dimenticato di averlo già addosso.",
-                    "Perché il cappello era completamente invisibile per gli orsi."
+                    "Because the donkey stole it and magically put it back.",
+                    "Because he was distracted and forgot he was already wearing it.",
+                    "Because the hat was completely invisible to bears."
                 ]
             }
         ]
@@ -47,10 +47,10 @@
         "num_interactions": 2,
         "interactions": [
             {
-                "parrot_msg": "Che sbadato l'orso! Aveva il cappello proprio sulla testa e non se n'era accorto."
+                "parrot_msg": "What a scatterbrain! The bear had his hat right on his head and didn't even notice."
             },
             {
-                "parrot_msg": "Ti è mai capitato di cercare qualcosa dappertutto e poi scoprire che l'avevi in mano o proprio davanti agli occhi?"
+                "parrot_msg": "Have you ever searched everywhere for something, only to find it was in your hand or right in front of you?"
             }
         ]
     }

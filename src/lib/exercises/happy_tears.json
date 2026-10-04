@@ -1,34 +1,34 @@
 {
-    "name": "Lacrime di Gioia",
-    "topic": "Emozioni",
+    "name": "Happy Tears",
+    "topic": "Emotions",
     "order": ["ex1", "ex2"],
     "ex1": {
         "type": "story",
         "num_interactions": 3,
         "interactions": [
             {
-                "parrot_msg": "La tua amica, Anna, è arrivata prima nella grande corsa e stringe tra le mani un trofeo d'oro scintillante.",
+                "parrot_msg": "Your friend, Anna, won first place in the big race and is holding a shiny gold trophy.",
                 "background_img": "exercises/backgrounds/podium.svg",
                 "character1_img": "exercises/characters/bunny_boy.png",
                 "object_img": "exercises/objects/trophy.png"
             },
             {
-                "parrot_msg": "Delle lacrime iniziano a scendere sulle guance di Anna mentre abbraccia il suo trofeo.",
+                "parrot_msg": "Tears start rolling down Anna's cheeks as she hugs her trophy.",
                 "background_img": "exercises/backgrounds/podium.svg",
                 "character1_img": "exercises/characters/bunny_boy.png",
                 "object_img": "exercises/objects/trophy.png"
             },
             {
-                "parrot_msg": "Perché Anna sta piangendo?",
+                "parrot_msg": "Why is Anna crying?",
                 "background_img": "exercises/backgrounds/podium.svg",
                 "character1_img": "exercises/characters/bunny_boy.png",
                 "character2_img": "exercises/characters/mouse.png",
                 "object_img": "exercises/objects/trophy.png",
                 "correct_option": 2,
                 "options": [
-                    "Sì, è triste perché il trofeo è troppo pesante da portare a casa.",
-                    "Sì, sta piangendo perché in realtà voleva perdere la corsa.",
-                    "No, sta provando un'emozione contrastante e piange per la gioia."
+                    "She is sad because the trophy is too heavy to carry home.",
+                    "She is crying because she actually wanted to lose the race.",
+                    "She is feeling a contrasting emotion and crying tears of joy."
                 ]
             }
         ]
@@ -38,10 +38,10 @@
         "num_interactions": 2,
         "interactions": [
             {
-                "parrot_msg": "Anna era così felice che ha iniziato a piangere! Ti è mai capitato di piangere per la gioia?"
+                "parrot_msg": "Anna was so happy that she started crying! Have you ever cried tears of joy?"
             },
             {
-                "parrot_msg": "È strano, vero? Piangere di solito si fa quando si è tristi, ma a volte succede anche quando siamo super contenti!"
+                "parrot_msg": "Strange, right? We usually cry when we're sad, but sometimes it happens when we're super happy too!"
             }
         ]
     }
