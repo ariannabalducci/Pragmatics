@@ -20,9 +20,9 @@ function ReactionsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const exerciseId = searchParams.get("exerciseId"); // UUID dal DB
+  const exerciseId = searchParams.get("exerciseId");
   const groupId = searchParams.get("groupId");
-  const exerciseTitle = searchParams.get("title") || "Esercizio Reazioni";
+  const exerciseTitle = searchParams.get("title") || "Reactions exercise";
 
   const [data, setData] = useState<ReactionsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ function ReactionsContent() {
         setOptionBSrc(`/images/reactions/${c.id}_b.png`);
         setFeedback(null);
       } catch (err) {
-        console.error("Errore caricamento reactions:", err);
+        console.error("Error loading the exercise:", err);
       } finally {
         setLoading(false);
       }
@@ -66,7 +66,7 @@ function ReactionsContent() {
     const isCorrect = choice === data.correctOption;
 
     if (mode === "testing") {
-      // Nessun feedback in testing: salvataggio immediato e ritorno alla mappa
+      // No feedback in testing mode: save and go back to the map.
       try {
         const token = localStorage.getItem("token");
         await fetch(`/api/exercise/${exerciseId}/attempt`, {
@@ -83,14 +83,13 @@ function ReactionsContent() {
           }),
         });
       } catch (err) {
-        console.error("Errore salvataggio attempt:", err);
+        console.error("Error saving the attempt:", err);
       }
       router.push("/path-reactions");
       return;
     }
 
     if (isCorrect) {
-      // Salva attempt nel DB
       try {
         const token = localStorage.getItem("token");
         await fetch(`/api/exercise/${exerciseId}/attempt`, {
@@ -107,12 +106,12 @@ function ReactionsContent() {
           }),
         });
       } catch (err) {
-        console.error("Errore salvataggio attempt:", err);
+        console.error("Error saving the attempt:", err);
       }
       router.push("/congratulations?returnTo=/path-reactions");
     } else {
       setFeedback("wrong");
-      // Salva comunque il completamento nel DB in modo da riempire la stella
+      // Save the attempt anyway so the star gets filled.
       try {
         const token = localStorage.getItem("token");
         await fetch(`/api/exercise/${exerciseId}/attempt`, {
@@ -129,7 +128,7 @@ function ReactionsContent() {
           }),
         });
       } catch (err) {
-        console.error("Errore salvataggio attempt:", err);
+        console.error("Error saving the attempt:", err);
       }
       setTimeout(() => {
         router.push("/congratulations?returnTo=/path-reactions");
@@ -137,8 +136,8 @@ function ReactionsContent() {
     }
   };
 
-  if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Caricamento...</div>;
-  if (!data) return <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Esercizio non trovato.</div>;
+  if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Loading...</div>;
+  if (!data) return <div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Exercise not found.</div>;
 
   return (
     <main className="bg-[#FEF5E7] flex flex-col w-screen h-screen overflow-hidden">
@@ -172,13 +171,13 @@ function ReactionsContent() {
               <div
                 className="text-5xl md:text-7xl font-black text-red-600 bg-white px-12 py-8 rounded-[3rem] shadow-2xl border-4 border-red-300 animate-bounce"
               >
-                SBAGLIATO 😔
+                WRONG 😔
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* SITUAZIONE */}
+        {/* SITUATION */}
         <div className="w-full max-w-2xl h-[35vh] bg-white rounded-3xl shadow-xl border-4 border-orange-200 relative overflow-hidden shrink-0">
           <Image
             src={situationSrc}
@@ -191,12 +190,11 @@ function ReactionsContent() {
         </div>
 
         <h3 className="text-lg md:text-2xl font-black text-[#0e2a47] text-center shrink-0">
-          QUALE DELLE DUE REAZIONI È CORRETTA?
+          WHICH REACTION IS THE RIGHT ONE?
         </h3>
 
-        {/* OPZIONI */}
+        {/* OPTIONS */}
         <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl shrink-0">
-          {/* Opzione A */}
           <button
             onClick={() => handleChoice("A")}
             disabled={feedback !== null}
@@ -224,7 +222,6 @@ function ReactionsContent() {
             </div>
           </button>
 
-          {/* Opzione B */}
           <button
             onClick={() => handleChoice("B")}
             disabled={feedback !== null}
@@ -259,7 +256,7 @@ function ReactionsContent() {
 
 export default function ReactionsPage() {
   return (
-    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Caricamento...</div>}>
+    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#FEF5E7]">Loading...</div>}>
       <ReactionsContent />
     </Suspense>
   );

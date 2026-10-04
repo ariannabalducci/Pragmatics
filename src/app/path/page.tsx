@@ -47,7 +47,7 @@ const PathPage = () => {
 
         const storedMode = (localStorage.getItem("pragmatics_mode") === "testing" ? "testing" : "training") as "training" | "testing";
 
-        // 1. Recuperiamo prima l'appuntamento per forzare la sincronizzazione del mode (training/testing)
+        // Today's appointment decides the mode (training or testing).
         const todayRes = await fetch(`/api/appointments/today`, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -63,8 +63,6 @@ const PathPage = () => {
                     isActive: todayData.isActive || false
                 });
 
-                // Forziamo sempre il mode quando c'è un appuntamento oggi (isActive o meno),
-                // usando il campo sessionMode già mappato correttamente dall'API.
                 if (todayData.sessionMode) {
                     forcedMode = todayData.sessionMode as "training" | "testing";
                     localStorage.setItem("pragmatics_mode", forcedMode);
@@ -72,7 +70,6 @@ const PathPage = () => {
             }
         }
 
-        // 2. Fetchiamo i dati dello studente usando il forcedMode sincronizzato
         const [studentRes, collectionRes] = await Promise.all([
             fetch(`/api/student/${user.id}?mode=${forcedMode}`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -164,24 +161,20 @@ const PathPage = () => {
     }
   };
 
-  // Applica il filtraggio e il limite giornaliero
+  // Apply the session prescription or the daily limit.
   const limitedLevels = (() => {
-    // Se non c'è appuntamento o non è attivo nell'orario corrente, mostra tutto
     if (!dailyLimit || !dailyLimit.isActive) return levels;
 
-    // Se ci sono esercizi prescritti SPECIFICI (granular prescription)
+    // With a specific prescription, show only the prescribed groups.
     if (dailyLimit.prescribed.length > 0) {
-      // Filtriamo i livelli per mostrare SOLO quelli prescritti dal logopedista
       return levels.filter((level: any) => {
         return dailyLimit.prescribed.includes(level.groupId);
       }).map((level: any) => {
-        // Grazie all'aggiornamento dell'API, i livelli prescritti arrivano già 
-        // con le info di progresso corrette per la seduta odierna.
         return { ...level };
       });
     }
 
-    // Altrimenti usa il limite numerico legacy (fallback)
+    // Otherwise fall back to the numeric daily limit.
     const limit = mode === "testing" ? dailyLimit.testing : dailyLimit.training;
     if (limit === 0) return levels; 
     
@@ -197,13 +190,12 @@ const PathPage = () => {
     });
   })();
 
-  // Conta quanti nodi available sono rimasti dopo il limite
   const availableToday = limitedLevels.filter(l => l.status === 'available').length;
 
   if (loading) {
     return (
         <main className={`relative w-full h-screen overflow-hidden flex items-center justify-center ${mode === "testing" ? "bg-slate-200" : "bg-[#A6DADA]"}`}>
-            <div className={`${mode === "testing" ? "text-slate-500" : "text-white"} text-2xl font-bold font-['Mochiy_Pop_One']`}>Caricamento avventura...</div>
+            <div className={`${mode === "testing" ? "text-slate-500" : "text-white"} text-2xl font-bold font-['Mochiy_Pop_One']`}>Loading your adventure...</div>
         </main>
     );
   }
@@ -216,14 +208,13 @@ const PathPage = () => {
               onClick={() => router.push("/select-mode")}
               className="bg-white/80 backdrop-blur-md px-4 py-2 flex items-center gap-2 rounded-2xl shadow-sm text-slate-700 font-bold text-sm hover:bg-white hover:shadow transition-all"
             >
-              <ArrowLeft size={16} strokeWidth={3} /> Modalità
+              <ArrowLeft size={16} strokeWidth={3} /> Mode
             </button>
             <LogoutButton />
           </div>
 
           <CoinCounter amount={coins} />
 
-          {/* Banner esercizi giornalieri e stato seduta */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none space-y-2 flex flex-col items-center">
             
             {dailyLimit && (
@@ -238,8 +229,8 @@ const PathPage = () => {
                 <span className="text-lg">🎯</span>
                 <span>
                   {dailyLimit.prescribed.length > 0 && dailyLimit.isActive
-                    ? `${availableToday} esercizi prescritti rimasti`
-                    : `${availableToday} esercizi da fare oggi`
+                    ? `${availableToday} prescribed exercises left`
+                    : `${availableToday} exercises to do today`
                   }
                 </span>
               </div>
@@ -247,7 +238,7 @@ const PathPage = () => {
             
             {dailyLimit?.isActive && (
               <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
-                Seduta in corso ✨
+                Session in progress ✨
               </div>
             )}
             
@@ -273,10 +264,10 @@ const PathPage = () => {
             <div className="absolute inset-0 flex items-center justify-center bg-[#A6DADA]/80 backdrop-blur-sm z-40">
               <div className="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-md border-4 border-[#4d8b7d]/20 animate-in zoom-in duration-300">
                 <div className="text-6xl mb-6">🤫</div>
-                <h3 className="text-2xl font-black text-[#0e2a47] mb-4">Seduta Pronta!</h3>
+                <h3 className="text-2xl font-black text-[#0e2a47] mb-4">Session ready!</h3>
                 <p className="text-slate-500 font-bold leading-relaxed">
-                  Il tuo logopedista sta preparando gli esercizi per te. <br/>
-                  Aspetta un attimo o chiedi a lui/lei cosa fare!
+                  Your therapist is getting the exercises ready for you. <br/>
+                  Wait a moment or ask them what to do!
                 </p>
               </div>
             </div>

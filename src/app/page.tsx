@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Users, UserCog } from "lucide-react";
 
-export default function AuthTherapistPage() {
+export default function HomePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -48,7 +48,7 @@ export default function AuthTherapistPage() {
         </h1>
 
         <p className="text-xl lg:text-2xl font-bold text-slate-500 mb-12 text-center max-w-2xl">
-          Scegli il profilo con cui vuoi accedere: studente o logopedista.
+          Choose how you want to sign in: kid or therapist.
         </p>
 
         <div className="flex flex-col md:flex-row gap-8 w-full justify-center items-stretch">
@@ -61,9 +61,9 @@ export default function AuthTherapistPage() {
                 <Users className="w-10 h-10 text-[#62B4A5] group-hover:text-white" strokeWidth={3} />
               </div>
               <div className="text-center">
-                <h2 className="text-3xl font-black text-[#62B4A5] mb-2">Accedi come Ragazzo</h2>
+                <h2 className="text-3xl font-black text-[#62B4A5] mb-2">Sign in as a Kid</h2>
                 <p className="text-slate-500 font-medium">
-                  Vai alla tua avventura, scegli la modalità e inizia gli esercizi.
+                  Start your adventure, pick a mode and begin the exercises.
                 </p>
               </div>
             </button>
@@ -78,9 +78,9 @@ export default function AuthTherapistPage() {
                 <UserCog className="w-10 h-10 text-[#8e6fad] group-hover:text-white" strokeWidth={3} />
               </div>
               <div className="text-center">
-                <h2 className="text-3xl font-black text-[#8e6fad] mb-2">Accedi come Logopedista</h2>
+                <h2 className="text-3xl font-black text-[#8e6fad] mb-2">Sign in as a Therapist</h2>
                 <p className="text-slate-500 font-medium">
-                  Gestisci i tuoi pazienti, vedi gli appuntamenti e monitora i progressi.
+                  Manage your patients, see your appointments and track their progress.
                 </p>
               </div>
             </button>

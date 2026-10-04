@@ -20,9 +20,9 @@ const FeelingsContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const exerciseId = searchParams.get('exerciseId'); // UUID dal DB
+    const exerciseId = searchParams.get('exerciseId');
     const groupId = searchParams.get('groupId');
-    const exerciseTitle = searchParams.get('title') || "Esercizio Sentimenti";
+    const exerciseTitle = searchParams.get('title') || "Feelings exercise";
 
     const [content, setContent] = useState<ExerciseContent | null>(null);
     const [history, setHistory] = useState<ChatHistory>([]);
@@ -54,7 +54,7 @@ const FeelingsContent = () => {
                     }
                 ]);
             } catch (err) {
-                console.error("Errore caricamento feelings:", err);
+                console.error("Error loading the exercise:", err);
             } finally {
                 setLoading(false);
             }
@@ -97,7 +97,7 @@ const FeelingsContent = () => {
                     }),
                 });
             } catch (err) {
-                console.error("Errore salvataggio attempt:", err);
+                console.error("Error saving the attempt:", err);
             }
         }
         if (mode === "testing") {
@@ -146,7 +146,7 @@ const FeelingsContent = () => {
                 return;
             }
 
-            const aiText = data.response || "Squawk! Non ho capito.";
+            const aiText = data.response || "Squawk! I didn't get that.";
             const aiMessage: Message = {
                 role: "model" as MessageRole,
                 parts: [{ text: aiText }],
@@ -160,7 +160,7 @@ const FeelingsContent = () => {
 
     const totalSteps = content?.questions.length ?? 3;
 
-    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#E74C3C]">Caricamento...</div>;
+    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#E74C3C]">Loading...</div>;
 
     return (
         <main className="bg-[#FDEDEC] grid grid-rows-[min-content_min-content_1fr] grid-cols-1 md:grid-cols-[1fr_1fr] gap-2 md:gap-4 w-screen h-screen pb-6 px-6 overflow-hidden">
@@ -183,7 +183,7 @@ const FeelingsContent = () => {
             {/* HEADER */}
             <div className="col-span-1 md:col-span-2 text-center bg-white/80 backdrop-blur-md border-2 border-[#F5B7B1] rounded-2xl p-2 md:p-3 shadow-sm z-10 mx-auto w-full max-w-3xl">
                 <h3 className="font-bold text-[#E74C3C] text-sm md:text-base">
-                    Guarda attentamente l'immagine e cerca di capire le reazioni dei personaggi, decidi se la situazione è positiva o negativa.
+                    Look carefully at the picture, try to understand how the characters react, and decide whether the situation is positive or negative.
                 </h3>
             </div>
 
@@ -193,7 +193,7 @@ const FeelingsContent = () => {
                     <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
                         <Image
                             src={imageSrc}
-                            alt="Illustrazione Esercizio Sentimenti"
+                            alt="Feelings exercise illustration"
                             fill
                             className={`object-contain ${imageSrc === '/parrot.gif' ? 'opacity-50 grayscale scale-50' : 'p-4'}`}
                             onError={() => setImageSrc("/parrot.gif")}
@@ -212,17 +212,17 @@ const FeelingsContent = () => {
                         </div>
                         <div className="flex-1">
                             <h3 className="font-black text-xl text-[#0e2a47]">Praggy</h3>
-                            <p className="text-sm font-bold text-slate-400">Tutor delle Emozioni - Step {currentStep} di {totalSteps}</p>
+                            <p className="text-sm font-bold text-slate-400">Emotions Tutor - Step {currentStep} of {totalSteps}</p>
                         </div>
 
                         {userHasAnswered && currentStep < totalSteps && (
                             <Button onClick={handleNextStep} className="bg-[#FFE53B] text-[#8B7D00] hover:bg-[#F2D822] shadow-md border-2 border-[#D4BF32] font-black rounded-2xl shrink-0">
-                                Avanti <ArrowRight className="ml-2 size-5" />
+                                Next <ArrowRight className="ml-2 size-5" />
                             </Button>
                         )}
                         {userHasAnswered && currentStep === totalSteps && (
                             <Button onClick={handleFinish} className="bg-[#4CAF50] text-white hover:bg-[#45a049] shadow-md border-2 border-[#388E3C] font-black rounded-2xl shrink-0">
-                                Termina
+                                Finish
                             </Button>
                         )}
                     </div>
@@ -243,7 +243,7 @@ const FeelingsContent = () => {
 
 const FeelingsPage = () => {
     return (
-        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#E74C3C]">Caricamento...</div>}>
+        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#E74C3C]">Loading...</div>}>
             <FeelingsContent />
         </Suspense>
     );

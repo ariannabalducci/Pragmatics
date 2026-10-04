@@ -48,7 +48,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
         setIsMounted(true);
     }, []);
 
-    // 2. Reset stati quando cambia la slide o si torna indietro
+    // 2. Reset the state when the slide changes or the user goes back
     useEffect(() => {
         if (quizStatus === null) {
             setTempSelectedIndex(null);
@@ -77,13 +77,13 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
     return (
         <div className="flex flex-col w-full gap-3">
 
-            {/* -------------------- FUMETTO DI PRAGGY -------------------- */}
+            {/* -------------------- PRAGGY'S SPEECH BUBBLE -------------------- */}
             <div className="flex justify-center w-full mb-2">
                 {parrot_msg && (
                     <div className="relative flex items-center justify-center w-full max-w-[650px]">
                         <img
                             src="/exercises/speech-bubble.png"
-                            alt="Fumetto"
+                            alt="Speech bubble"
                             className="w-full h-auto animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
                         <p className="absolute z-10 text-white text-[1.1rem] md:text-lg lg:text-xl font-medium text-center leading-tight w-[85%] pb-[4%] px-2 animate-[fade-in_.5s_ease-in-out_forwards]">
@@ -93,13 +93,13 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                 )}
             </div>
 
-            {/* -------------------- IMMAGINI DELLA STORIA -------------------- */}
+            {/* -------------------- STORY IMAGES -------------------- */}
             {hasImages && (
                 <div className="relative h-80 overflow-hidden rounded-[40px] bg-gray-100 shadow-inner border-4 border-white">
                     {background_img && (
                         <Image
                             src={background_img}
-                            alt="Sfondo"
+                            alt="Background"
                             fill
                             priority
                             style={{ objectFit: 'cover' }}
@@ -110,7 +110,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                     {character1_img && (
                         <img
                             src={character1_img}
-                            alt="Personaggio 1"
+                            alt="Character 1"
                             style={{ height: '85%', width: 'auto' }} // Fix Aspect Ratio warning
                             className="absolute bottom-0 left-10 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
@@ -119,7 +119,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                     {character2_img && (
                         <img
                             src={character2_img}
-                            alt="Personaggio 2"
+                            alt="Character 2"
                             style={{ height: '85%', width: 'auto' }} // Fix Aspect Ratio warning
                             className="absolute bottom-0 right-10 object-contain z-10 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
@@ -128,7 +128,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                     {object_img && (
                         <img
                             src={object_img}
-                            alt="Oggetto"
+                            alt="Object"
                             style={{ height: '50%', width: 'auto' }} // Fix Aspect Ratio warning
                             className="absolute bottom-5 left-1/2 transform -translate-x-1/2 object-contain z-15 animate-[fade-in_.5s_ease-in-out_forwards]"
                         />
@@ -137,7 +137,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                     {character1_msg && (
                         <img
                             src={character1_msg}
-                            alt="Fumetto 1"
+                            alt="Speech bubble 1"
                             style={{ width: '180px', height: 'auto' }}
                             className="absolute top-10 right-[55%] object-contain z-20 animate-[fade-in_.3s_ease-in-out_forwards]"
                         />
@@ -146,7 +146,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                     {character2_msg && (
                         <img
                             src={character2_msg}
-                            alt="Fumetto 2"
+                            alt="Speech bubble 2"
                             style={{ width: '180px', height: 'auto' }}
                             className="absolute top-10 left-[55%] object-contain z-20 animate-[fade-in_.3s_ease-in-out_forwards]"
                         />
@@ -154,7 +154,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                 </div>
             )}
 
-            {/* -------------------- QUIZ / OPZIONI -------------------- */}
+            {/* -------------------- QUIZ / OPTIONS -------------------- */}
             {options && options.length > 0 && typeof correct_option === 'number' && (
                 <div className="flex flex-col items-center gap-4 mt-4">
                     <div className="flex flex-row gap-5 justify-center w-full">
@@ -171,13 +171,13 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                                     disabled={isSubmitted}
                                     className={cn(
                                         "justify-center animate-[fade-in_.5s_ease-in-out_forwards] py-6 px-8 h-auto transition-all",
-                                        // Selezione temporanea (Giallo)
+                                        // Temporary selection (yellow)
                                         isSelected && !isSubmitted && "border-4 border-yellow-400 bg-yellow-50 text-black scale-105",
-                                        // Risposta sbagliata — flash rosso breve
+                                        // Wrong answer: short red flash
                                         isSubmitted && isSelected && showWrongFeedback && "bg-[#E87D57] text-white scale-95",
-                                        // Risultato in Testing (neutro)
+                                        // Result in testing mode (neutral)
                                         isSubmitted && isSelected && isTesting && !showWrongFeedback && "bg-slate-600 text-white",
-                                        // Risposta corretta in Training
+                                        // Correct answer in training mode
                                         isSubmitted && isSelected && !isTesting && isCorrect && "bg-[#62B4A5] text-white",
                                         isSubmitted && !isSelected && "opacity-50"
                                     )}
@@ -190,14 +190,14 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                         })}
                     </div>
 
-                    {/* FEEDBACK / TASTO CONFERMA */}
+                    {/* FEEDBACK / CONFIRM BUTTON */}
                     <div className="h-12 flex items-center justify-center">
                         {isSubmitted && !isTesting && (
                             <p className={cn(
                                 "font-bold text-xl animate-[fade-in_.3s_ease-in-out_forwards]",
                                 tempSelectedIndex === correct_option ? "text-[#62B4A5]" : "text-[#E87D57]"
                             )}>
-                                {tempSelectedIndex === correct_option ? "Ottimo lavoro! 🦜🌟" : "Sbagliato! 😔"}
+                                {tempSelectedIndex === correct_option ? "Great job! 🦜🌟" : "Wrong! 😔"}
                             </p>
                         )}
                         {tempSelectedIndex !== null && !isSubmitted && (
@@ -210,7 +210,7 @@ const StoryWindow = ({ interactionData, onAnswer, quizStatus, isTesting }: Story
                                         : "bg-[#62B4A5] hover:bg-[#4a8f82] animate-bounce"
                                 )}
                             >
-                                {isTesting ? "CONFERMA SCELTA" : "CONFERMA RISPOSTA 🦜"}
+                                {isTesting ? "CONFIRM CHOICE" : "CONFIRM ANSWER 🦜"}
                             </Button>
                         )}
                     </div>

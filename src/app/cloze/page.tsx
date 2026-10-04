@@ -17,9 +17,9 @@ function ClozeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const exerciseId = searchParams.get("exerciseId"); // UUID dal DB
+  const exerciseId = searchParams.get("exerciseId");
   const groupId = searchParams.get("groupId");
-  const exerciseTitle = searchParams.get("title") || "Esercizio Cloze";
+  const exerciseTitle = searchParams.get("title") || "Cloze exercise";
 
   const [data, setData] = useState<ClozeExercise | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,7 @@ function ClozeContent() {
         const json = await res.json();
         setData(json.content_json as ClozeExercise);
       } catch (err) {
-        console.error("Errore caricamento cloze:", err);
+        console.error("Error loading the exercise:", err);
       } finally {
         setLoading(false);
       }
@@ -107,7 +107,7 @@ function ClozeContent() {
         }),
       });
     } catch (err) {
-      console.error("Errore salvataggio attempt:", err);
+      console.error("Error saving the attempt:", err);
     }
   };
 
@@ -179,8 +179,8 @@ function ClozeContent() {
     });
   };
 
-  if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Caricamento...</div>;
-  if (!data) return <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Esercizio non trovato.</div>;
+  if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Loading...</div>;
+  if (!data) return <div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Exercise not found.</div>;
 
   return (
     <main className="bg-[#F5EEF8] flex flex-col w-screen h-screen overflow-hidden">
@@ -207,7 +207,7 @@ function ClozeContent() {
 
         <div className="lg:w-[280px] shrink-0 flex flex-col gap-4">
           <div className="bg-white rounded-3xl shadow-xl border-4 border-[#8E44AD] p-4 flex-1 min-h-0 overflow-y-auto">
-            <h3 className="font-black text-[#8E44AD] text-center mb-4 text-lg">PAROLE</h3>
+            <h3 className="font-black text-[#8E44AD] text-center mb-4 text-lg">WORDS</h3>
             <div className="flex flex-wrap gap-3 justify-center">
               {availableWords.map((word) => (
                 <div
@@ -221,7 +221,7 @@ function ClozeContent() {
                 </div>
               ))}
               {availableWords.length === 0 && (
-                <p className="text-slate-400 font-medium text-sm text-center">Tutte le parole sono state piazzate!</p>
+                <p className="text-slate-400 font-medium text-sm text-center">All the words have been placed!</p>
               )}
             </div>
           </div>
@@ -230,14 +230,14 @@ function ClozeContent() {
             onClick={handleVerify}
             className="w-full bg-[#8E44AD] text-white hover:bg-[#7D3C98] font-black text-lg py-6 rounded-2xl shadow-lg"
           >
-            {mode === "testing" ? "CONTINUA" : "HO FINITO ✓"}
+            {mode === "testing" ? "CONTINUE" : "I'M DONE ✓"}
           </Button>
 
           <Button
             onClick={() => router.push("/path-cloze")}
             className="w-full bg-white text-[#8E44AD] hover:bg-[#F5EEF8] font-black text-base py-4 rounded-2xl shadow-md border-2 border-[#8E44AD]"
           >
-            Termina Esercizio
+            Finish Exercise
           </Button>
         </div>
       </div>
@@ -247,7 +247,7 @@ function ClozeContent() {
 
 export default function ClozePage() {
   return (
-    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Caricamento...</div>}>
+    <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#F5EEF8]">Loading...</div>}>
       <ClozeContent />
     </Suspense>
   );

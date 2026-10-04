@@ -10,7 +10,7 @@ interface ExerciseSystemProps {
     exerciseId: string;
     levelProgress?: number;
     onClose: () => void;
-    mode?: string; // Prop per distinguere tra training e testing
+    mode?: string; // "training" or "testing"
     firstExerciseId?: string;
 }
 export default function ExerciseSystem({ 
@@ -25,7 +25,6 @@ export default function ExerciseSystem({
   
   const isTesting = mode === "testing";
   
-  // Configurazione Colori
   const colors = isTesting 
     ? { primary: "bg-[#a386bd]", secondary: "bg-[#8e6fad]", text: "text-[#8e6fad]", border: "border-[#8e6fad]" }
     : { primary: "bg-[#62B4A5]", secondary: "bg-[#4583BD]", text: "text-[#62B4A5]", border: "border-[#4a8f82]" };
@@ -41,10 +40,10 @@ export default function ExerciseSystem({
         
         <div className="absolute inset-0" onClick={onClose} />
 
-        {/* === CARD PRINCIPALE === */}
+        {/* === MAIN CARD === */}
         <div className="relative z-10 w-full max-w-4xl bg-white/90 rounded-[40px] shadow-2xl overflow-visible p-8 md:p-12 animate-in zoom-in-95 duration-200 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             
-            {/* TASTO CHIUDI */}
+            {/* CLOSE BUTTON */}
             <button
                 onClick={onClose}
                 className={`${colors.primary} absolute -top-4 -left-4 z-50 w-12 h-12 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer`}
@@ -61,9 +60,9 @@ export default function ExerciseSystem({
             <div className="flex flex-col justify-start space-y-6 z-10">
                 
                 <div className={`relative ${colors.primary} text-white p-6 rounded-3xl rounded-br-none mb-8 w-full shadow-md`}>
-                    <p className="opacity-90 text-sm font-bold uppercase mb-1">Argomento di oggi:</p>
+                    <p className="opacity-90 text-sm font-bold uppercase mb-1">Today's topic:</p>
                     <p className="text-2xl font-black leading-tight">"{data.topic}"</p>
-                    <p className="mt-4 font-bold text-sm opacity-90">Sei pronto a iniziare?</p>
+                    <p className="mt-4 font-bold text-sm opacity-90">Are you ready to start?</p>
                     
                     <div className={`absolute bottom-0 -right-5 w-0 h-0 
                         border-t-25 border-t-transparent 
@@ -73,23 +72,21 @@ export default function ExerciseSystem({
                 </div>
 
                 <div className="w-full space-y-4">
-                    {/* PARTE 1 - Sempre visibile */}
                     {(isTesting || levelProgress === 0) && (
                         <div className="bg-white border-2 border-slate-100 rounded-full p-2 flex items-center gap-4 shadow-sm w-full max-w-sm">
                             <span className={`${colors.primary} text-white font-bold px-4 py-1 rounded-full text-lg`}>
-                                PARTE 1
+                                PART 1
                             </span>
-                            <span className="text-[#5A5959] font-bold">Momento Storia</span>
+                            <span className="text-[#5A5959] font-bold">Story Time</span>
                         </div>
                     )}
 
-                    {/* PARTE 2 - Solo in Training se la parte 1 è fatta */}
                     {!isTesting && levelProgress !== 0 && (
                         <div className="bg-white border-2 border-slate-100 rounded-full p-2 flex items-center gap-4 shadow-sm w-full max-w-sm">
                             <span className="bg-[#4583BD] text-white font-bold px-4 py-1 rounded-full text-lg">
-                                PARTE 2
+                                PART 2
                             </span>
-                            <span className="text-[#5A5959] font-bold">Momento Chat</span>
+                            <span className="text-[#5A5959] font-bold">Chat Time</span>
                         </div>
                     )}
 
@@ -99,7 +96,7 @@ export default function ExerciseSystem({
                             : (levelProgress === 0 ? `/story?id=${exerciseId}` : `/chat?id=${exerciseId}`)
                         }>
                             <Button className={`${colors.primary} text-white text-xl p-8 rounded-2xl w-full md:w-auto shadow-[0_6px_0_0_rgba(0,0,0,0.1)] hover:translate-y-1 active:shadow-none transition-all`}>
-                                {isTesting ? "Inizia Valutazione" : "Inizia a Giocare"}
+                                {isTesting ? "Start Assessment" : "Start Playing"}
                             </Button>
                         </a>
                     </div>

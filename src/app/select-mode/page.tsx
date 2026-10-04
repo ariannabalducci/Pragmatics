@@ -11,17 +11,16 @@ export default function SelectModePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [expandedCard, setExpandedCard] = useState<"training" | "testing" | null>(null);
-  // sessionMode: null = nessuna sessione, "training"/"testing" = sessione attiva
+  // null when no session is active
   const [sessionMode, setSessionMode] = useState<"training" | "testing" | null>(null);
-  // sessionChecked: false finché l'API non ha risposto — blocca il rendering delle card
+  // The cards stay hidden until the session check is done.
   const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
 
-    // Controlla se c'è una sessione attiva e quale modalità impone
     const checkSession = async () => {
-      // Timeout di 5 secondi: se l'API non risponde, mostriamo comunque le card
+      // Show the cards anyway if the API doesn't answer within 5 seconds.
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
@@ -47,14 +46,13 @@ export default function SelectModePage() {
           }
         }
       } catch {
-        // In caso di errore o timeout, mostriamo comunque le card
+        // On error or timeout the cards are shown anyway.
       }
       setSessionChecked(true);
     };
     checkSession();
   }, []);
 
-  // Non renderizzare nulla finché non siamo montati E la sessione non è stata verificata
   if (!isMounted || !sessionChecked) {
     return <main className="min-h-screen bg-[#F0F7F7] flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-[#62B4A5] border-t-transparent rounded-full animate-spin" />
@@ -80,8 +78,8 @@ export default function SelectModePage() {
           <Map className="w-7 h-7 text-white" strokeWidth={2.5} />
         </div>
         <div className="text-left">
-          <h3 className="text-2xl font-black text-[#62B4A5]">Generico</h3>
-          <p className="text-sm text-slate-500 font-medium">Esplora la mappa principale</p>
+          <h3 className="text-2xl font-black text-[#62B4A5]">General</h3>
+          <p className="text-sm text-slate-500 font-medium">Explore the main map</p>
         </div>
       </button>
 
@@ -93,8 +91,8 @@ export default function SelectModePage() {
           <HelpCircle className="w-7 h-7 text-white" strokeWidth={2.5} />
         </div>
         <div className="text-left">
-          <h3 className="text-2xl font-black text-[#2C82C9]">Perché</h3>
-          <p className="text-sm text-slate-500 font-medium">Domande Causali</p>
+          <h3 className="text-2xl font-black text-[#2C82C9]">Why</h3>
+          <p className="text-sm text-slate-500 font-medium">Cause and effect questions</p>
         </div>
       </button>
 
@@ -106,8 +104,8 @@ export default function SelectModePage() {
           <Heart className="w-7 h-7 text-white" strokeWidth={2.5} />
         </div>
         <div className="text-left">
-          <h3 className="text-2xl font-black text-[#E74C3C]">I Sentimenti</h3>
-          <p className="text-sm text-slate-500 font-medium">Analisi delle emozioni</p>
+          <h3 className="text-2xl font-black text-[#E74C3C]">Feelings</h3>
+          <p className="text-sm text-slate-500 font-medium">Understanding emotions</p>
         </div>
       </button>
 
@@ -119,8 +117,8 @@ export default function SelectModePage() {
           <Zap className="w-7 h-7 text-white" strokeWidth={2.5} />
         </div>
         <div className="text-left">
-          <h3 className="text-2xl font-black text-[#F39C12]">Reazioni</h3>
-          <p className="text-sm text-slate-500 font-medium">Problem solving sociale</p>
+          <h3 className="text-2xl font-black text-[#F39C12]">Reactions</h3>
+          <p className="text-sm text-slate-500 font-medium">Social problem solving</p>
         </div>
       </button>
 
@@ -133,7 +131,7 @@ export default function SelectModePage() {
         </div>
         <div className="text-left">
           <h3 className="text-2xl font-black text-[#8E44AD]">Cloze</h3>
-          <p className="text-sm text-slate-500 font-medium">Completa il testo</p>
+          <p className="text-sm text-slate-500 font-medium">Complete the text</p>
         </div>
       </button>
 
@@ -141,12 +139,12 @@ export default function SelectModePage() {
         onClick={() => setExpandedCard(null)}
         className="w-full flex-1 bg-white rounded-3xl p-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-slate-200 text-slate-500 hover:bg-slate-50 transition-all font-bold"
       >
-        Annulla
+        Cancel
       </button>
     </motion.div>
   );
 
-  // Durante una sessione: mostra solo la card della modalità prescritta
+  // During a session only the prescribed mode is shown.
   const showTraining = !sessionMode || sessionMode === "training";
   const showTesting  = !sessionMode || sessionMode === "testing";
 
@@ -156,11 +154,10 @@ export default function SelectModePage() {
         <LogoutButton />
       </div>
 
-      {/* Banner seduta in corso */}
       {sessionMode && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
           <div className={`px-5 py-2 rounded-2xl shadow-lg font-bold text-sm text-white ${sessionMode === "testing" ? "bg-[#8e6fad]" : "bg-[#62B4A5]"}`}>
-            🎯 Seduta in corso — {sessionMode === "testing" ? "Fase di Valutazione" : "Fase di Training"}
+            🎯 Session in progress — {sessionMode === "testing" ? "Assessment" : "Training"}
           </div>
         </div>
       )}
@@ -187,12 +184,11 @@ export default function SelectModePage() {
         </h1>
 
         <p className="text-lg lg:text-xl font-bold text-slate-500 mb-8">
-          {sessionMode ? "Seleziona la categoria:" : "Seleziona la modalità:"}
+          {sessionMode ? "Choose a category:" : "Choose a mode:"}
         </p>
 
         <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl justify-center items-stretch">
 
-          {/* Card Training */}
           {showTraining && (
             <motion.div
               whileHover={expandedCard === "training" ? {} : { scale: 1.05 }}
@@ -207,15 +203,14 @@ export default function SelectModePage() {
                     <Play className="w-10 h-10 text-[#62B4A5] group-hover:text-white ml-2" strokeWidth={3} />
                   </div>
                   <div className="text-center">
-                    <h2 className="text-3xl font-black text-[#62B4A5] mb-2">Fase di Training</h2>
-                    <p className="text-slate-500 font-medium">Percorso completo con aiuti, correzioni e rinforzi positivi.</p>
+                    <h2 className="text-3xl font-black text-[#62B4A5] mb-2">Training</h2>
+                    <p className="text-slate-500 font-medium">Full path with hints, corrections and positive reinforcement.</p>
                   </div>
                 </button>
               ) : renderCategories("training")}
             </motion.div>
           )}
 
-          {/* Card Testing */}
           {showTesting && (
             <motion.div
               whileHover={expandedCard === "testing" ? {} : { scale: 1.05 }}
@@ -230,8 +225,8 @@ export default function SelectModePage() {
                     <ClipboardList className="w-10 h-10 text-[#8e6fad] group-hover:text-white" strokeWidth={3} />
                   </div>
                   <div className="text-center">
-                    <h2 className="text-3xl font-black text-[#8e6fad] mb-2">Fase di Valutazione</h2>
-                    <p className="text-slate-500 font-medium">Test silente senza feedback, solo narrazione.</p>
+                    <h2 className="text-3xl font-black text-[#8e6fad] mb-2">Assessment</h2>
+                    <p className="text-slate-500 font-medium">Silent test with no feedback, narration only.</p>
                   </div>
                 </button>
               ) : renderCategories("testing")}

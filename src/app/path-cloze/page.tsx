@@ -74,7 +74,7 @@ export default function PathClozePage() {
           }
         }
       } catch (err) {
-        console.error("Errore caricamento cloze:", err);
+        console.error("Error loading cloze exercises:", err);
       } finally {
         setLoading(false);
       }
@@ -82,7 +82,6 @@ export default function PathClozePage() {
     fetchData();
   }, []);
 
-  // Filtraggio identico alla path generica
   const visibleNodes = (() => {
     if (!dailyLimit || !dailyLimit.isActive) return nodes;
     if (dailyLimit.prescribed.length > 0) {
@@ -97,7 +96,7 @@ export default function PathClozePage() {
   if (loading) {
     return (
       <main className="relative w-full h-screen overflow-hidden bg-[#F5EEF8] flex items-center justify-center">
-        <div className="text-[#8E44AD] text-2xl font-bold">Caricamento...</div>
+        <div className="text-[#8E44AD] text-2xl font-bold">Loading...</div>
       </main>
     );
   }
@@ -109,19 +108,18 @@ export default function PathClozePage() {
           onClick={() => router.push("/select-mode")}
           className="bg-white/80 backdrop-blur-md px-4 py-2 flex items-center gap-2 rounded-2xl shadow-sm text-slate-700 font-bold text-sm hover:bg-white hover:shadow transition-all"
         >
-          <ArrowLeft size={16} strokeWidth={3} /> Modalità
+          <ArrowLeft size={16} strokeWidth={3} /> Mode
         </button>
         <LogoutButton />
       </div>
 
-      {/* Banner seduta in corso */}
       {isSessionActive && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 pointer-events-none">
           <div className="bg-[#8E44AD] text-white px-5 py-2.5 rounded-2xl shadow-lg font-bold text-sm">
-            🎯 {visibleNodes.filter(n => n.status !== 'completed').length} esercizi prescritti rimasti
+            🎯 {visibleNodes.filter(n => n.status !== 'completed').length} prescribed exercises left
           </div>
           <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
-            Seduta in corso ✨
+            Session in progress ✨
           </div>
         </div>
       )}
@@ -129,14 +127,13 @@ export default function PathClozePage() {
       <Image src="/lbush.png" alt="Left bush" width={400} height={400} className="absolute top-0 left-0 z-0 opacity-60 mix-blend-overlay pointer-events-none" />
       <Image src="/rbush.png" alt="Right bush" width={600} height={600} className="absolute bottom-0 right-0 z-10 opacity-60 mix-blend-overlay pointer-events-none" />
 
-      {/* Overlay: seduta attiva ma nessun cloze prescritto */}
       {noExercisesToday && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#F5EEF8]/80 backdrop-blur-sm z-40">
           <div className="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-md border-4 border-purple-100 animate-in zoom-in duration-300">
             <div className="text-6xl mb-6">🤫</div>
-            <h3 className="text-2xl font-black text-[#0e2a47] mb-4">Nessun completamento per oggi</h3>
+            <h3 className="text-2xl font-black text-[#0e2a47] mb-4">No exercises for today</h3>
             <p className="text-slate-500 font-bold leading-relaxed">
-              Il tuo logopedista non ha prescritto esercizi di Completamento per questa seduta.
+              Your therapist hasn't prescribed any Cloze exercises for this session.
             </p>
           </div>
         </div>

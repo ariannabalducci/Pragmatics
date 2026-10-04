@@ -20,9 +20,9 @@ const WhyContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const exerciseId = searchParams.get('exerciseId'); // UUID dal DB
+    const exerciseId = searchParams.get('exerciseId');
     const groupId = searchParams.get('groupId');
-    const questionTitle = searchParams.get('title') || "Domanda Causale";
+    const questionTitle = searchParams.get('title') || "Why question";
 
     const [content, setContent] = useState<ExerciseContent | null>(null);
     const [history, setHistory] = useState<ChatHistory>([]);
@@ -45,7 +45,7 @@ const WhyContent = () => {
                 setContent(c);
                 setImageSrc(`/images/why/${c.imageId}.png`);
             } catch (err) {
-                console.error("Errore caricamento why:", err);
+                console.error("Error loading the exercise:", err);
             } finally {
                 setLoading(false);
             }
@@ -72,7 +72,7 @@ const WhyContent = () => {
                     }),
                 });
             } catch (err) {
-                console.error("Errore salvataggio attempt:", err);
+                console.error("Error saving the attempt:", err);
             }
         }
         if (mode === "testing") {
@@ -116,7 +116,7 @@ const WhyContent = () => {
                 return;
             }
 
-            const aiText = data.response || "Squawk! Non ho capito.";
+            const aiText = data.response || "Squawk! I didn't get that.";
             const aiMessage: Message = {
                 role: "model" as MessageRole,
                 parts: [{ text: aiText }],
@@ -128,7 +128,7 @@ const WhyContent = () => {
         }
     };
 
-    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Caricamento...</div>;
+    if (loading) return <div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Loading...</div>;
 
     return (
         <main className="bg-[#E5F2FC] grid grid-rows-[min-content_1fr] grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 w-screen h-screen pb-6 px-6 overflow-hidden">
@@ -145,7 +145,7 @@ const WhyContent = () => {
                         {questionTitle}
                     </h2>
                     <Button onClick={handleFinish} className="bg-[#FFE53B] text-[#8B7D00] hover:bg-[#F2D822] shadow-md border-2 border-[#D4BF32] font-black rounded-2xl px-6 py-6 text-lg shrink-0">
-                        Termina Esercizio
+                        Finish Exercise
                     </Button>
                 </div>
                 <LogoutButton />
@@ -157,7 +157,7 @@ const WhyContent = () => {
                     <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
                         <Image
                             src={imageSrc}
-                            alt="Illustrazione Esercizio"
+                            alt="Exercise illustration"
                             fill
                             className={`object-contain ${imageSrc === '/parrot.gif' ? 'opacity-50 grayscale scale-50' : 'p-4'}`}
                             onError={() => setImageSrc("/parrot.gif")}
@@ -176,7 +176,7 @@ const WhyContent = () => {
                         </div>
                         <div>
                             <h3 className="font-black text-xl text-[#0e2a47]">Praggy</h3>
-                            <p className="text-sm font-bold text-slate-400">Tutor di Logica</p>
+                            <p className="text-sm font-bold text-slate-400">Logic Tutor</p>
                         </div>
                     </div>
 
@@ -184,7 +184,7 @@ const WhyContent = () => {
                         {history.length === 0 ? (
                             <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-60">
                                 <span className="text-5xl mb-4">🦜</span>
-                                <p className="font-bold text-slate-500 max-w-[200px]">Cosa ne pensi? Scrivi qui la tua risposta!</p>
+                                <p className="font-bold text-slate-500 max-w-[200px]">What do you think? Write your answer here!</p>
                             </div>
                         ) : (
                             <MessageWindow history={history} />
@@ -203,7 +203,7 @@ const WhyContent = () => {
 
 const WhyPage = () => {
     return (
-        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Caricamento...</div>}>
+        <Suspense fallback={<div className="w-screen h-screen flex items-center justify-center bg-[#2C82C9]">Loading...</div>}>
             <WhyContent />
         </Suspense>
     );

@@ -1,4 +1,3 @@
-//geminiclone/src/components/ui/ChatInput.tsx
 "use client";
 import { useState } from "react";
 import { Send, X } from "lucide-react";
@@ -44,7 +43,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
         <div className="relative flex-1 mx-2">
           <textarea
             className="text-black w-full px-3 py-2 bg-transparent border-none focus:outline-none"
-            placeholder="Scrivi la tua risposta qui..."
+            placeholder="Write your answer here..."
             value={message}
             onChange={handleChange}
             onKeyDown={handleKeyPress}

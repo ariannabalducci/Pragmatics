@@ -85,7 +85,7 @@ export default function PathWhyPage() {
           }
         }
       } catch (err) {
-        console.error("Errore caricamento why:", err);
+        console.error("Error loading why exercises:", err);
       } finally {
         setLoading(false);
       }
@@ -138,7 +138,7 @@ export default function PathWhyPage() {
   if (loading) {
     return (
       <main className="relative w-full h-screen overflow-hidden bg-[#2C82C9] flex items-center justify-center">
-        <div className="text-white text-2xl font-bold">Caricamento...</div>
+        <div className="text-white text-2xl font-bold">Loading...</div>
       </main>
     );
   }
@@ -150,7 +150,7 @@ export default function PathWhyPage() {
           onClick={() => router.push("/select-mode")}
           className="bg-white/80 backdrop-blur-md px-4 py-2 flex items-center gap-2 rounded-2xl shadow-sm text-slate-700 font-bold text-sm hover:bg-white hover:shadow transition-all"
         >
-          <ArrowLeft size={16} strokeWidth={3} /> Modalità
+          <ArrowLeft size={16} strokeWidth={3} /> Mode
         </button>
         <LogoutButton />
       </div>
@@ -158,10 +158,10 @@ export default function PathWhyPage() {
       {isSessionActive && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 pointer-events-none">
           <div className="bg-white text-[#2C82C9] px-5 py-2.5 rounded-2xl shadow-lg font-bold text-sm">
-            🎯 {visibleNodes.filter(n => n.status !== 'completed').length} esercizi prescritti rimasti
+            🎯 {visibleNodes.filter(n => n.status !== 'completed').length} prescribed exercises left
           </div>
           <div className="bg-[#FFE53B] text-[#8B7D00] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm animate-bounce">
-            Seduta in corso ✨
+            Session in progress ✨
           </div>
         </div>
       )}
@@ -173,9 +173,9 @@ export default function PathWhyPage() {
         <div className="absolute inset-0 flex items-center justify-center bg-[#2C82C9]/80 backdrop-blur-sm z-40">
           <div className="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-md border-4 border-blue-100 animate-in zoom-in duration-300">
             <div className="text-6xl mb-6">🤫</div>
-            <h3 className="text-2xl font-black text-[#0e2a47] mb-4">Nessun esercizio per oggi</h3>
+            <h3 className="text-2xl font-black text-[#0e2a47] mb-4">No exercises for today</h3>
             <p className="text-slate-500 font-bold leading-relaxed">
-              Il tuo logopedista non ha prescritto domande "Perché" per questa seduta.
+              Your therapist hasn't prescribed any "Why" questions for this session.
             </p>
           </div>
         </div>

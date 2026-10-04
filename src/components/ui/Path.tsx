@@ -135,9 +135,9 @@ export default function Path({
         <div className="flex flex-wrap items-center justify-center gap-x-24 gap-y-32 max-w-6xl">
           {displayLevels.map((level) => (
             <div key={level.id} className="relative flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
-               {/* Titolo Esercizio */}
+               {/* Exercise title */}
                <div className="bg-white/80 backdrop-blur-md px-6 py-2 rounded-2xl shadow-xl border-2 border-[#4d8b7d]/20 text-[#0e2a47] font-black text-lg text-center min-w-[200px]">
-                  {level.group_title || "Esercizio"}
+                  {level.group_title || "Exercise"}
                </div>
 
                <div className="relative group transition-transform hover:scale-110">

@@ -144,8 +144,8 @@ const StoryContent = () => {
 
     const isPrevDisabled = currentInteractionIndex === 0 || (quizStatus !== null);
 
-    // Si sblocca il tasto "avanti" se l'interazione non è un quiz, 
-    // o se è un quiz ed è stata data una risposta (qualunque essa sia)
+    // "Next" is enabled for non-quiz interactions,
+    // or once the quiz has been answered (right or wrong).
     const isNextDisabled = isQuizScreen ? quizStatus === null : false;
 
 

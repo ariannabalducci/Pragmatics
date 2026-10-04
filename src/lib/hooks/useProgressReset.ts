@@ -1,9 +1,7 @@
 /**
- * Hook che controlla se il terapista ha richiesto un reset dei progressi.
- * Se il progressResetAt nel DB è più recente dell'ultimo reset salvato localmente,
- * cancella tutte le chiavi di progresso dal localStorage.
- *
- * Usato in tutte le pagine "path-*" del bambino.
+ * Clears the child's cached progress from localStorage when the therapist
+ * has reset it (progressResetAt is newer than the last reset seen locally).
+ * Used by every "path-*" page.
  */
 "use client";
 
@@ -30,7 +28,6 @@ export function useProgressReset() {
         const user = JSON.parse(userStr);
         if (!user?.id) return;
 
-        // Usa la route dedicata al bambino
         const res = await fetch(`/api/student/${user.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -44,13 +41,11 @@ export function useProgressReset() {
         const lastReset = parseInt(localStorage.getItem(LAST_RESET_KEY) || "0", 10);
 
         if (resetAt > lastReset) {
-          // Il terapista ha fatto reset → puliamo tutto
           PROGRESS_KEYS.forEach((key) => localStorage.removeItem(key));
           localStorage.setItem(LAST_RESET_KEY, String(resetAt));
-          console.log("Progressi resettati dal terapista.");
         }
       } catch (err) {
-        console.error("Errore controllo reset progressi:", err);
+        console.error("Error checking for a progress reset:", err);
       }
     };
 

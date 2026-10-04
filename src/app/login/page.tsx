@@ -28,7 +28,7 @@ export default function ChildLoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Accesso fallito");
+        throw new Error(data.error || "Login failed");
       }
 
       localStorage.setItem("token", data.token);
@@ -49,7 +49,7 @@ export default function ChildLoginPage() {
             <div className="relative">
                 <Image
                     src="/login/login-bush.png"
-                    alt="Cespuglio decorativo"
+                    alt="Decorative bush"
                     width={0}
                     height={0}
                     sizes="100vw"
@@ -59,7 +59,7 @@ export default function ChildLoginPage() {
                 <div className="absolute -left-10 top-10 z-10 h-full w-150 z-0 pointer-events-none">
                     <Image
                     src="/side-parrot.svg"
-                    alt="Pappagallo parlante"
+                    alt="Talking parrot"
                     fill
                     sizes="600px"
                     loading="eager"
@@ -72,17 +72,17 @@ export default function ChildLoginPage() {
                 <div className="relative h-5/12 w-3/4 flex items-center justify-center">
                     <Image 
                         src="/login/login-bubble.png" 
-                        alt="Fumetto" 
+                        alt="Speech bubble" 
                         fill 
                         sizes="(max-width: 768px) 100vw, 50vw"
                     />
 
                     <div className="relative z-10 text-center px-12">
                       <p className="text-white text-3xl font-bold mb-4">
-                        Accedi come Ragazzo
+                        Sign in as a Kid
                       </p>
                       <p className="text-white text-lg font-medium">
-                        Inserisci nome utente e password per iniziare la tua avventura!
+                        Enter your username and password to start your adventure!
                       </p>
                     </div>
                 </div>
@@ -96,7 +96,7 @@ export default function ChildLoginPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    Nome Utente
+                    Username
                     </label>
                     <input 
                     type="text" 
@@ -122,7 +122,7 @@ export default function ChildLoginPage() {
                 </div>
                 
                 <Button type="submit" disabled={loading}>
-                    {loading ? "Caricamento..." : "Accedi"}
+                    {loading ? "Loading..." : "Sign in"}
                 </Button>
                 </form>
 
@@ -130,7 +130,7 @@ export default function ChildLoginPage() {
                   href="/therapist/login" 
                   className="mt-4 text-white/80 hover:text-white font-medium text-sm underline underline-offset-4 transition-colors"
                 >
-                  Sei un logopedista? Accedi qui →
+                  Are you a therapist? Sign in here →
                 </Link>
                 
             </div>
