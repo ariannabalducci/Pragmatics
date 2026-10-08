@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "tsx prisma/seed.ts && tsx prisma/seed-special-exercises.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
@@ -51,6 +52,6 @@
     "typescript": "5.9.3"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts && tsx prisma/seed-special-exercises.ts"
+    "seed": "npm run seed"
   }
 }
