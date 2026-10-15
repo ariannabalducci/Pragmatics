@@ -9,7 +9,7 @@
 A web app where children practice social communication with an AI parrot,<br>
 while their speech therapist plans the sessions and follows their progress.
 
-[![CI](https://github.com/ariannabalducci/AUI-Pragmatics/actions/workflows/ci.yml/badge.svg)](https://github.com/ariannabalducci/AUI-Pragmatics/actions/workflows/ci.yml)
+[![CI](https://github.com/ariannabalducci/Pragmatics/actions/workflows/ci.yml/badge.svg)](https://github.com/ariannabalducci/Pragmatics/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-20232A?logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
@@ -199,5 +199,5 @@ On top of it, the current team added:
 
 <br>
 <div align="center">
-<sub>Developed for the Advanced User Interfaces course at Politecnico di Milano</sub>
+<sub>Developed for the Multidisciplinary Project course at Politecnico di Milano, A.Y. 2025/26</sub>
 </div>
